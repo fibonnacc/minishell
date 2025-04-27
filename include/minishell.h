@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include "../libft/libft.h"
 #include <stdbool.h>
+#include <signal.h>
+
 
 typedef enum s_token_type
 {
@@ -25,15 +27,8 @@ typedef struct s_token
 {
 	char	*av;
 	t_token_type	type;
-	struct s_data *next;
+	struct s_token *next;
 }	t_token;
-
-typedef struct s_data
-{
-	int start;
-	bool	in_quot;
-	char	quot_char;
-}	t_data;
 
 void	make_prompt();
 
