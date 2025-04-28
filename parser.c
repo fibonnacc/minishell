@@ -5,7 +5,7 @@ t_token *creat_token(char *line, t_token_type type)
 {
 	t_token *new_token;
 
-	if (!(new_token = (t_token *)ft_calloc(0, sizeof(t_token))))
+	if (!(new_token = (t_token *)ft_calloc(1, sizeof(t_token))))
 		return (NULL);
 	if (!(new_token->av = ft_strdup(line)))
 		return (free(new_token), NULL);
@@ -14,7 +14,7 @@ t_token *creat_token(char *line, t_token_type type)
 	return (new_token);
 }
 
-static void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line)
+void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line)
 {
 	if ((line[*i] == '"' || line[*i] == '\''))
 	{
@@ -53,9 +53,9 @@ void	handle_word_token(t_token **token, int start, char *line, int i)
 	if (i > start)
 	{
 		word = ft_substr(line, start, i - start);
-		if (word)
+		if (word && *word != '\0')
 		{
-			add_token(token, creat_token(word, TOKEN_WORD));
+			add_token(token, creat_token(word, get_token_type(word)));
 			free(word);
 		}
 	}
@@ -86,12 +86,14 @@ int	handle_speciale_token(t_token **token, char *line, int i)
 	{
 		special[0] = line[i];
 		special[1] = line[i];
+		special[2] = '\0';
 		add_token(token, creat_token(special, get_token_type(special)));
 		return (i + 2);
 	}
 	else
 	{
 		special[0] = line[i];
+		special[1] = '\0';
 		add_token(token, creat_token(special, get_token_type(special)));
 		return (i + 1);
 	}
@@ -104,27 +106,30 @@ t_token	*tokenize(char *line)
 	bool	in_quot = false;
 	char	quot_char = 0;
 	int start = 0;
-	//char *word;
 
 	i = 0;
 	while (line[i])
 	{
 		handle_quote(&in_quot, &quot_char, &i, line);
-		if (!in_quot && line[i] == ' ')
-		{
-			handle_word_token(&token, start, line,  i);
-			while (line[i] == ' ')
-				i++;
-			start = i;
-		}
 		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
 		{
 			handle_word_token(&token, start, line, i);
 
 			i = handle_speciale_token(&token, line, i);
+			start = i;
+			continue;
+		}
+		else if (!in_quot && line[i] == ' ')
+		{
+			handle_word_token(&token, start, line,  i);
+			while (line[i] == ' ')
+				i++;
+			start = i;
+			continue;
 		}
 		i++;
 	}
+	handle_word_token(&token, start, line, i);
 	return (token);
 }
 
@@ -146,6 +151,22 @@ void	print_token(t_token *token)
 	{
 		printf("the token is :%s\n", token->av);
 		token = token->next;
+	}
+}
+
+void	free_token(t_token **token)
+{
+	t_token	*current;
+	t_token	*next;
+
+	current = *token;
+	while (current)
+	{
+		next = current->next;
+		if (current->av)
+			free(current->av);
+		free(current);
+		current = next;
 	}
 }
 
@@ -173,6 +194,7 @@ void make_prompt()
             add_history(line);
 			token = tokenize(line);
 			print_token(token);
+			free_token(&token);
         }
         free(line);
     }

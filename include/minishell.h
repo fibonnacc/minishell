@@ -31,5 +31,12 @@ typedef struct s_token
 }	t_token;
 
 void	make_prompt();
+t_token *creat_token(char *line, t_token_type type);
+void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line);
+void	add_token(t_token **token, t_token *new_token);
+void	handle_word_token(t_token **token, int start, char *line, int i);
+t_token_type	get_token_type(char *str);
+int	handle_speciale_token(t_token **token, char *line, int i);
+t_token	*tokenize(char *line);
 
 #endif
