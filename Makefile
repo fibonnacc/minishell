@@ -6,13 +6,13 @@ CFLAGS = -Wall -Wextra -Werror
 
 SRC = parser.c
 
-LIBFT_SRC = libft/ft_isdigit.c libft/ft_isalnum.c libft/ft_isascii.c libft/ft_isprint.c libft/ft_strlen.c libft/ft_memset.c libft/ft_isalpha.c \
-	libft/ft_bzero.c libft/ft_memcpy.c libft/ft_memmove.c libft/ft_strlcpy.c libft/ft_strlcat.c libft/ft_toupper.c libft/ft_tolower.c \
-	libft/ft_strchr.c libft/ft_strrchr.c libft/ft_strncmp.c libft/ft_memchr.c libft/ft_memcmp.c libft/ft_strnstr.c libft/ft_atoi.c \
-	libft/ft_calloc.c libft/ft_strdup.c libft/ft_substr.c libft/ft_strjoin.c libft/ft_strtrim.c libft/ft_split.c libft/ft_itoa.c \
-	libft/ft_putchar_fd.c libft/ft_putendl_fd.c libft/ft_putnbr_fd.c libft/ft_putstr_fd.c libft/ft_strmapi.c \
-	libft/ft_lstnew_bonus.c libft/ft_lstadd_back_bonus.c libft/ft_lstadd_front_bonus.c libft/ft_lstsize_bonus.c \
-	libft/ft_lstclear_bonus.c libft/ft_lstlast_bonus.c libft/ft_lstdelone_bonus.c libft/ft_lstiter_bonus.c
+LIBFT_SRC = my_libft/ft_isdigit.c my_libft/ft_isalnum.c my_libft/ft_isascii.c my_libft/ft_isprint.c my_libft/ft_strlen.c my_libft/ft_memset.c my_libft/ft_isalpha.c \
+	my_libft/ft_bzero.c my_libft/ft_memcpy.c my_libft/ft_memmove.c my_libft/ft_strlcpy.c my_libft/ft_strlcat.c my_libft/ft_toupper.c my_libft/ft_tolower.c \
+	my_libft/ft_strchr.c my_libft/ft_strrchr.c my_libft/ft_strncmp.c my_libft/ft_memchr.c my_libft/ft_memcmp.c my_libft/ft_strnstr.c my_libft/ft_atoi.c \
+	my_libft/ft_calloc.c my_libft/ft_strdup.c my_libft/ft_substr.c my_libft/ft_strjoin.c my_libft/ft_strtrim.c my_libft/ft_split.c my_libft/ft_itoa.c \
+	my_libft/ft_putchar_fd.c my_libft/ft_putendl_fd.c my_libft/ft_putnbr_fd.c my_libft/ft_putstr_fd.c my_libft/ft_strmapi.c \
+	my_libft/ft_lstnew_bonus.c my_libft/ft_lstadd_back_bonus.c my_libft/ft_lstadd_front_bonus.c my_libft/ft_lstsize_bonus.c \
+	my_libft/ft_lstclear_bonus.c my_libft/ft_lstlast_bonus.c my_libft/ft_lstdelone_bonus.c my_libft/ft_lstiter_bonus.c
 
 OBJ = $(SRC:.c=.o)
 LIBFT_OBJ = $(LIBFT_SRC:.c=.o)

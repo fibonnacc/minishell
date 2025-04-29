@@ -1,5 +1,5 @@
 #include "include/minishell.h"
-#include "libft/libft.h"
+#include "my_libft/libft.h"
 
 t_token *creat_token(char *line, t_token_type type)
 {

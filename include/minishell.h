@@ -8,7 +8,7 @@
 #include <fcntl.h>
 #include <readline/history.h>
 #include <unistd.h>
-#include "../libft/libft.h"
+#include "../my_libft/libft.h"
 #include <stdbool.h>
 #include <signal.h>
 
