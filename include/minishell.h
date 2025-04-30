@@ -35,6 +35,7 @@ typedef struct s_command
 	char	**args;
 	char	*file_input;
 	char	*file_output;
+	char	*herdoc;
 	int		append;
 	struct	s_command *next;
 }	t_command;
