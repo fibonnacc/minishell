@@ -1,5 +1,6 @@
 #include "include/minishell.h"
 #include "my_libft/libft.h"
+#include <stdlib.h>
 
 t_token *creat_token(char *line, t_token_type type)
 {
@@ -170,11 +171,105 @@ void	free_token(t_token **token)
 	}
 }
 
+t_command	*create_command()
+{
+	t_command	*cmd;
+
+	cmd = (t_command *)ft_calloc(1, sizeof(t_command));
+	if(cmd == NULL)
+	{
+		return (NULL);
+	}
+	cmd->args = NULL;
+	cmd->file_input = NULL;
+	cmd->file_output = NULL;
+	cmd->next = NULL;
+	return (cmd);
+}
+
+t_command	*parsing_command(t_token *token)
+{
+	t_token	*current;
+	t_command	*new_cmd;
+	t_command	*first_cmd;
+	t_command	*current_cmd;
+
+	current_cmd = NULL;
+	new_cmd = NULL;
+	first_cmd = NULL;
+
+	first_cmd = create_command();
+	if (!first_cmd)
+		return (NULL);
+	current_cmd = first_cmd;
+	current = token;
+	while (current)
+	{
+		if (current->type == TOKEN_PIPE && current->next)
+		{
+			new_cmd = create_command();
+			if (!new_cmd)
+			{
+				free_cmd(first_cmd);
+				return (NULL);
+			}
+			current_cmd->next = new_cmd;
+			current_cmd = new_cmd;
+			current = current->next;
+		}
+
+		if (current->type == TOKEN_REDIR_IN && current->next && current->next->type == TOKEN_WORD)
+		{
+			if(current_cmd->file_input)
+				free(current_cmd->file_input);
+			current_cmd = ft_strdup(current->next->av);
+			if (current_cmd == NULL)
+			{
+				free_cmd(first_cmd);
+				return(NULL);
+			}
+			current = current->next->next;
+			continue;
+		}
+
+		if (current->type == TOKEN_REDIR_OUT && current->next && current->next->type == TOKEN_WORD)
+		{
+			if (current_cmd->file_output)
+				free(current_cmd->file_output);
+			current_cmd = ft_strdup(current->next->av);
+			if (current_cmd == NULL)
+			{
+				free_cmd(first_cmd);
+				return (NULL);
+			}
+			current_cmd->append = 0;
+			current = current->next->next;
+			continue;
+		}
+
+		if (current->type == TOKEN_REDIR_APPEND && current->next && current->next->type == TOKEN_WORD)
+		{
+			if (current_cmd->file_output)
+				free(current_cmd->file_output);
+			current_cmd = ft_strdup(current->next->av);
+			if (current_cmd == NULL)
+			{
+				free_cmd(first_cmd);
+				return (NULL);
+			}
+			current_cmd->append = 1;
+			current = current->next->next;
+			continue;
+		}
+	}
+}
+
 void make_prompt()
 {
     char *line;
     char *prompt;
 	t_token	*token;
+	t_command	*cmd;
     
     prompt = ft_strjoin(getenv("HOME"), "@minishell$ ");
     if (!prompt)
@@ -193,7 +288,8 @@ void make_prompt()
         {
             add_history(line);
 			token = tokenize(line);
-			print_token(token);
+			cmd = parsing_command(token);
+			//print_token(token);
 			free_token(&token);
         }
         free(line);
