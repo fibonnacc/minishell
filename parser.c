@@ -44,6 +44,36 @@ void print_commands(t_command *cmd)
 	}
 }
 
+void	free_cmd(t_command *cmd)
+{
+	t_command	*current;
+	t_command	*next;
+	int	i;
+
+	current = cmd;
+	while (current)
+	{
+		next = current->next;
+		if (current->args)
+		{
+			i = 0;
+			while (current->args[i])
+			{
+				free(current->args[i]);
+				i++;
+			}
+			free(current->args);
+		}
+		if (current->file_input)
+			free(current->file_input);
+		if (current->file_output)
+			free(current->file_output);
+		if (current->herdoc)
+			free(current->herdoc);
+		free(current);
+		current = next;
+	}
+}
 
 t_token *creat_token(char *line, t_token_type type)
 {
@@ -288,7 +318,7 @@ void	append_arg(t_command *cmd, char *str)
 	i = 0;
 	if (cmd->args)
 	{
-		while (cmd->args)
+		while (cmd->args[i])
 			i++;
 	}
 
@@ -302,16 +332,16 @@ void	append_arg(t_command *cmd, char *str)
 		new_array[j] = cmd->args[j];
 		j++;
 	}
-	new_array[j] = ft_strdup(str);
+	new_array[i] = ft_strdup(str);
 	if (!new_array[j])
 	{
-		free_double_array(new_array);
+		free(new_array);
 		return ;
 	}
-	if (!cmd->args)
+	new_array[i + 1] = NULL;
+	if (cmd->args)
 	{
-		free_double_array(cmd->args);
-		return;
+		free(cmd->args);
 	}
 	cmd->args = new_array;
 }
@@ -379,7 +409,7 @@ t_command	*parsing_command(t_token *token)
 			new_cmd = create_command();
 			if (!new_cmd)
 			{
-				//free_cmd(first_cmd);
+				free_cmd(first_cmd);
 				return (NULL);
 			}
 			current_cmd->next = new_cmd;
@@ -394,7 +424,7 @@ t_command	*parsing_command(t_token *token)
 			current_cmd->file_input = ft_strdup(current->next->av);
 			if (current_cmd == NULL)
 			{
-				//free_cmd(first_cmd);
+				free_cmd(first_cmd);
 				return(NULL);
 			}
 			current = current->next->next;
@@ -408,7 +438,7 @@ t_command	*parsing_command(t_token *token)
 			current_cmd->file_output = ft_strdup(current->next->av);
 			if (current_cmd == NULL)
 			{
-				//free_cmd(first_cmd);
+				free_cmd(first_cmd);
 				return (NULL);
 			}
 			current_cmd->append = 0;
@@ -423,7 +453,7 @@ t_command	*parsing_command(t_token *token)
 			current_cmd->file_output = ft_strdup(current->next->av);
 			if (current_cmd == NULL)
 			{
-				//free_cmd(first_cmd);
+				free_cmd(first_cmd);
 				return (NULL);
 			}
 			current_cmd->append = 1;
@@ -438,7 +468,7 @@ t_command	*parsing_command(t_token *token)
 			current_cmd->herdoc = ft_strdup(current->next->av);
 			if (!current_cmd->herdoc)
 			{
-				//free_cmd(first_cmd);
+				free_cmd(first_cmd);
 				return(NULL);
 			}
 			current = current->next->next;
@@ -449,7 +479,10 @@ t_command	*parsing_command(t_token *token)
 		{
 			expanded = expand_env(current->av);
 			if (!expanded)
+			{
+				free_cmd(first_cmd);
 				return (NULL);
+			}
 			append_arg(current_cmd, expanded);
 			free(expanded);
 		}
@@ -463,7 +496,7 @@ void make_prompt()
     char *line;
     char *prompt;
 	t_token	*token;
-	//t_command	*cmd;
+	t_command	*cmd;
     
     prompt = ft_strjoin(getenv("HOME"), "@minishell$ ");
     if (!prompt)
@@ -482,10 +515,10 @@ void make_prompt()
         {
             add_history(line);
 			token = tokenize(line);
-			//cmd = parsing_command(token);
-			//print_commands(cmd);
+			cmd = parsing_command(token);
+			print_commands(cmd);
 
-			print_token(token);
+			//print_token(token);
 			free_token(&token);
         }
         free(line);
