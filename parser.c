@@ -219,41 +219,41 @@ void	my_handler(int sig)
 	}
 }
 
-void print_token(t_token *token)
-{
-    while (token)
-    {
-        printf("Value: %-20s | Type: ", token->av);
-
-        switch (token->type)
-        {
-            case TOKEN_WORD:
-                printf("TOKEN_WORD\n");
-                break;
-            case TOKEN_PIPE:
-                printf("TOKEN_PIPE\n");
-                break;
-			case TOKEN_REDIR_IN:
-                printf("TOKEN_REDIRECT_IN\n");
-                break;
-            case TOKEN_REDIR_OUT:
-                printf("TOKEN_REDIRECT_OUT\n");
-                break;
-            case TOKEN_REDIR_APPEND:
-                printf("TOKEN_REDIRECT_APPEND\n");
-                break;
-            case TOKEN_HERDOC:
-                printf("TOKEN_HEREDOC\n");
-                break;
-            default:
-                printf("UNKNOWN\n");
-                break;
-        }
-
-        token = token->next;
-    }
-}
-
+// void print_token(t_token *token)
+// {
+//     while (token)
+//     {
+//         printf("Value: %-20s | Type: ", token->av);
+//
+//         switch (token->type)
+//         {
+//             case TOKEN_WORD:
+//                 printf("TOKEN_WORD\n");
+//                 break;
+//             case TOKEN_PIPE:
+//                 printf("TOKEN_PIPE\n");
+//                 break;
+// 			case TOKEN_REDIR_IN:
+//                 printf("TOKEN_REDIRECT_IN\n");
+//                 break;
+//             case TOKEN_REDIR_OUT:
+//                 printf("TOKEN_REDIRECT_OUT\n");
+//                 break;
+//             case TOKEN_REDIR_APPEND:
+//                 printf("TOKEN_REDIRECT_APPEND\n");
+//                 break;
+//             case TOKEN_HERDOC:
+//                 printf("TOKEN_HEREDOC\n");
+//                 break;
+//             default:
+//                 printf("UNKNOWN\n");
+//                 break;
+//         }
+//
+//         token = token->next;
+//     }
+// }
+//
 void	free_token(t_token **token)
 {
 	t_token	*current;
@@ -282,6 +282,7 @@ t_command	*create_command()
 	cmd->args = NULL;
 	cmd->file_input = NULL;
 	cmd->file_output = NULL;
+	cmd->herdoc = NULL;
 	cmd->next = NULL;
 	return (cmd);
 }
