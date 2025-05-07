@@ -48,5 +48,13 @@ void	handle_word_token(t_token **token, int start, char *line, int i);
 t_token_type	get_token_type(char *str);
 int	handle_speciale_token(t_token **token, char *line, int i);
 t_token	*tokenize(char *line);
+void	append_arg(t_command *cmd, char *str);
+t_command	*create_command();
+void	free_cmd(t_command *cmd);
+char	*expand_env(char *str);
+t_command	*parsing_command(t_token *token);
+int	is_space(char c);
+
+
 
 #endif
