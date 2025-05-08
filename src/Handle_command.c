@@ -76,14 +76,13 @@ char	*expand_env(char *str)
 	j = 0;
 	while (str[i])
 	{
-		if (str[i] == '$' && (is_space(str[i]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
+		if (str[i] == '$' && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
 		{
 			i++;
 			start = i;
 			while((ft_isalnum(str[i]) || str[i] == '_') && str[i])
 				i++;
 			string = ft_substr(str, start, i - start);	
-			printf ("string is : %s\n", string);
 			if (!string)
 				return (NULL);
 			valeur = getenv(string);
@@ -93,7 +92,6 @@ char	*expand_env(char *str)
 				ft_strlcpy(&result[j], valeur, (ft_strlen(valeur) + 1));
 				j += ft_strlen(valeur);
 			}
-			free(valeur);
 			continue;
 		}
 		result[j++] = str[i++];
