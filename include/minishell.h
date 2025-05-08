@@ -54,6 +54,7 @@ void	free_cmd(t_command *cmd);
 char	*expand_env(char *str);
 t_command	*parsing_command(t_token *token);
 int	is_space(char c);
+void	free_token(t_token **token);
 
 
 

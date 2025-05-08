@@ -32,21 +32,17 @@ void print_commands(t_command *cmd)
 		else
 			printf("Args: (none)\n");
 
-		// Input redirection
 		if (cmd->file_input)
 			printf("Input File: '%s'\n", cmd->file_input);
 		
-		// Output redirection
 		if (cmd->file_output)
 		{
 			printf("Output File: '%s'\n", cmd->file_output);
 			printf("Append: %s\n", cmd->append ? "Yes" : "No");
 		}
 
-		// Heredoc
 		if (cmd->herdoc)
 			printf("Heredoc: '%s'\n", cmd->herdoc);
-
 		printf("\n");
 		cmd = cmd->next;
 	}
@@ -114,99 +110,25 @@ void	my_handler(int sig)
 	}
 }
 
-// void print_token(t_token *token)
-// {
-//     while (token)
-//     {
-//         printf("Value: %-20s | Type: ", token->av);
-//
-//         switch (token->type)
-//         {
-//             case TOKEN_WORD:
-//                 printf("TOKEN_WORD\n");
-//                 break;
-//             case TOKEN_PIPE:
-//                 printf("TOKEN_PIPE\n");
-//                 break;
-// 			case TOKEN_REDIR_IN:
-//                 printf("TOKEN_REDIRECT_IN\n");
-//                 break;
-//             case TOKEN_REDIR_OUT:
-//                 printf("TOKEN_REDIRECT_OUT\n");
-//                 break;
-//             case TOKEN_REDIR_APPEND:
-//                 printf("TOKEN_REDIRECT_APPEND\n");
-//                 break;
-//             case TOKEN_HERDOC:
-//                 printf("TOKEN_HEREDOC\n");
-//                 break;
-//             default:
-//                 printf("UNKNOWN\n");
-//                 break;
-//         }
-//
-//         token = token->next;
-//     }
-// }
-//
-void	free_token(t_token **token)
+void print_token(t_token *token)
 {
-	t_token	*current;
-	t_token	*next;
-
-	current = *token;
-	while (current)
+	while (token)
 	{
-		next = current->next;
-		if (current->av)
-			free(current->av);
-		free(current);
-		current = next;
+		printf("the value : %s -> ", token->av);
+		if (token->type == TOKEN_HERDOC)
+			printf ("TOKEN_HERDOC\n");
+		else if (token->type == TOKEN_REDIR_APPEND)
+			printf ("TOKEN_REDIR_APPEND\n");
+		else if (token->type == TOKEN_REDIR_IN)
+			printf ("TOKEN_REDIR_IN\n");
+		else if (token->type == TOKEN_REDIR_OUT)
+			printf ("TOKEN_REDIR_OUT\n");
+		else if (token->type == TOKEN_PIPE)
+			printf ("TOKEN_PIPE\n");
+		else
+			printf ("TOKEN_WORD\n");
+		token = token->next;
 	}
-}
-
-int	is_space(char c)
-{
-	if (c == ' ')
-		return (0);
-	return (1);
-}
-
-void	append_arg(t_command *cmd, char *str)
-{
-	int i;
-	int j;
-	char	**new_array;
-
-	i = 0;
-	if (cmd->args)
-	{
-		while (cmd->args[i])
-			i++;
-	}
-
-	new_array = ft_calloc(i + 2, sizeof(char *));
-	if (!new_array)
-		return;
-
-	j = 0;
-	while (j < i)
-	{
-		new_array[j] = cmd->args[j];
-		j++;
-	}
-	new_array[i] = ft_strdup(str);
-	if (!new_array[j])
-	{
-		free(new_array);
-		return ;
-	}
-	new_array[i + 1] = NULL;
-	if (cmd->args)
-	{
-		free(cmd->args);
-	}
-	cmd->args = new_array;
 }
 
 void make_prompt()
@@ -235,7 +157,7 @@ void make_prompt()
 			token = tokenize(line);
 			cmd = parsing_command(token);
 			print_commands(cmd);
-
+			//printf("---------------------------\n");
 			//print_token(token);
 			free_token(&token);
         }

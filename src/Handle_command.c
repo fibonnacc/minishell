@@ -12,7 +12,6 @@
 
 #include "../include/minishell.h"
 
-
 void	free_cmd(t_command *cmd)
 {
 	t_command	*current;
@@ -79,14 +78,16 @@ char	*expand_env(char *str)
 	{
 		if (str[i] == '$' && (is_space(str[i]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
 		{
-			start = i + 1;
 			i++;
-			if ((ft_isalnum(str[i]) || str[i] == '_') && str[i])
+			start = i;
+			while((ft_isalnum(str[i]) || str[i] == '_') && str[i])
 				i++;
-			string = ft_substr(str, start, i - start);
+			string = ft_substr(str, start, i - start);	
+			printf ("string is : %s\n", string);
 			if (!string)
 				return (NULL);
 			valeur = getenv(string);
+			free(string);
 			if (valeur)
 			{
 				ft_strlcpy(&result[j], valeur, (ft_strlen(valeur) + 1));
@@ -97,6 +98,7 @@ char	*expand_env(char *str)
 		}
 		result[j++] = str[i++];
 	}
+	printf ("result: %s\n", result);
 	return (result);
 }
 

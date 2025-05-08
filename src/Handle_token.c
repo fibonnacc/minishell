@@ -70,7 +70,6 @@ void	handle_word_token(t_token **token, int start, char *line, int i)
 			free(word);
 		}
 	}
-
 }
 
 int	handle_speciale_token(t_token **token, char *line, int i)
