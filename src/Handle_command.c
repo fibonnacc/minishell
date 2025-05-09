@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <stddef.h>
+#include <stdlib.h>
 
 void	free_cmd(t_command *cmd)
 {
@@ -60,16 +62,29 @@ t_command	*create_command()
 	return (cmd);
 }
 
+char	*manual_realloc(char *old, size_t len)
+{
+	char *new = malloc(len + 1);
+	if (new == NULL)
+		return (NULL);
+	if (old)
+	{
+		ft_memcpy(new, old, len);
+		free(old);
+	}
+	new[len] = '\0';
+	return (new);
+}
+
 char	*expand_env(char *str)
 {
 	char	*result;
-	int	start;
 	char	*string;
 	char	*valeur;
-	int	i;
-	int	j;
+	size_t	(i), j, old_size, new_size, len, start;
 
-	result = (char *)ft_calloc(ft_strlen(str) * 2 + 1, 1);
+	old_size = (ft_strlen(str) * 2 + 1);
+	result = (char *)ft_calloc(old_size, 1);
 	if (result == NULL)
 		return (NULL);
 	i = 0;
@@ -87,16 +102,29 @@ char	*expand_env(char *str)
 				return (NULL);
 			valeur = getenv(string);
 			free(string);
+
+			len = ft_strlen(valeur);
 			if (valeur)
 			{
-				ft_strlcpy(&result[j], valeur, (ft_strlen(valeur) + 1));
-				j += ft_strlen(valeur);
+				if (j + len >= old_size)
+				{
+					new_size = len + old_size;
+					result = manual_realloc(result, new_size);
+					old_size = new_size;
+				}
+				ft_strlcpy(&result[j], valeur, len + 1);
+				j += len;
 			}
 			continue;
 		}
+		if (j + 1 >= old_size)
+		{
+			new_size = old_size * 2;
+			result = manual_realloc(result, new_size);
+			old_size = new_size;
+		}
 		result[j++] = str[i++];
 	}
-	printf ("result: %s\n", result);
 	return (result);
 }
 
