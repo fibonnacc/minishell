@@ -13,6 +13,36 @@
 #include "../include/minishell.h"
 #include <stdio.h>
 
+
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+void execute_command(char **args)
+{
+    pid_t pid = fork();
+
+    if (pid == 0)
+    {
+        // Child process
+        execvp(args[0], args); // try execvp first for PATH support
+        perror("execvp failed");
+        exit(1);
+    }
+    else if (pid > 0)
+    {
+        // Parent process
+        int status;
+        waitpid(pid, &status, 0);
+    }
+    else
+    {
+        perror("fork failed");
+    }
+}
+
 void print_commands(t_command *cmd)
 {
 	int i;
@@ -160,6 +190,8 @@ void make_prompt()
 			print_commands(cmd);
 			printf("---------------------------\n");
 			print_token(token);
+			if (cmd->args)
+				execute_command(cmd->args);
 			free_token(&token);
         }
         free(line);

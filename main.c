@@ -94,6 +94,7 @@ void	print(t_list *head)
 		printf("%s\n", (char *)(current->content));
 		current = current->next;
 	}
+	printf("NULL\n");
 }
 
 void	free_list(t_list	**head)

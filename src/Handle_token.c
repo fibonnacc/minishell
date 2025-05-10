@@ -57,16 +57,27 @@ void	add_token(t_token **token, t_token *new_token)
 	current->next = new_token;
 }
 
-char *remove_quotes(const char *str)
+void	init_variables(char *str, int *i, int *j, bool *in_quotes, char *quote_char, size_t *len, char **result)
 {
-    int i = 0, j = 0;
-    bool in_quotes = false;
-    char quote_char = 0;
-    size_t len = strlen(str);
-    char *result = malloc(len + 1);
+	*in_quotes = false;
+	*j = 0;
+	*i = 0;
+	*quote_char = 0;
+	*len = strlen(str);
+	*result = malloc(*len + 1);
+}
 
-    if (!result)
-        return NULL;
+char *remove_quotes(char *str)
+{
+    int (i), j;
+    bool in_quotes;
+    char quote_char;
+    size_t len;
+    char *result;
+
+	init_variables(str, &i, &j, &in_quotes, &quote_char, &len, &result);
+	if (result == NULL)
+		return (NULL);
 
     while (str[i])
     {
@@ -87,7 +98,7 @@ char *remove_quotes(const char *str)
         }
     }
     result[j] = '\0';
-    return result;
+    return (result);
 }
 
 
