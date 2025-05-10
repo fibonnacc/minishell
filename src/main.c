@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <stdio.h>
 
 void print_commands(t_command *cmd)
 {
@@ -157,8 +158,8 @@ void make_prompt()
 			token = tokenize(line);
 			cmd = parsing_command(token);
 			print_commands(cmd);
-			//printf("---------------------------\n");
-			//print_token(token);
+			printf("---------------------------\n");
+			print_token(token);
 			free_token(&token);
         }
         free(line);

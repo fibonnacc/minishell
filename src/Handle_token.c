@@ -57,6 +57,40 @@ void	add_token(t_token **token, t_token *new_token)
 	current->next = new_token;
 }
 
+char *remove_quotes(const char *str)
+{
+    int i = 0, j = 0;
+    bool in_quotes = false;
+    char quote_char = 0;
+    size_t len = strlen(str);
+    char *result = malloc(len + 1);
+
+    if (!result)
+        return NULL;
+
+    while (str[i])
+    {
+        if ((str[i] == '"' || str[i] == '\'') && !in_quotes)
+        {
+            in_quotes = true;
+            quote_char = str[i];
+            i++;
+        }
+        else if (in_quotes && str[i] == quote_char)
+        {
+            in_quotes = false;
+            i++;
+        }
+        else
+        {
+            result[j++] = str[i++];
+        }
+    }
+    result[j] = '\0';
+    return result;
+}
+
+
 void	handle_word_token(t_token **token, int start, char *line, int i)
 {
 	char *word;
@@ -66,8 +100,10 @@ void	handle_word_token(t_token **token, int start, char *line, int i)
 		word = ft_substr(line, start, i - start);
 		if (word && *word != '\0')
 		{
-			add_token(token, creat_token(word, get_token_type(word)));
+			char *str = remove_quotes(word);
+			add_token(token, creat_token(str, get_token_type(str)));
 			free(word);
+			free(str);
 		}
 	}
 }

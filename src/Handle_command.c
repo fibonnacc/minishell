@@ -91,7 +91,7 @@ char	*expand_env(char *str)
 	j = 0;
 	while (str[i])
 	{
-		if (str[i] == '$' && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
+		if (str[i] == '$' && ft_isalnum(str[i + 1]) && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
 		{
 			i++;
 			start = i;
@@ -116,12 +116,6 @@ char	*expand_env(char *str)
 				j += len;
 			}
 			continue;
-		}
-		if (j + 1 >= old_size)
-		{
-			new_size = old_size * 2;
-			result = manual_realloc(result, new_size);
-			old_size = new_size;
 		}
 		result[j++] = str[i++];
 	}
