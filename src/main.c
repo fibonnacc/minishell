@@ -11,14 +11,6 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-#include <stdio.h>
-
-
-#include <unistd.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 void execute_command(char **args)
 {
@@ -94,6 +86,22 @@ t_token_type	get_token_type(char *str)
 	else
 		return (TOKEN_WORD);
 }
+
+bool is_closed_quotes(const char *str)
+{
+    bool in_single = false;
+    bool in_double = false;
+
+    for (int i = 0; str[i]; i++)
+    {
+        if (str[i] == '\'' && !in_double)
+            in_single = !in_single;
+        else if (str[i] == '"' && !in_single)
+            in_double = !in_double;
+    }
+    return (!in_single && !in_double);
+}
+
 
 t_token	*tokenize(char *line)
 {
@@ -182,14 +190,27 @@ void make_prompt()
             printf("exit\n");
             break;
         }
+		while (!is_closed_quotes(line))
+        {
+            char *next_line = readline("> ");
+            if (!next_line)
+                break;
+            char *tmp = ft_strjoin(line, "\n");
+            char *new_line = ft_strjoin(tmp, next_line);
+            free(tmp);
+            free(line);
+            free(next_line);
+            line = new_line;
+        }
+
         if (line[0] != '\0')
         {
             add_history(line);
 			token = tokenize(line);
 			cmd = parsing_command(token);
-			print_commands(cmd);
-			printf("---------------------------\n");
-			print_token(token);
+			//print_commands(cmd);
+			//printf("---------------------------\n");
+			//print_token(token);
 			if (cmd->args)
 				execute_command(cmd->args);
 			free_token(&token);

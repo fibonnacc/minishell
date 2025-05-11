@@ -11,6 +11,7 @@
 #include "../my_libft/libft.h"
 #include <stdbool.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 
 typedef enum s_token_type
