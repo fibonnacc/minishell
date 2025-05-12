@@ -87,22 +87,6 @@ t_token_type	get_token_type(char *str)
 		return (TOKEN_WORD);
 }
 
-bool is_closed_quotes(const char *str)
-{
-    bool in_single = false;
-    bool in_double = false;
-
-    for (int i = 0; str[i]; i++)
-    {
-        if (str[i] == '\'' && !in_double)
-            in_single = !in_single;
-        else if (str[i] == '"' && !in_single)
-            in_double = !in_double;
-    }
-    return (!in_single && !in_double);
-}
-
-
 t_token	*tokenize(char *line)
 {
 	int i;
@@ -118,15 +102,14 @@ t_token	*tokenize(char *line)
 		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
 		{
 			handle_word_token(&token, start, line, i);
-
 			i = handle_speciale_token(&token, line, i);
 			start = i;
 			continue;
 		}
-		else if (!in_quot && line[i] == ' ')
+		else if (!in_quot && (line[i] == ' ' || line[i] == '\t'))
 		{
 			handle_word_token(&token, start, line,  i);
-			while (line[i] == ' ')
+			while (line[i] == ' ' || line[i] == '\t')
 				i++;
 			start = i;
 			continue;
@@ -184,26 +167,12 @@ void make_prompt()
     {
 		signal(SIGINT, my_handler);
         line = readline(prompt);
-        
         if (!line)
         {
             printf("exit\n");
             break;
         }
-		while (!is_closed_quotes(line))
-        {
-            char *next_line = readline("> ");
-            if (!next_line)
-                break;
-            char *tmp = ft_strjoin(line, "\n");
-            char *new_line = ft_strjoin(tmp, next_line);
-            free(tmp);
-            free(line);
-            free(next_line);
-            line = new_line;
-        }
-
-        if (line[0] != '\0')
+		if (line[0] != '\0')
         {
             add_history(line);
 			token = tokenize(line);

@@ -89,9 +89,12 @@ char	*expand_env(char *str)
 		return (NULL);
 	i = 0;
 	j = 0;
+	int flag = 0;
 	while (str[i])
 	{
-		if (str[i] == '$' && ft_isalnum(str[i + 1]) && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
+		if (str[i] == '\'')
+			flag = 1;
+		else if ((flag == 0) && str[i] == '$' && ft_isalnum(str[i + 1]) && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
 		{
 			i++;
 			start = i;
@@ -214,14 +217,8 @@ t_command	*parsing_command(t_token *token)
 
 		if (current->type == TOKEN_WORD)
 		{
-			expanded = expand_env(current->av);
-			if (!expanded)
-			{
-				free_cmd(first_cmd);
-				return (NULL);
-			}
-			append_arg(current_cmd, expanded);
-			free(expanded);
+			append_arg(current_cmd, current->av);
+			//free(expanded);
 		}
 		current = current->next;
 	}

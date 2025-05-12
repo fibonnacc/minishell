@@ -93,14 +93,45 @@ char *remove_quotes(char *str)
             i++;
         }
         else
-        {
             result[j++] = str[i++];
-        }
     }
     result[j] = '\0';
     return (result);
 }
 
+bool is_closed_quotes(char *str)
+{
+	int	i;
+    bool in_single;
+    bool in_double;
+
+	i = 0;
+	in_double = false;
+	in_single = false;
+    while (str[i])
+    {
+        if (str[i] == '\'' && !in_double)
+            in_single = !in_single;
+        else if (str[i] == '"' && !in_single)
+            in_double = !in_double;
+		i++;
+    }
+    return (!in_single && !in_double);
+}
+
+bool	special_character(char *str)
+{
+	int i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '\\' || str[i] == ';')
+			return (false);
+		i++;
+	}
+	return (true);
+}
 
 void	handle_word_token(t_token **token, int start, char *line, int i)
 {
@@ -109,12 +140,26 @@ void	handle_word_token(t_token **token, int start, char *line, int i)
 	if (i > start)
 	{
 		word = ft_substr(line, start, i - start);
+		if (!word)
+			return;
+		if (!special_character(word))
+		{
+			printf("this character is not valid\n");
+			return;
+		}
+		if (!is_closed_quotes(word))
+		{
+			printf ("the quote does not close!\n");
+			free(word);
+			return;
+		}
 		if (word && *word != '\0')
 		{
-			char *str = remove_quotes(word);
-			add_token(token, creat_token(str, get_token_type(str)));
+			char *str = expand_env(word);
+			char *string = remove_quotes(str);
+			add_token(token, creat_token(string, get_token_type(string)));
 			free(word);
-			free(str);
+			free(string);
 		}
 	}
 }
