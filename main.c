@@ -114,7 +114,7 @@ void	free_list(t_list	**head)
 int	main()
 {
 	t_list	*head = NULL;
-	char	*word = "ls cat >";
+	char	*word = "\"ls cat \"|\" >\"";
 	make_tokens(&head, word);
 	print(head);
 	free_list(&head);

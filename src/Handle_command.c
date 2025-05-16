@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handle_command.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybouryal <ybouryal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/07 09:32:38 by ybouryal          #+#    #+#             */
-/*   Updated: 2025/05/07 09:37:50 by ybouryal         ###   ########.fr       */
+/*   Created: 2025/05/16 17:26:30 by helfatih          #+#    #+#             */
+/*   Updated: 2025/05/16 17:26:32 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,8 @@ char	*expand_env(char *str)
 				return (NULL);
 			valeur = getenv(string);
 			free(string);
-
+			if(valeur)
+			{
 			len = ft_strlen(valeur);
 			if (valeur)
 			{
@@ -118,6 +119,13 @@ char	*expand_env(char *str)
 				ft_strlcpy(&result[j], valeur, len + 1);
 				j += len;
 			}
+			continue;
+			}
+		}
+		else if ((str[i - 1] != '\"' || str[i - 1]) && str[i] == '$' && (str[i + 1] == '\"' || str[i + 1] == '\''))
+		{
+			i++;
+			result[j++] = str[i++];
 			continue;
 		}
 		result[j++] = str[i++];

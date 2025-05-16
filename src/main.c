@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybouryal <ybouryal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/07 09:54:27 by ybouryal          #+#    #+#             */
-/*   Updated: 2025/05/07 09:54:28 by ybouryal         ###   ########.fr       */
+/*   Created: 2025/05/16 17:26:05 by helfatih          #+#    #+#             */
+/*   Updated: 2025/05/16 17:26:13 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <stdlib.h>
 
 void execute_command(char **args)
 {
@@ -157,35 +158,41 @@ void make_prompt()
 {
     char *line;
     char *prompt;
-	t_token	*token;
-	t_command	*cmd;
-    
-    prompt = ft_strjoin(getenv("HOME"), "@minishell$ ");
+    char *part1;
+    char *part2;
+    t_token *token;
+    t_command *cmd;
+
+    part1 = ft_strjoin(COLOR_START, getenv("HOME"));
+    part2 = ft_strjoin(part1, "@minishell> ");
+    free(part1);
+    prompt = ft_strjoin(part2, COLOR_RESET); 
+	free(part2);
+
     if (!prompt)
-		return;
-    while(1)
+        return;
+
+    while (1)
     {
-		signal(SIGINT, my_handler);
+        signal(SIGINT, my_handler);
         line = readline(prompt);
         if (!line)
         {
             printf("exit\n");
             break;
         }
-		if (line[0] != '\0')
+        if (line[0] != '\0')
         {
             add_history(line);
-			token = tokenize(line);
-			cmd = parsing_command(token);
-			//print_commands(cmd);
-			//printf("---------------------------\n");
-			//print_token(token);
-			if (cmd->args)
-				execute_command(cmd->args);
-			free_token(&token);
+            token = tokenize(line);
+            cmd = parsing_command(token);
+            if (cmd->args)
+                execute_command(cmd->args);
+            free_token(&token);
         }
         free(line);
     }
+
     free(prompt);
     rl_clear_history();
 }

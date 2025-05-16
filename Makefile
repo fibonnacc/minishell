@@ -2,7 +2,7 @@
 NAME = minishell
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 
 SRC = src/main.c	src/Handle_command.c	src/Handle_token.c	src/Helper.c
 

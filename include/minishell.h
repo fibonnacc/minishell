@@ -1,7 +1,12 @@
 #ifndef MINISHELL_H
 #define MINISHELL_H
 
-
+#ifndef	COLOR_START
+#define COLOR_START "\001\033[1;36m\002"
+#endif
+#ifndef	COLOR_RESET
+#define COLOR_RESET "\001\033[1;33m\002"
+#endif
 #include <readline/readline.h>
 #include <stdio.h>
 #include <stdlib.h>

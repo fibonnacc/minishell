@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Handle_token.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybouryal <ybouryal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/07 09:47:38 by ybouryal          #+#    #+#             */
-/*   Updated: 2025/05/07 09:49:10 by ybouryal         ###   ########.fr       */
+/*   Created: 2025/05/16 17:26:40 by helfatih          #+#    #+#             */
+/*   Updated: 2025/05/16 17:26:43 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <stdio.h>
 
 t_token *creat_token(char *line, t_token_type type)
 {
@@ -81,7 +82,7 @@ char *remove_quotes(char *str)
 
     while (str[i])
     {
-        if ((str[i] == '"' || str[i] == '\'') && !in_quotes)
+        if ((str[i] == '"' || str[i] == '\'' || str[i] == '$') && !in_quotes)
         {
             in_quotes = true;
             quote_char = str[i];
@@ -155,8 +156,8 @@ void	handle_word_token(t_token **token, int start, char *line, int i)
 		}
 		if (word && *word != '\0')
 		{
-			char *str = expand_env(word);
-			char *string = remove_quotes(str);
+			char *str = expand_env(word); char *string = remove_quotes(str);
+			//printf("%s\n", string);
 			add_token(token, creat_token(string, get_token_type(string)));
 			free(word);
 			free(string);
