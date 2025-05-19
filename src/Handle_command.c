@@ -114,7 +114,7 @@ char	*expand_env(char *str)
  	while (str[i])
  	{
 		check_quot(str, &in_quot, &char_quot, i);
- 		if (!in_quot && str[i] == '$' && ft_isalnum(str[i + 1]) && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
+ 		if (str[i - 1] != '\'' && str[i] == '$' && ft_isalnum(str[i + 1]) && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
  		{
  			i++;
  			start = i;
@@ -144,7 +144,7 @@ char	*expand_env(char *str)
 		}
 		if (str[i] == '$' && (!ft_isalnum(str[i + 1])))
 		{
-			if (!in_quot && (str[i + 1] != '\'' || str[i + 1] != '\"')) // echo $'HOME' or echo $"HOME"
+			if (!in_quot && (str[i + 1] == '\'' || str[i + 1] == '\"')) // echo $'HOME' or echo $"HOME"
 			{
 				++i;
 				result[j++] = str[i++];
