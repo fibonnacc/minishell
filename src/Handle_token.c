@@ -82,7 +82,7 @@ char *remove_quotes(char *str)
 
     while (str[i])
     {
-        if ((str[i] == '"' || str[i] == '\'' || str[i] == '$') && !in_quotes)
+        if ((str[i] == '\"' || str[i] == '\'') && !in_quotes)
         {
             in_quotes = true;
             quote_char = str[i];
@@ -137,6 +137,7 @@ bool	special_character(char *str)
 void	handle_word_token(t_token **token, int start, char *line, int i)
 {
 	char *word;
+	char *str;
 
 	if (i > start)
 	{
@@ -156,11 +157,9 @@ void	handle_word_token(t_token **token, int start, char *line, int i)
 		}
 		if (word && *word != '\0')
 		{
-			char *str = expand_env(word); char *string = remove_quotes(str);
-			//printf("%s\n", string);
-			add_token(token, creat_token(string, get_token_type(string)));
+			str = expand_env(word);
+			add_token(token, creat_token(str, get_token_type(str)));
 			free(word);
-			free(string);
 		}
 	}
 }
@@ -185,4 +184,3 @@ int	handle_speciale_token(t_token **token, char *line, int i)
 		return (i + 1);
 	}
 }
-

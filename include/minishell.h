@@ -19,6 +19,16 @@
 #include <sys/wait.h>
 
 
+typedef struct s_expand
+{
+	char	*result;
+	char	*tmp;
+	size_t	i;
+	size_t	j;
+	bool	in_single;
+	bool	in_double;
+}	t_expand;
+
 typedef enum s_token_type
 {
 	TOKEN_WORD,
@@ -61,7 +71,7 @@ char	*expand_env(char *str);
 t_command	*parsing_command(t_token *token);
 int	is_space(char c);
 void	free_token(t_token **token);
-
+char *remove_quotes(char *str);
 
 
 #endif

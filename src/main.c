@@ -11,22 +11,57 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <stdbool.h>
 #include <stdlib.h>
 
-void execute_command(char **args)
+void	my_echo(char **args)
 {
-    pid_t pid = fork();
+	int i;
+	bool	j;
 
-    if (pid == 0)
+	j = false;
+	i = 1;
+	if (args[i] && ft_strncmp(args[1], "-n", ft_strlen("-n")) == 0)
+	{
+		j = true;
+		i++;
+	}
+	while(args[i])
+	{
+		ft_putstr_fd(args[i], 1);
+		if (args[i + 1])
+			ft_putstr_fd(" ", 1);
+		i++;
+	}
+	if (j == false)
+		printf("\n");
+}
+
+bool	built_in(char *cmd)
+{
+	return (ft_strncmp(cmd, "echo", ft_strlen("echo")) == 0);
+}
+
+void execute_command(t_command	*cmd)
+{
+	int i;
+    pid_t pid;
+
+	i = 0;
+	if (built_in(cmd->args[0]))
+	{
+		my_echo(cmd->args);
+		return;
+	}
+	pid = fork();
+	if (pid == 0)
     {
-        // Child process
-        execvp(args[0], args); // try execvp first for PATH support
+        execvp(cmd->args[0], cmd->args);
         perror("execvp failed");
         exit(1);
     }
-    else if (pid > 0)
+	else if (pid > 0)
     {
-        // Parent process
         int status;
         waitpid(pid, &status, 0);
     }
@@ -154,6 +189,21 @@ void print_token(t_token *token)
 	}
 }
 
+void	continue_parsing(t_token **token)
+{
+	t_token	*current;
+
+	current = *token;
+	while (current)
+	{
+		if (current->type == TOKEN_WORD)
+		{
+			current->av = remove_quotes((current->av));
+		}
+		current = current->next;
+	}
+}
+
 void make_prompt()
 {
     char *line;
@@ -185,9 +235,10 @@ void make_prompt()
         {
             add_history(line);
             token = tokenize(line);
+			continue_parsing(&token);
             cmd = parsing_command(token);
             if (cmd->args)
-                execute_command(cmd->args);
+                execute_command(cmd);
             free_token(&token);
         }
         free(line);

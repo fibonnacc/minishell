@@ -11,8 +11,10 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <uchar.h>
 
 void	free_cmd(t_command *cmd)
 {
@@ -50,6 +52,7 @@ t_command	*create_command()
 	t_command	*cmd;
 
 	cmd = (t_command *)ft_calloc(1, sizeof(t_command));
+
 	if(cmd == NULL)
 	{
 		return (NULL);
@@ -76,61 +79,81 @@ char	*manual_realloc(char *old, size_t len)
 	return (new);
 }
 
+void	check_quot(char *str, bool *in_quot, int *char_quot, int i)
+{
+	if (str[i] == '\'' || str[i] == '\"')
+	{
+		if (*in_quot == false)
+		{
+			*in_quot = true;
+			*char_quot = str[i];
+		}
+		else if (*char_quot == str[i])
+		{
+			*in_quot = false;
+			*char_quot = 0;
+		}
+	}
+}
+
 char	*expand_env(char *str)
 {
-	char	*result;
-	char	*string;
-	char	*valeur;
-	size_t	(i), j, old_size, new_size, len, start;
+	bool	in_quot;
+	int	char_quot;
+ 	char	*result, *string, *valeur;
+ 	size_t	(i), j, old_size, new_size, len, start;
 
-	old_size = (ft_strlen(str) * 2 + 1);
-	result = (char *)ft_calloc(old_size, 1);
-	if (result == NULL)
-		return (NULL);
-	i = 0;
-	j = 0;
-	int flag = 0;
-	while (str[i])
-	{
-		if (str[i] == '\'')
-			flag = 1;
-		else if ((flag == 0) && str[i] == '$' && ft_isalnum(str[i + 1]) && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
-		{
-			i++;
-			start = i;
-			while((ft_isalnum(str[i]) || str[i] == '_') && str[i])
-				i++;
-			string = ft_substr(str, start, i - start);	
-			if (!string)
-				return (NULL);
-			valeur = getenv(string);
-			free(string);
-			if(valeur)
-			{
-			len = ft_strlen(valeur);
-			if (valeur)
-			{
-				if (j + len >= old_size)
-				{
-					new_size = len + old_size;
-					result = manual_realloc(result, new_size);
-					old_size = new_size;
-				}
-				ft_strlcpy(&result[j], valeur, len + 1);
-				j += len;
-			}
-			continue;
-			}
+ 	old_size = (ft_strlen(str) * 2 + 1);
+ 	result = (char *)ft_calloc(old_size, 1);
+ 	if (result == NULL)
+ 		return (NULL);
+ 	i = 0;
+ 	j = 0;
+	in_quot = false;
+	char_quot = 0;
+ 	while (str[i])
+ 	{
+		check_quot(str, &in_quot, &char_quot, i);
+ 		if (!in_quot && str[i] == '$' && ft_isalnum(str[i + 1]) && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
+ 		{
+ 			i++;
+ 			start = i;
+ 			while((ft_isalnum(str[i]) || str[i] == '_') && str[i])
+ 				i++;
+ 			string = ft_substr(str, start, i - start);	
+ 			if (!string)
+ 				return (NULL);
+ 			valeur = getenv(string);
+ 			free(string);
+ 			if(valeur)
+ 			{
+ 				len = ft_strlen(valeur);
+ 				if (valeur)
+ 				{
+ 					if (j + len >= old_size)
+ 					{
+ 						new_size = len + old_size;
+ 						result = manual_realloc(result, new_size);
+ 						old_size = new_size;
+ 					}
+ 					ft_strlcpy(&result[j], valeur, len + 1);
+ 					j += len;
+ 				}
+ 				continue;
+ 			}
 		}
-		else if ((str[i - 1] != '\"' || str[i - 1]) && str[i] == '$' && (str[i + 1] == '\"' || str[i + 1] == '\''))
+		if (str[i] == '$' && (!ft_isalnum(str[i + 1])))
 		{
-			i++;
-			result[j++] = str[i++];
-			continue;
+			if (!in_quot && (str[i + 1] != '\'' || str[i + 1] != '\"')) // echo $'HOME' or echo $"HOME"
+			{
+				++i;
+				result[j++] = str[i++];
+				continue;
+			}
 		}
 		result[j++] = str[i++];
-	}
-	return (result);
+ 	}
+ 	return (result);
 }
 
 t_command	*parsing_command(t_token *token)
@@ -226,7 +249,6 @@ t_command	*parsing_command(t_token *token)
 		if (current->type == TOKEN_WORD)
 		{
 			append_arg(current_cmd, current->av);
-			//free(expanded);
 		}
 		current = current->next;
 	}
