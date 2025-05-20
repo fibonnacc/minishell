@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <stdbool.h>
 #include <stdio.h>
 
 t_token *creat_token(char *line, t_token_type type)
@@ -68,36 +69,89 @@ void	init_variables(char *str, int *i, int *j, bool *in_quotes, char *quote_char
 	*result = malloc(*len + 1);
 }
 
+// char *remove_quotes(char *str)
+// {
+//     int (i), j;
+//     bool in_quotes;
+//     char quote_char;
+//     size_t len;
+//     char *result;
+//
+// 	init_variables(str, &i, &j, &in_quotes, &quote_char, &len, &result);
+// 	if (result == NULL)
+// 		return (NULL);
+// 	bool	single = false;
+// 	char q = 0;
+//     while (str[i])
+//     {
+// 		if (str[i - 1] == '$' && str[i] == '\'' && !single)
+// 		{
+// 			single = true;
+// 			q = str[i];
+// 		}
+// 		if (single && str[i] == q)
+// 		{
+// 			single = false;
+// 			q = 0;
+// 		}
+// 		if (single && str[i] != '\'')
+// 		{
+// 			result[j++] = str[i++];
+// 		}
+//         if ((str[i] == '"' || (str[i] == '\'' && str[i + 1] != '$')) && !in_quotes)
+//         {
+//             in_quotes = true;
+//             quote_char = str[i];
+//             i++;
+//         }
+//         else if (in_quotes && str[i] == quote_char)
+//         {
+//             in_quotes = false;
+//             i++;
+//         }
+//         else
+//             result[j++] = str[i++];
+//     }
+//     result[j] = '\0';
+//     return (result);
+// }
+
 char *remove_quotes(char *str)
 {
-    int (i), j;
-    bool in_quotes;
-    char quote_char;
-    size_t len;
-    char *result;
+    if (!str)
+		return NULL;
 
-	init_variables(str, &i, &j, &in_quotes, &quote_char, &len, &result);
-	if (result == NULL)
-		return (NULL);
+    int i = 0, j = 0;
+    bool in_single = false;
+    bool in_double = false;
+    char *result = malloc(strlen(str) + 1);
+    if (!result) return NULL;
 
     while (str[i])
-    {
-        if ((str[i] == '\"' || str[i] == '\'') && !in_quotes)
-        {
-            in_quotes = true;
-            quote_char = str[i];
+	{
+        if (str[i] == '\'' && !in_double)
+		{
+            in_single = !in_single;
             i++;
+            continue;
         }
-        else if (in_quotes && str[i] == quote_char)
-        {
-            in_quotes = false;
+        else if (str[i] == '"' && !in_single)
+		{
+            in_double = !in_double;
             i++;
+            continue;
+        }
+        if (in_single)
+		{
+            result[j++] = str[i++];
         }
         else
+		{
             result[j++] = str[i++];
+        }
     }
     result[j] = '\0';
-    return (result);
+    return result;
 }
 
 bool is_closed_quotes(char *str)
@@ -134,14 +188,13 @@ bool	special_character(char *str)
 	return (true);
 }
 
-void	handle_word_token(t_token **token, int start, char *line, int i)
+void	handle_word_token(t_token **token, int start, char *line, int *i)
 {
 	char *word;
-	char *str;
 
-	if (i > start)
+	if (*i > start)
 	{
-		word = ft_substr(line, start, i - start);
+		word = ft_substr(line, start, *i - start);
 		if (!word)
 			return;
 		if (!special_character(word))
@@ -157,7 +210,8 @@ void	handle_word_token(t_token **token, int start, char *line, int i)
 		}
 		if (word && *word != '\0')
 		{
-			str = expand_env(word);
+			char *str = expand_env(word);
+		//	char *string = remove_quotes(str);
 			add_token(token, creat_token(str, get_token_type(str)));
 			free(word);
 		}

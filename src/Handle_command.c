@@ -52,7 +52,6 @@ t_command	*create_command()
 	t_command	*cmd;
 
 	cmd = (t_command *)ft_calloc(1, sizeof(t_command));
-
 	if(cmd == NULL)
 	{
 		return (NULL);
@@ -81,7 +80,7 @@ char	*manual_realloc(char *old, size_t len)
 
 void	check_quot(char *str, bool *in_quot, int *char_quot, int i)
 {
-	if (str[i] == '\'' || str[i] == '\"')
+	if (str[i] == '\'')
 	{
 		if (*in_quot == false)
 		{
@@ -114,7 +113,7 @@ char	*expand_env(char *str)
  	while (str[i])
  	{
 		check_quot(str, &in_quot, &char_quot, i);
- 		if (str[i - 1] != '\'' && str[i] == '$' && ft_isalnum(str[i + 1]) && (is_space(str[i + 1]) != 0) && str[i + 1] && str[i + 1] != '"' && str[i + 1] != '\'')
+ 		if (!in_quot && str[i] == '$' && (ft_isalnum(str[i + 1]) || str[i + 1] == '_') && str[i + 1])
  		{
  			i++;
  			start = i;
@@ -141,16 +140,7 @@ char	*expand_env(char *str)
  				}
  				continue;
  			}
-		}
-		if (str[i] == '$' && (!ft_isalnum(str[i + 1])))
-		{
-			if (!in_quot && (str[i + 1] == '\'' || str[i + 1] == '\"')) // echo $'HOME' or echo $"HOME"
-			{
-				++i;
-				result[j++] = str[i++];
-				continue;
-			}
-		}
+ 		}	
 		result[j++] = str[i++];
  	}
  	return (result);
@@ -248,6 +238,7 @@ t_command	*parsing_command(t_token *token)
 
 		if (current->type == TOKEN_WORD)
 		{
+			//char *string = expand_env(current->av);
 			append_arg(current_cmd, current->av);
 		}
 		current = current->next;

@@ -135,24 +135,49 @@ t_token	*tokenize(char *line)
 	while (line[i])
 	{
 		handle_quote(&in_quot, &quot_char, &i, line);
-		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
+		if (in_quot && line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
 		{
-			handle_word_token(&token, start, line, i);
-			i = handle_speciale_token(&token, line, i);
+			if (i > start)
+				handle_word_token(&token, start, line, &i);
+			start = i;
+			i++;
+			while ((ft_isalnum(line[i]) || line[i] == '_') && line[i])
+				i++;
+			handle_word_token(&token, start, line, &i);
 			start = i;
 			continue;
 		}
+		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
+		{
+			handle_word_token(&token, start, line, &i);
+			i = handle_speciale_token(&token, line, i);
+			start = i;
+		}
+		else if (line[i] == '\"' || line[i] == '\'')
+		{
+			start = i;
+			char q = line[i];
+			i++;
+			while (line[i] != q)
+				i++;
+			i++;
+			handle_word_token(&token, start, line, &i);
+			start = i;
+		}
 		else if (!in_quot && (line[i] == ' ' || line[i] == '\t'))
 		{
-			handle_word_token(&token, start, line,  i);
+			handle_word_token(&token, start, line,  &i);
 			while (line[i] == ' ' || line[i] == '\t')
 				i++;
 			start = i;
 			continue;
 		}
-		i++;
+		else
+		{
+			i++;
+		}
 	}
-	handle_word_token(&token, start, line, i);
+	handle_word_token(&token, start, line, &i);
 	return (token);
 }
 
@@ -235,10 +260,13 @@ void make_prompt()
         {
             add_history(line);
             token = tokenize(line);
+			//print_token(token);
 			continue_parsing(&token);
+			//printf ("after removing\n");
+			//print_token(token);
             cmd = parsing_command(token);
             if (cmd->args)
-                execute_command(cmd);
+                 execute_command(cmd);
             free_token(&token);
         }
         free(line);
