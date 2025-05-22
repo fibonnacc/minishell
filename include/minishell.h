@@ -18,17 +18,6 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-
-typedef struct s_expand
-{
-	char	*result;
-	char	*tmp;
-	size_t	i;
-	size_t	j;
-	bool	in_single;
-	bool	in_double;
-}	t_expand;
-
 typedef enum s_token_type
 {
 	TOKEN_WORD,
@@ -42,6 +31,8 @@ typedef enum s_token_type
 typedef struct s_token
 {
 	char	*av;
+	bool	should_expand;
+	bool	should_not_expand;
 	t_token_type	type;
 	struct s_token *next;
 }	t_token;
@@ -63,14 +54,15 @@ void	make_prompt();
 t_token *creat_token(char *line, t_token_type type);
 void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line);
 void	add_token(t_token **token, t_token *new_token);
-void	handle_word_token(t_token **token, int start, char *line, int *i);
+
+void	handle_word_token(t_token **token, int start, char *line, int *i, bool should_expand, bool should_not_expand);
 t_token_type	get_token_type(char *str);
 int	handle_speciale_token(t_token **token, char *line, int i);
 t_token	*tokenize(char *line);
 void	append_arg(t_command *cmd, char *str);
 t_command	*create_command();
 void	free_cmd(t_command *cmd);
-char	*expand_env(char *str);
+char	*expand_env(char *str, t_token **token);
 t_command	*parsing_command(t_token *token);
 int	is_space(char c);
 void	free_token(t_token **token);

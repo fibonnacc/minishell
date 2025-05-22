@@ -128,6 +128,8 @@ t_token	*tokenize(char *line)
 	int i;
 	t_token	*token = NULL;
 	bool	in_quot = false;
+	bool	should_expand = false;
+	bool	should_not_expand = false;
 	char	quot_char = 0;
 	int start = 0;
 
@@ -138,35 +140,43 @@ t_token	*tokenize(char *line)
 		if (in_quot && line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
 		{
 			if (i > start)
-				handle_word_token(&token, start, line, &i);
+				handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
+
 			start = i;
 			i++;
 			while ((ft_isalnum(line[i]) || line[i] == '_') && line[i])
 				i++;
-			handle_word_token(&token, start, line, &i);
+			handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
+
 			start = i;
 			continue;
 		}
 		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
 		{
-			handle_word_token(&token, start, line, &i);
+			handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
 			i = handle_speciale_token(&token, line, i);
 			start = i;
 		}
 		else if (line[i] == '\"' || line[i] == '\'')
 		{
+			if (line[i] == '\"')
+				should_expand = true;
+			else
+				should_not_expand = true;
 			start = i;
 			char q = line[i];
 			i++;
 			while (line[i] != q)
 				i++;
 			i++;
-			handle_word_token(&token, start, line, &i);
+			handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
 			start = i;
+			token->should_expand = false;
+			token->should_not_expand = false;
 		}
 		else if (!in_quot && (line[i] == ' ' || line[i] == '\t'))
 		{
-			handle_word_token(&token, start, line,  &i);
+			handle_word_token(&token, start, line,  &i, should_expand,should_not_expand);
 			while (line[i] == ' ' || line[i] == '\t')
 				i++;
 			start = i;
@@ -177,7 +187,7 @@ t_token	*tokenize(char *line)
 			i++;
 		}
 	}
-	handle_word_token(&token, start, line, &i);
+	handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
 	return (token);
 }
 
@@ -260,10 +270,10 @@ void make_prompt()
         {
             add_history(line);
             token = tokenize(line);
-			//print_token(token);
+			print_token(token);
 			continue_parsing(&token);
-			//printf ("after removing\n");
-			//print_token(token);
+			printf ("after removing\n");
+			print_token(token);
             cmd = parsing_command(token);
             if (cmd->args)
                  execute_command(cmd);

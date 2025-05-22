@@ -13,6 +13,7 @@
 #include "../include/minishell.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 t_token *creat_token(char *line, t_token_type type)
 {
@@ -23,6 +24,8 @@ t_token *creat_token(char *line, t_token_type type)
 	if (!(new_token->av = ft_strdup(line)))
 		return (free(new_token), NULL);
 	new_token->type = type;
+	new_token->should_not_expand = false;
+	new_token->should_expand = false;
 	new_token->next = NULL;
 	return (new_token);
 }
@@ -65,56 +68,9 @@ void	init_variables(char *str, int *i, int *j, bool *in_quotes, char *quote_char
 	*j = 0;
 	*i = 0;
 	*quote_char = 0;
-	*len = strlen(str);
+	*len = ft_strlen(str);
 	*result = malloc(*len + 1);
 }
-
-// char *remove_quotes(char *str)
-// {
-//     int (i), j;
-//     bool in_quotes;
-//     char quote_char;
-//     size_t len;
-//     char *result;
-//
-// 	init_variables(str, &i, &j, &in_quotes, &quote_char, &len, &result);
-// 	if (result == NULL)
-// 		return (NULL);
-// 	bool	single = false;
-// 	char q = 0;
-//     while (str[i])
-//     {
-// 		if (str[i - 1] == '$' && str[i] == '\'' && !single)
-// 		{
-// 			single = true;
-// 			q = str[i];
-// 		}
-// 		if (single && str[i] == q)
-// 		{
-// 			single = false;
-// 			q = 0;
-// 		}
-// 		if (single && str[i] != '\'')
-// 		{
-// 			result[j++] = str[i++];
-// 		}
-//         if ((str[i] == '"' || (str[i] == '\'' && str[i + 1] != '$')) && !in_quotes)
-//         {
-//             in_quotes = true;
-//             quote_char = str[i];
-//             i++;
-//         }
-//         else if (in_quotes && str[i] == quote_char)
-//         {
-//             in_quotes = false;
-//             i++;
-//         }
-//         else
-//             result[j++] = str[i++];
-//     }
-//     result[j] = '\0';
-//     return (result);
-// }
 
 char *remove_quotes(char *str)
 {
@@ -188,7 +144,7 @@ bool	special_character(char *str)
 	return (true);
 }
 
-void	handle_word_token(t_token **token, int start, char *line, int *i)
+void	handle_word_token(t_token **token, int start, char *line, int *i, bool should_expand, bool should_not_expand)
 {
 	char *word;
 
@@ -210,9 +166,19 @@ void	handle_word_token(t_token **token, int start, char *line, int *i)
 		}
 		if (word && *word != '\0')
 		{
-			char *str = expand_env(word);
-		//	char *string = remove_quotes(str);
-			add_token(token, creat_token(str, get_token_type(str)));
+			t_token *new = creat_token(line, get_token_type(line));
+			if (new)
+			{
+				new->should_not_expand = should_not_expand;
+				new->should_expand = should_expand;
+			}
+			char *str = expand_env(word, &new);
+			if (str)
+			{
+				free(new->av);
+				new->av = str;
+			}
+			add_token(token, new);
 			free(word);
 		}
 	}

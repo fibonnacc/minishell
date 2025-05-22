@@ -95,10 +95,8 @@ void	check_quot(char *str, bool *in_quot, int *char_quot, int i)
 	}
 }
 
-char	*expand_env(char *str)
+char	*expand_env(char *str, t_token **token)
 {
-	bool	in_quot;
-	int	char_quot;
  	char	*result, *string, *valeur;
  	size_t	(i), j, old_size, new_size, len, start;
 
@@ -108,12 +106,9 @@ char	*expand_env(char *str)
  		return (NULL);
  	i = 0;
  	j = 0;
-	in_quot = false;
-	char_quot = 0;
- 	while (str[i])
+	while (str[i])
  	{
-		check_quot(str, &in_quot, &char_quot, i);
- 		if (!in_quot && str[i] == '$' && (ft_isalnum(str[i + 1]) || str[i + 1] == '_') && str[i + 1])
+ 		if ((*token)->should_expand && !((*token)->should_not_expand) && str[i] == '$' && (ft_isalnum(str[i + 1]) || str[i + 1] == '_') && str[i + 1])
  		{
  			i++;
  			start = i;
