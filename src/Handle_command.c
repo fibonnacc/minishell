@@ -78,22 +78,22 @@ char	*manual_realloc(char *old, size_t len)
 	return (new);
 }
 
-void	check_quot(char *str, bool *in_quot, int *char_quot, int i)
-{
-	if (str[i] == '\'')
-	{
-		if (*in_quot == false)
-		{
-			*in_quot = true;
-			*char_quot = str[i];
-		}
-		else if (*char_quot == str[i])
-		{
-			*in_quot = false;
-			*char_quot = 0;
-		}
-	}
-}
+// void	check_quot(char *str, bool *in_quot, int *char_quot, int i)
+// {
+// 	if (str[i] == '\'')
+// 	{
+// 		if (*in_quot == false)
+// 		{
+// 			*in_quot = true;
+// 			*char_quot = str[i];
+// 		}
+// 		else if (*char_quot == str[i])
+// 		{
+// 			*in_quot = false;
+// 			*char_quot = 0;
+// 		}
+// 	}
+// }
 
 char	*expand_env(char *str, t_token **token)
 {

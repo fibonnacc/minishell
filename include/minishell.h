@@ -33,6 +33,7 @@ typedef struct s_token
 	char	*av;
 	bool	should_expand;
 	bool	should_not_expand;
+  bool  should_join;
 	t_token_type	type;
 	struct s_token *next;
 }	t_token;
@@ -51,10 +52,11 @@ typedef struct s_command
 bool	special_character(char *str);
 
 void	make_prompt();
+bool	special_character(char *str);
 t_token *creat_token(char *line, t_token_type type);
 void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line);
 void	add_token(t_token **token, t_token *new_token);
-
+bool is_closed_quotes(char *str);
 void	handle_word_token(t_token **token, int start, char *line, int *i, bool should_expand, bool should_not_expand);
 t_token_type	get_token_type(char *str);
 int	handle_speciale_token(t_token **token, char *line, int i);

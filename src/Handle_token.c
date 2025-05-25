@@ -26,6 +26,7 @@ t_token *creat_token(char *line, t_token_type type)
 	new_token->type = type;
 	new_token->should_not_expand = false;
 	new_token->should_expand = false;
+  new_token->should_join = false;
 	new_token->next = NULL;
 	return (new_token);
 }
@@ -152,21 +153,10 @@ void	handle_word_token(t_token **token, int start, char *line, int *i, bool shou
 	{
 		word = ft_substr(line, start, *i - start);
 		if (!word)
-			return;
-		if (!special_character(word))
-		{
-			printf("this character is not valid\n");
-			return;
-		}
-		if (!is_closed_quotes(word))
-		{
-			printf ("the quote does not close!\n");
-			free(word);
-			return;
-		}
+			return;	
 		if (word && *word != '\0')
 		{
-			t_token *new = creat_token(line, get_token_type(line));
+			t_token *new = creat_token(word, get_token_type(word));
 			if (new)
 			{
 				new->should_not_expand = should_not_expand;
@@ -186,8 +176,11 @@ void	handle_word_token(t_token **token, int start, char *line, int *i, bool shou
 
 int	handle_speciale_token(t_token **token, char *line, int i)
 {
-	char	special[3];
+	char	*special;
 
+	special = malloc(3 * sizeof(char));
+	if (!special)
+		return (0);
 	if ((line[i] == '>' || line[i] == '<') && (line[i + 1] == line[i]))
 	{
 		special[0] = line[i];
@@ -203,4 +196,5 @@ int	handle_speciale_token(t_token **token, char *line, int i)
 		add_token(token, creat_token(special, get_token_type(special)));
 		return (i + 1);
 	}
+	free(special);
 }

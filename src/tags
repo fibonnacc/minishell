@@ -1,0 +1,42 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/helfatih/Documents/Miniishell/src/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	//
+add_token	Handle_token.c	/^void	add_token(t_token **token, t_token *new_token)$/;"	f	typeref:typename:void
+append_arg	Helper.c	/^void	append_arg(t_command *cmd, char *str)$/;"	f	typeref:typename:void
+built_in	main.c	/^bool	built_in(char *cmd)$/;"	f	typeref:typename:bool
+continue_parsing	main.c	/^void	continue_parsing(t_token **token)$/;"	f	typeref:typename:void
+creat_token	Handle_token.c	/^t_token *creat_token(char *line, t_token_type type)$/;"	f	typeref:typename:t_token *
+create_command	Handle_command.c	/^t_command	*create_command()$/;"	f	typeref:typename:t_command *
+execute_command	main.c	/^void execute_command(t_command	*cmd)$/;"	f	typeref:typename:void
+expand_env	Handle_command.c	/^char	*expand_env(char *str, t_token **token)$/;"	f	typeref:typename:char *
+free_cmd	Handle_command.c	/^void	free_cmd(t_command *cmd)$/;"	f	typeref:typename:void
+free_token	Helper.c	/^void	free_token(t_token **token)$/;"	f	typeref:typename:void
+get_token_type	main.c	/^t_token_type	get_token_type(char *str)$/;"	f	typeref:typename:t_token_type
+handle_$	main.c	/^void	handle_$(t_token **token, char *line, int *i, int *start)$/;"	f	typeref:typename:void
+handle_quote	Handle_token.c	/^void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line)$/;"	f	typeref:typename:void
+handle_special_quot	main.c	/^void	handle_special_quot(t_token **token, char *line, int *i, int *start, bool *should_expand, b/;"	f	typeref:typename:void
+handle_speciale_token	Handle_token.c	/^int	handle_speciale_token(t_token **token, char *line, int i)$/;"	f	typeref:typename:int
+handle_white_spaces	main.c	/^void	handle_white_spaces(t_token **token, char *line, int *i, int *start, bool *should_expand, b/;"	f	typeref:typename:void
+handle_word_token	Handle_token.c	/^void	handle_word_token(t_token **token, int start, char *line, int *i, bool should_expand, bool /;"	f	typeref:typename:void
+init_variables	Handle_token.c	/^void	init_variables(char *str, int *i, int *j, bool *in_quotes, char *quote_char, size_t *len, c/;"	f	typeref:typename:void
+is_closed_quotes	Handle_token.c	/^bool is_closed_quotes(char *str)$/;"	f	typeref:typename:bool
+is_space	Helper.c	/^int	is_space(char c)$/;"	f	typeref:typename:int
+main	main.c	/^int main()$/;"	f	typeref:typename:int
+make_prompt	main.c	/^void make_prompt()$/;"	f	typeref:typename:void
+manual_realloc	Handle_command.c	/^char	*manual_realloc(char *old, size_t len)$/;"	f	typeref:typename:char *
+my_echo	main.c	/^void	my_echo(char **args)$/;"	f	typeref:typename:void
+my_handler	main.c	/^void	my_handler(int sig)$/;"	f	typeref:typename:void
+parsing_command	Handle_command.c	/^t_command	*parsing_command(t_token *token)$/;"	f	typeref:typename:t_command *
+print_commands	main.c	/^void print_commands(t_command *cmd)$/;"	f	typeref:typename:void
+print_token	main.c	/^void print_token(t_token *token)$/;"	f	typeref:typename:void
+remove_quotes	Handle_token.c	/^char *remove_quotes(char *str)$/;"	f	typeref:typename:char *
+special_character	Handle_token.c	/^bool	special_character(char *str)$/;"	f	typeref:typename:bool
+tokenize	main.c	/^t_token	*tokenize(char *line)$/;"	f	typeref:typename:t_token *

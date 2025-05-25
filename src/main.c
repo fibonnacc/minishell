@@ -123,6 +123,69 @@ t_token_type	get_token_type(char *str)
 		return (TOKEN_WORD);
 }
 
+void	handle_$(t_token **token, char *line, int *i, int *start)
+{
+
+	if (*i > *start)
+		handle_word_token(token, *start, line, i, false, false);
+
+	*start = *i;
+	(*i)++;
+	while ((ft_isalnum(line[*i]) || line[*i] == '_') && line[*i])
+		(*i)++;
+	handle_word_token(token, *start, line, i, true, false);
+
+	*start = *i;
+}
+
+void	handle_special_quot(t_token **token, char *line, int *i, int *start, bool *should_expand, bool *should_not_expand)
+{
+	if (line[*i] == '\"')
+		*should_expand = true;
+	else
+		*should_not_expand = true;
+	*start = *i;
+	char q = line[*i];
+	(*i)++;
+	while (line[*i] != q)
+		(*i)++;
+  (*i)++;
+  while (line[*i] != ' ' && line[*i] != '\t' && line[*i])
+  {
+    (*i)++;
+  }
+  (*i)++;
+	handle_word_token(token, *start, line, i, *should_expand, *should_not_expand);
+	*start = *i;
+	(*token)->should_expand = false;
+	(*token)->should_not_expand = false;
+
+}
+
+void	handle_white_spaces(t_token **token, char *line, int *i, int *start, bool *should_expand, bool *should_not_expand)
+{
+	handle_word_token(token, *start, line,  i, *should_expand, *should_not_expand);
+	while (line[*i] == ' ' || line[*i] == '\t')
+		(*i)++;
+	*start = *i;
+
+}
+
+bool  check_somthing(char *word)
+{
+  if (!special_character(word))
+  {
+    printf("this character is not valid\n");
+    return(false);
+  }
+  if (!is_closed_quotes(word))
+  {
+    printf ("the quote does not close!\n");
+    return(false);
+  }
+  return (true);
+}
+
 t_token	*tokenize(char *line)
 {
 	int i;
@@ -134,21 +197,14 @@ t_token	*tokenize(char *line)
 	int start = 0;
 
 	i = 0;
+  if (!check_somthing(line))
+    return (NULL);
 	while (line[i])
 	{
 		handle_quote(&in_quot, &quot_char, &i, line);
-		if (in_quot && line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
+		if (line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
 		{
-			if (i > start)
-				handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
-
-			start = i;
-			i++;
-			while ((ft_isalnum(line[i]) || line[i] == '_') && line[i])
-				i++;
-			handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
-
-			start = i;
+			handle_$(&token, line, &i, &start);
 			continue;
 		}
 		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
@@ -159,33 +215,15 @@ t_token	*tokenize(char *line)
 		}
 		else if (line[i] == '\"' || line[i] == '\'')
 		{
-			if (line[i] == '\"')
-				should_expand = true;
-			else
-				should_not_expand = true;
-			start = i;
-			char q = line[i];
-			i++;
-			while (line[i] != q)
-				i++;
-			i++;
-			handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
-			start = i;
-			token->should_expand = false;
-			token->should_not_expand = false;
+			handle_special_quot(&token, line, &i, &start, &should_expand, &should_not_expand);
 		}
 		else if (!in_quot && (line[i] == ' ' || line[i] == '\t'))
 		{
-			handle_word_token(&token, start, line,  &i, should_expand,should_not_expand);
-			while (line[i] == ' ' || line[i] == '\t')
-				i++;
-			start = i;
+			handle_white_spaces(&token, line, &i, &start, &should_expand, &should_not_expand);
 			continue;
 		}
 		else
-		{
 			i++;
-		}
 	}
 	handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
 	return (token);
@@ -270,11 +308,15 @@ void make_prompt()
         {
             add_history(line);
             token = tokenize(line);
-			print_token(token);
-			continue_parsing(&token);
-			printf ("after removing\n");
-			print_token(token);
+            if (!token)
+                return;
+			      print_token(token);
+			      continue_parsing(&token);
+			      printf ("after removing\n");
+			      print_token(token);
             cmd = parsing_command(token);
+            if (!cmd)
+                return;
             if (cmd->args)
                  execute_command(cmd);
             free_token(&token);
