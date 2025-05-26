@@ -145,7 +145,7 @@ bool	special_character(char *str)
 	return (true);
 }
 
-void	handle_word_token(t_token **token, int start, char *line, int *i, bool should_expand, bool should_not_expand)
+void	handle_word_token(t_token **token, int start, char *line, int *i)
 {
 	char *word;
 
@@ -157,12 +157,7 @@ void	handle_word_token(t_token **token, int start, char *line, int *i, bool shou
 		if (word && *word != '\0')
 		{
 			t_token *new = creat_token(word, get_token_type(word));
-			if (new)
-			{
-				new->should_not_expand = should_not_expand;
-				new->should_expand = should_expand;
-			}
-			char *str = expand_env(word, &new);
+			char *str = expand_env(word);
 			if (str)
 			{
 				free(new->av);

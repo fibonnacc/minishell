@@ -95,7 +95,15 @@ char	*manual_realloc(char *old, size_t len)
 // 	}
 // }
 
-char	*expand_env(char *str, t_token **token)
+bool  con(char *str)
+{
+  if (str[0] == '\'')
+    return(false);
+  else
+    return(true);
+}
+
+char	*expand_env(char *str)
 {
  	char	*result, *string, *valeur;
  	size_t	(i), j, old_size, new_size, len, start;
@@ -106,9 +114,10 @@ char	*expand_env(char *str, t_token **token)
  		return (NULL);
  	i = 0;
  	j = 0;
+  bool condition = con(str);
 	while (str[i])
  	{
- 		if ((*token)->should_expand && !((*token)->should_not_expand) && str[i] == '$' && (ft_isalnum(str[i + 1]) || str[i + 1] == '_') && str[i + 1])
+ 		if (condition && str[i] == '$' && (ft_isalnum(str[i + 1]) || str[i + 1] == '_') && str[i + 1])
  		{
  			i++;
  			start = i;

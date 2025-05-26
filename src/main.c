@@ -123,48 +123,43 @@ t_token_type	get_token_type(char *str)
 		return (TOKEN_WORD);
 }
 
-void	handle_$(t_token **token, char *line, int *i, int *start)
+void	handle_dollar(t_token **token, char *line, int *i, int *start)
 {
 
 	if (*i > *start)
-		handle_word_token(token, *start, line, i, false, false);
+		handle_word_token(token, *start, line, i);
 
 	*start = *i;
 	(*i)++;
 	while ((ft_isalnum(line[*i]) || line[*i] == '_') && line[*i])
 		(*i)++;
-	handle_word_token(token, *start, line, i, true, false);
+	handle_word_token(token, *start, line, i);
 
 	*start = *i;
 }
 
-void	handle_special_quot(t_token **token, char *line, int *i, int *start, bool *should_expand, bool *should_not_expand)
+void	handle_special_quot(t_token **token, char *line, int *i, int *start)
 {
-	if (line[*i] == '\"')
-		*should_expand = true;
-	else
-		*should_not_expand = true;
+  if (*i > *start && line[*start] != '$')
+    handle_word_token(token, *start, line, i);
 	*start = *i;
 	char q = line[*i];
 	(*i)++;
 	while (line[*i] != q)
 		(*i)++;
   (*i)++;
-  while (line[*i] != ' ' && line[*i] != '\t' && line[*i])
-  {
-    (*i)++;
-  }
-  (*i)++;
-	handle_word_token(token, *start, line, i, *should_expand, *should_not_expand);
+  // while (line[*i] != ' ' && line[*i] != '\t' && line[*i])
+  // {
+  //   (*i)++;
+  // }
+  // (*i)++;
+	handle_word_token(token, *start, line, i);
 	*start = *i;
-	(*token)->should_expand = false;
-	(*token)->should_not_expand = false;
-
 }
 
-void	handle_white_spaces(t_token **token, char *line, int *i, int *start, bool *should_expand, bool *should_not_expand)
+void	handle_white_spaces(t_token **token, char *line, int *i, int *start)
 {
-	handle_word_token(token, *start, line,  i, *should_expand, *should_not_expand);
+	handle_word_token(token, *start, line,  i);
 	while (line[*i] == ' ' || line[*i] == '\t')
 		(*i)++;
 	*start = *i;
@@ -191,8 +186,6 @@ t_token	*tokenize(char *line)
 	int i;
 	t_token	*token = NULL;
 	bool	in_quot = false;
-	bool	should_expand = false;
-	bool	should_not_expand = false;
 	char	quot_char = 0;
 	int start = 0;
 
@@ -204,28 +197,28 @@ t_token	*tokenize(char *line)
 		handle_quote(&in_quot, &quot_char, &i, line);
 		if (line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
 		{
-			handle_$(&token, line, &i, &start);
+			handle_dollar(&token, line, &i, &start);
 			continue;
 		}
 		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
 		{
-			handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
+			handle_word_token(&token, start, line, &i);
 			i = handle_speciale_token(&token, line, i);
 			start = i;
 		}
 		else if (line[i] == '\"' || line[i] == '\'')
 		{
-			handle_special_quot(&token, line, &i, &start, &should_expand, &should_not_expand);
+			handle_special_quot(&token, line, &i, &start);
 		}
 		else if (!in_quot && (line[i] == ' ' || line[i] == '\t'))
 		{
-			handle_white_spaces(&token, line, &i, &start, &should_expand, &should_not_expand);
+			handle_white_spaces(&token, line, &i, &start);
 			continue;
 		}
 		else
 			i++;
 	}
-	handle_word_token(&token, start, line, &i, should_expand, should_not_expand);
+	handle_word_token(&token, start, line, &i);
 	return (token);
 }
 
