@@ -103,6 +103,18 @@ bool  con(char *str)
     return(true);
 }
 
+bool  flaging(char *str)
+{
+  if (str[0] != '\'' && str[0] != '\"')
+  {
+    return (true);
+  }
+  else
+  {
+    return(false);
+  }
+}
+
 char	*expand_env(char *str)
 {
  	char	*result, *string, *valeur;
@@ -115,6 +127,7 @@ char	*expand_env(char *str)
  	i = 0;
  	j = 0;
   bool condition = con(str);
+  bool flag = flaging(str);
 	while (str[i])
  	{
  		if (condition && str[i] == '$' && (ft_isalnum(str[i + 1]) || str[i + 1] == '_') && str[i + 1])
@@ -132,15 +145,35 @@ char	*expand_env(char *str)
  			{
  				len = ft_strlen(valeur);
  				if (valeur)
- 				{
- 					if (j + len >= old_size)
- 					{
- 						new_size = len + old_size;
- 						result = manual_realloc(result, new_size);
- 						old_size = new_size;
- 					}
- 					ft_strlcpy(&result[j], valeur, len + 1);
- 					j += len;
+        {
+          if (j + len >= old_size)
+          {
+            new_size = len + old_size;
+            result = manual_realloc(result, new_size);
+            old_size = new_size;
+          }
+          if (flag)
+          {
+            int k = 0;
+            while (valeur[k])
+            {
+              if (valeur[k] == ' ')
+              {
+                while(valeur[k] == ' ')
+                {
+                  k++;
+                }
+                result[j++] = ' ';
+              }
+              else
+                result[j++] = valeur[k++];
+            }
+          }
+          else
+          {
+ 					  ft_strlcpy(&result[j], valeur, len + 1);
+ 					  j += len;
+          }
  				}
  				continue;
  			}
