@@ -242,7 +242,6 @@ t_command	*parsing_command(t_token *token)
 
 		if (current->type == TOKEN_WORD)
 		{
-			//char *string = expand_env(current->av);
 			append_arg(current_cmd, current->av);
 		}
 		current = current->next;

@@ -123,43 +123,44 @@ t_token_type	get_token_type(char *str)
 		return (TOKEN_WORD);
 }
 
-void	handle_dollar(t_token **token, char *line, int *i, int *start)
+void	handle_dollar(t_token **token, char *line, int *i, int *start, int *j)
 {
 
 	if (*i > *start)
-		handle_word_token(token, *start, line, i);
-
+  {
+		handle_word_token(token, *start, line, i, j);
+  }
 	*start = *i;
 	(*i)++;
 	while ((ft_isalnum(line[*i]) || line[*i] == '_') && line[*i])
 		(*i)++;
-	handle_word_token(token, *start, line, i);
-
+  if (*i > *start)
+  {
+	  handle_word_token(token, *start, line, i, j);
+  }
 	*start = *i;
 }
 
-void	handle_special_quot(t_token **token, char *line, int *i, int *start)
+void	handle_special_quot(t_token **token, char *line, int *i, int *start, int *j)
 {
-  if (*i > *start && line[*start] != '$')
-    handle_word_token(token, *start, line, i);
+  if (line[*start] == '$' && !ft_isalnum(line[*i]))
+    *start = *i;
+  if (*i > *start)
+    handle_word_token(token, *start, line, i, j);
 	*start = *i;
 	char q = line[*i];
 	(*i)++;
 	while (line[*i] != q)
 		(*i)++;
-  (*i)++;
-  // while (line[*i] != ' ' && line[*i] != '\t' && line[*i])
-  // {
-  //   (*i)++;
-  // }
-  // (*i)++;
-	handle_word_token(token, *start, line, i);
+  if (line[*i] == q)
+    (*i)++;
+  handle_word_token(token, *start, line, i, j);
 	*start = *i;
 }
 
-void	handle_white_spaces(t_token **token, char *line, int *i, int *start)
+void	handle_white_spaces(t_token **token, char *line, int *i, int *start, int *j)
 {
-	handle_word_token(token, *start, line,  i);
+	handle_word_token(token, *start, line,  i, j);
 	while (line[*i] == ' ' || line[*i] == '\t')
 		(*i)++;
 	*start = *i;
@@ -190,6 +191,7 @@ t_token	*tokenize(char *line)
 	int start = 0;
 
 	i = 0;
+  int j = 0;
   if (!check_somthing(line))
     return (NULL);
 	while (line[i])
@@ -197,28 +199,29 @@ t_token	*tokenize(char *line)
 		handle_quote(&in_quot, &quot_char, &i, line);
 		if (line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
 		{
-			handle_dollar(&token, line, &i, &start);
+			handle_dollar(&token, line, &i, &start, &j);
 			continue;
 		}
 		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
 		{
-			handle_word_token(&token, start, line, &i);
-			i = handle_speciale_token(&token, line, i);
+			handle_word_token(&token, start, line, &i, &j);
+			i = handle_speciale_token(&token, line, i, &j);
 			start = i;
 		}
 		else if (line[i] == '\"' || line[i] == '\'')
 		{
-			handle_special_quot(&token, line, &i, &start);
+			handle_special_quot(&token, line, &i, &start, &j);
 		}
 		else if (!in_quot && (line[i] == ' ' || line[i] == '\t'))
 		{
-			handle_white_spaces(&token, line, &i, &start);
+			handle_white_spaces(&token, line, &i, &start,  &j);
 			continue;
 		}
 		else
 			i++;
 	}
-	handle_word_token(&token, start, line, &i);
+	handle_word_token(&token, start, line, &i, &j);
+  j++;
 	return (token);
 }
 
@@ -236,21 +239,59 @@ void	my_handler(int sig)
 
 void print_token(t_token *token)
 {
+  int i = 0;
 	while (token)
 	{
-		printf("the value : %s -> ", token->av);
+		printf("the value : {%s}", token->av);
 		if (token->type == TOKEN_HERDOC)
+    {
+      if (token->info[i].should_join == 1)
+        printf(" :   {True} : ");
+      else
+        printf(" :   {false} : ");
 			printf ("TOKEN_HERDOC\n");
+    }
 		else if (token->type == TOKEN_REDIR_APPEND)
+    {
+      if (token->info[i].should_join == 1)
+        printf(" : {True} : ");
+      else
+        printf(" : {false} : ");
 			printf ("TOKEN_REDIR_APPEND\n");
+    }
 		else if (token->type == TOKEN_REDIR_IN)
+    {
+      if (token->info[i].should_join == 1)
+        printf(" : {True} : ");
+      else
+        printf(" : {false} : ");
 			printf ("TOKEN_REDIR_IN\n");
+    }
 		else if (token->type == TOKEN_REDIR_OUT)
+    {
+      if (token->info[i].should_join == 1)
+        printf(" : {True} : ");
+      else
+        printf(" : {false} : ");
 			printf ("TOKEN_REDIR_OUT\n");
+    }
 		else if (token->type == TOKEN_PIPE)
+    {
+      if (token->info[i].should_join == 1)
+        printf(" : {True} : ");
+      else
+        printf(" : {false} : ");
 			printf ("TOKEN_PIPE\n");
+    }
 		else
+    {
+      if (token->info[i].should_join == 1)
+        printf(" : {True} : ");
+      else
+        printf(" : {false} : ");
 			printf ("TOKEN_WORD\n");
+    }
+    i++;
 		token = token->next;
 	}
 }
@@ -270,55 +311,73 @@ void	continue_parsing(t_token **token)
 	}
 }
 
+void join_nodes(t_token **token)
+{
+  char *joined;
+  t_token *curr;
+  t_token *next;
+  int i;
+
+  curr = *token;
+  i = 0;
+	while (curr && curr->next)
+	{
+		if (curr->info[i].should_join == true)
+		{
+			next = curr->next;
+
+			joined = ft_strjoin(curr->av, next->av);
+			free(curr->av);
+			curr->av = joined;
+			curr->next = next->next;
+			if (next->av)
+				free(next->av);
+			if (next->info)
+				free(next->info);
+			free(next);
+			continue;
+		}
+		i++;
+		curr = curr->next;
+	}
+}
+
 void make_prompt()
 {
-    char *line;
-    char *prompt;
-    char *part1;
-    char *part2;
-    t_token *token;
-    t_command *cmd;
+  char *line;
+  t_token *token;
+  t_command *cmd;
 
-    part1 = ft_strjoin(COLOR_START, getenv("HOME"));
-    part2 = ft_strjoin(part1, "@minishell> ");
-    free(part1);
-    prompt = ft_strjoin(part2, COLOR_RESET); 
-	free(part2);
-
-    if (!prompt)
-        return;
-
-    while (1)
+  while (1)
+  {
+    signal(SIGINT, my_handler);
+    line = readline(promt());
+    if (!line)
     {
-        signal(SIGINT, my_handler);
-        line = readline(prompt);
-        if (!line)
-        {
-            printf("exit\n");
-            break;
-        }
-        if (line[0] != '\0')
-        {
-            add_history(line);
-            token = tokenize(line);
-            if (!token)
-                return;
-			      print_token(token);
-			      continue_parsing(&token);
-			      printf ("after removing\n");
-			      print_token(token);
-            cmd = parsing_command(token);
-            if (!cmd)
-                return;
-            if (cmd->args)
-                 execute_command(cmd);
-            free_token(&token);
-        }
-        free(line);
+      printf("exit\n");
+      break;
     }
-
-    free(prompt);
-    rl_clear_history();
+    if (line[0] != '\0')
+    {
+      add_history(line);
+      token = tokenize(line);
+      if (!token)
+        return;
+      print_token(token);
+      continue_parsing(&token);
+      join_nodes(&token);
+      printf ("------------------------------------------\n");
+      print_token(token);
+      cmd = parsing_command(token);
+      if (!cmd)
+        return;
+      if (cmd->args)
+        execute_command(cmd);
+      free_token(&token);
+    }
+    free(line);
+  }
+  rl_clear_history();
 }
 
 int main()

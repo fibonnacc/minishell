@@ -15,22 +15,27 @@ built_in	main.c	/^bool	built_in(char *cmd)$/;"	f	typeref:typename:bool
 check_somthing	main.c	/^bool  check_somthing(char *word)$/;"	f	typeref:typename:bool
 con	Handle_command.c	/^bool  con(char *str)$/;"	f	typeref:typename:bool
 continue_parsing	main.c	/^void	continue_parsing(t_token **token)$/;"	f	typeref:typename:void
-creat_token	Handle_token.c	/^t_token *creat_token(char *line, t_token_type type)$/;"	f	typeref:typename:t_token *
+creat_token	Handle_token.c	/^t_token *creat_token(char *line, t_token_type type, int *j, bool  should_join)$/;"	f	typeref:typename:t_token *
 create_command	Handle_command.c	/^t_command	*create_command()$/;"	f	typeref:typename:t_command *
 execute_command	main.c	/^void execute_command(t_command	*cmd)$/;"	f	typeref:typename:void
 expand_env	Handle_command.c	/^char	*expand_env(char *str)$/;"	f	typeref:typename:char *
 free_cmd	Handle_command.c	/^void	free_cmd(t_command *cmd)$/;"	f	typeref:typename:void
 free_token	Helper.c	/^void	free_token(t_token **token)$/;"	f	typeref:typename:void
+ft_meta_c	Handle_token.c	/^bool  ft_meta_c(char c)$/;"	f	typeref:typename:bool
+ft_space	Handle_token.c	/^bool  ft_space(char c)$/;"	f	typeref:typename:bool
+get_path_display	prompt.c	/^static char	*get_path_display(void)$/;"	f	typeref:typename:char *	file:
 get_token_type	main.c	/^t_token_type	get_token_type(char *str)$/;"	f	typeref:typename:t_token_type
-handle_dollar	main.c	/^void	handle_dollar(t_token **token, char *line, int *i, int *start)$/;"	f	typeref:typename:void
+get_user_display	prompt.c	/^static char	*get_user_display(void)$/;"	f	typeref:typename:char *	file:
+handle_dollar	main.c	/^void	handle_dollar(t_token **token, char *line, int *i, int *start, int *j)$/;"	f	typeref:typename:void
 handle_quote	Handle_token.c	/^void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line)$/;"	f	typeref:typename:void
-handle_special_quot	main.c	/^void	handle_special_quot(t_token **token, char *line, int *i, int *start)$/;"	f	typeref:typename:void
-handle_speciale_token	Handle_token.c	/^int	handle_speciale_token(t_token **token, char *line, int i)$/;"	f	typeref:typename:int
-handle_white_spaces	main.c	/^void	handle_white_spaces(t_token **token, char *line, int *i, int *start)$/;"	f	typeref:typename:void
-handle_word_token	Handle_token.c	/^void	handle_word_token(t_token **token, int start, char *line, int *i)$/;"	f	typeref:typename:void
+handle_special_quot	main.c	/^void	handle_special_quot(t_token **token, char *line, int *i, int *start, int *j)$/;"	f	typeref:typename:void
+handle_speciale_token	Handle_token.c	/^int	handle_speciale_token(t_token **token, char *line, int i, int *j)$/;"	f	typeref:typename:int
+handle_white_spaces	main.c	/^void	handle_white_spaces(t_token **token, char *line, int *i, int *start, int *j)$/;"	f	typeref:typename:void
+handle_word_token	Handle_token.c	/^void	handle_word_token(t_token **token, int start, char *line, int *i, int *j)$/;"	f	typeref:typename:void
 init_variables	Handle_token.c	/^void	init_variables(char *str, int *i, int *j, bool *in_quotes, char *quote_char, size_t *len, c/;"	f	typeref:typename:void
 is_closed_quotes	Handle_token.c	/^bool is_closed_quotes(char *str)$/;"	f	typeref:typename:bool
 is_space	Helper.c	/^int	is_space(char c)$/;"	f	typeref:typename:int
+join_nodes	main.c	/^void join_nodes(t_token **token)$/;"	f	typeref:typename:void
 main	main.c	/^int main()$/;"	f	typeref:typename:int
 make_prompt	main.c	/^void make_prompt()$/;"	f	typeref:typename:void
 manual_realloc	Handle_command.c	/^char	*manual_realloc(char *old, size_t len)$/;"	f	typeref:typename:char *
@@ -39,6 +44,7 @@ my_handler	main.c	/^void	my_handler(int sig)$/;"	f	typeref:typename:void
 parsing_command	Handle_command.c	/^t_command	*parsing_command(t_token *token)$/;"	f	typeref:typename:t_command *
 print_commands	main.c	/^void print_commands(t_command *cmd)$/;"	f	typeref:typename:void
 print_token	main.c	/^void print_token(t_token *token)$/;"	f	typeref:typename:void
+promt	prompt.c	/^char	*promt(void)$/;"	f	typeref:typename:char *
 remove_quotes	Handle_token.c	/^char *remove_quotes(char *str)$/;"	f	typeref:typename:char *
 special_character	Handle_token.c	/^bool	special_character(char *str)$/;"	f	typeref:typename:bool
 tokenize	main.c	/^t_token	*tokenize(char *line)$/;"	f	typeref:typename:t_token *
