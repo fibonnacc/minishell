@@ -17,6 +17,10 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <uchar.h>
+
 
 typedef enum s_token_type
 {
@@ -28,15 +32,15 @@ typedef enum s_token_type
 	TOKEN_HERDOC
 }	t_token_type;
 
-typedef struct s_info
-{
-  bool should_join;
-} t_info;
+// typedef struct s_info
+// {
+//   bool should_join;
+// } t_info;
 
 typedef struct s_token
 {
 	char	*av;
-  t_info *info;
+  	bool	info;
 	t_token_type	type;
 	struct s_token *next;
 	struct s_token *prev;
@@ -53,17 +57,19 @@ typedef struct s_command
 }	t_command;
 
 
+void print_commands(t_command *cmd);
+void print_token(t_token *token);
 bool	special_character(char *str);
 char	*promt(void);
 void	make_prompt();
 bool	special_character(char *str);
-t_token *creat_token(char *line, t_token_type type, int *j, bool should_join);
+t_token *creat_token(char *line, t_token_type type, bool should_join);
 void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line);
 void	add_token(t_token **token, t_token *new_token);
 bool is_closed_quotes(char *str);
-void	handle_word_token(t_token **token, int start, char *line, int *i, int *j);
+void	handle_word_token(t_token **token, int start, char *line, int *i);
 t_token_type	get_token_type(char *str);
-int	handle_speciale_token(t_token **token, char *line, int i, int *j);
+int	handle_speciale_token(t_token **token, char *line, int i);
 t_token	*tokenize(char *line);
 void	append_arg(t_command *cmd, char *str);
 t_command	*create_command();

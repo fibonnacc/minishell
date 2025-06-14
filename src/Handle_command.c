@@ -1,3 +1,4 @@
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -117,167 +118,251 @@ bool  flaging(char *str)
 
 char	*expand_env(char *str)
 {
- 	char	*result, *string, *valeur;
- 	size_t	(i), j, old_size, new_size, len, start;
+	char	*result, *string, *valeur;
+	size_t	(i), j, old_size, new_size, len, start;
 
- 	old_size = (ft_strlen(str) * 2 + 1);
- 	result = (char *)ft_calloc(old_size, 1);
- 	if (result == NULL)
- 		return (NULL);
- 	i = 0;
- 	j = 0;
-  bool condition = con(str);
-  bool flag = flaging(str);
-	while (str[i])
- 	{
- 		if (condition && str[i] == '$' && (ft_isalnum(str[i + 1]) || str[i + 1] == '_') && str[i + 1])
- 		{
- 			i++;
- 			start = i;
- 			while((ft_isalnum(str[i]) || str[i] == '_') && str[i])
- 				i++;
- 			string = ft_substr(str, start, i - start);	
- 			if (!string)
- 				return (NULL);
- 			valeur = getenv(string);
- 			free(string);
- 			if(valeur)
- 			{
- 				len = ft_strlen(valeur);
- 				if (valeur)
-        {
-          if (j + len >= old_size)
-          {
-            new_size = len + old_size;
-            result = manual_realloc(result, new_size);
-            old_size = new_size;
-          }
-          if (flag)
-          {
-            int k = 0;
-            while (valeur[k])
-            {
-              if (valeur[k] == ' ')
-              {
-                while(valeur[k] == ' ')
-                {
-                  k++;
-                }
-                result[j++] = ' ';
-              }
-              else
-                result[j++] = valeur[k++];
-            }
-          }
-          else
-          {
- 					  ft_strlcpy(&result[j], valeur, len + 1);
- 					  j += len;
-          }
- 				}
- 				continue;
- 			}
- 		}	
-		result[j++] = str[i++];
- 	}
- 	return (result);
-}
-
-t_command	*parsing_command(t_token *token)
-{
-	t_token	*current;
-	t_command	*new_cmd;
-	t_command	*first_cmd;
-	t_command	*current_cmd;
-	char	*expanded;
-
-	current_cmd = NULL;
-	new_cmd = NULL;
-	first_cmd = NULL;
-	expanded = NULL;
-	current_cmd = create_command();
-	if (!current_cmd)
+	old_size = (ft_strlen(str) * 2 + 1);
+	result = (char *)ft_calloc(old_size, 1);
+	if (result == NULL)
 		return (NULL);
-	first_cmd = current_cmd;
-	current = token;
-	while (current)
+	i = 0;
+	j = 0;
+	bool condition = con(str);
+	bool flag = flaging(str);
+	while (str[i])
 	{
-		if (current->type == TOKEN_PIPE && current->next)
+		if (condition && str[i] == '$' && (ft_isalnum(str[i + 1]) || str[i + 1] == '_') && str[i + 1])
 		{
-			new_cmd = create_command();
-			if (!new_cmd)
-			{
-				free_cmd(first_cmd);
+			i++;
+			start = i;
+			while((ft_isalnum(str[i]) || str[i] == '_') && str[i])
+				i++;
+			string = ft_substr(str, start, i - start);	
+			if (!string)
 				return (NULL);
-			}
-			current_cmd->next = new_cmd;
-			current_cmd = new_cmd;
-			current = current->next;
-		}
-
-		if (current->type == TOKEN_REDIR_IN && current->next && current->next->type == TOKEN_WORD)
-		{
-			if(current_cmd->file_input)
-				free(current_cmd->file_input);
-			current_cmd->file_input = ft_strdup(current->next->av);
-			if (current_cmd == NULL)
+			valeur = getenv(string);
+			free(string);
+			if(valeur)
 			{
-				free_cmd(first_cmd);
-				return(NULL);
+				len = ft_strlen(valeur);
+				if (valeur)
+				{
+					if (j + len >= old_size)
+					{
+						new_size = len + old_size;
+						result = manual_realloc(result, new_size);
+						old_size = new_size;
+					}
+					if (flag)
+					{
+						int k = 0;
+						while (valeur[k])
+						{
+							if (valeur[k] == ' ')
+							{
+								while(valeur[k] == ' ')
+								{
+									k++;
+								}
+								result[j++] = ' ';
+							}
+							else
+							result[j++] = valeur[k++];
+						}
+					}
+					else
+				{
+						ft_strlcpy(&result[j], valeur, len + 1);
+						j += len;
+					}
+				}
+				continue;
 			}
-			current = current->next->next;
-			continue;
-		}
-
-		if (current->type == TOKEN_REDIR_OUT && current->next && current->next->type == TOKEN_WORD)
-		{
-			if (current_cmd->file_output)
-				free(current_cmd->file_output);
-			current_cmd->file_output = ft_strdup(current->next->av);
-			if (current_cmd == NULL)
-			{
-				free_cmd(first_cmd);
-				return (NULL);
-			}
-			current_cmd->append = 0;
-			current = current->next->next;
-			continue;
-		}
-
-		if (current->type == TOKEN_REDIR_APPEND && current->next && current->next->type == TOKEN_WORD)
-		{
-			if (current_cmd->file_output)
-				free(current_cmd->file_output);
-			current_cmd->file_output = ft_strdup(current->next->av);
-			if (current_cmd == NULL)
-			{
-				free_cmd(first_cmd);
-				return (NULL);
-			}
-			current_cmd->append = 1;
-			current = current->next->next;
-			continue;
-		}
-
-		if (current->type == TOKEN_HERDOC && current->next && current->next->type == TOKEN_WORD)
-		{
-			if (current_cmd->herdoc)
-				free(current_cmd->herdoc);
-			current_cmd->herdoc = ft_strdup(current->next->av);
-			if (!current_cmd->herdoc)
-			{
-				free_cmd(first_cmd);
-				return(NULL);
-			}
-			current = current->next->next;
-			continue;
-		}
-
-		if (current->type == TOKEN_WORD)
-		{
-			append_arg(current_cmd, current->av);
-		}
-		current = current->next;
+		}	
+		result[j++] = str[i++];
 	}
-	return (first_cmd);
+	return (result);
 }
+
+
+int	handle_pipe(t_token **current, t_command **current_cmd, t_command *first_cmd)
+{
+	t_command	*new_cmd;
+
+	if ((*current)->type != TOKEN_PIPE)
+		return (1);
+	if ((*current)->next == NULL)
+	{
+		printf("minishell: syntax error near unexpected token `|'\n");
+		return (0);
+	}
+	new_cmd = create_command();
+	if (!new_cmd)
+	{
+		free_cmd(first_cmd);
+		return (0);
+	}
+	(*current_cmd)->next = new_cmd;
+	*current_cmd = new_cmd;
+	*current = (*current)->next;
+	return (1);
+}
+
+int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd)
+{
+	if ((*current)->type != TOKEN_REDIR_IN)
+		return (1);
+	if (!(*current)->next)
+	{
+		printf("minishell: syntax error near unexpected token `newline'\n");
+		return (0);
+	}
+	if ((*current)->next->type != TOKEN_WORD)
+	{
+		printf("minishell: syntax error near unexpected token `%s'\n", (*current)->next->av);
+		return (0);
+	}
+	if (cmd->file_input)
+		free(cmd->file_input);
+	cmd->file_input = ft_strdup((*current)->next->av);
+	if (!cmd->file_input)
+	{
+		free_cmd(first_cmd);
+		return (0);
+	}
+	(*current) = (*current)->next->next;
+	return (1);
+}
+
+int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd)
+{
+	if ((*current)->type != TOKEN_REDIR_OUT)
+		return (1);
+	if (!(*current)->next)
+	{
+		printf("minishell: syntax error near unexpected token `newline'\n");
+		return (0);
+	}
+	if ((*current)->next->type != TOKEN_WORD)
+	{
+		printf("minishell: syntax error near unexpected token `%s'\n", (*current)->next->av);
+		return (0);
+	}
+	if (cmd->file_output)
+		free(cmd->file_output);
+	cmd->file_output = ft_strdup((*current)->next->av);
+	if (!cmd->file_output)
+	{
+		free_cmd(first_cmd);
+		return (0);
+	}
+	cmd->append = 0;
+	(*current) = (*current)->next->next;
+	return (1);
+}
+
+int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd)
+{
+	if ((*current)->type != TOKEN_REDIR_APPEND)
+		return (1);
+	if (!(*current)->next)
+	{
+		printf("minishell: syntax error near unexpected token `newline'\n");
+		return (0);
+	}
+	if ((*current)->next->type != TOKEN_WORD)
+	{
+		printf("minishell: syntax error near unexpected token `%s'\n", (*current)->next->av);
+		return (0);
+	}
+	if (cmd->file_output)
+		free(cmd->file_output);
+	cmd->file_output = ft_strdup((*current)->next->av);
+	if (!cmd->file_output)
+	{
+		free_cmd(first_cmd);
+		return (0);
+	}
+	cmd->append = 1;
+	(*current) = (*current)->next->next;
+	return (1);
+}
+
+int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd)
+{
+	if ((*current)->type != TOKEN_HERDOC)
+		return (1);
+	if (!(*current)->next)
+	{
+		printf("minishell: syntax error near unexpected token `newline'\n");
+		return (0);
+	}
+	if ((*current)->next->type != TOKEN_WORD)
+	{
+		printf("minishell: syntax error near unexpected token `%s'\n", (*current)->next->av);
+		return (0);
+	}
+	if (cmd->herdoc)
+		free(cmd->herdoc);
+	cmd->herdoc = ft_strdup((*current)->next->av);
+	if (!cmd->herdoc)
+	{
+		free_cmd(first_cmd);
+		return (0);
+	}
+	(*current) = (*current)->next->next;
+	return (1);
+}
+
+void	handle_word(t_token **current, t_command *cmd)
+{
+	append_arg(cmd, (*current)->av);
+	(*current) = (*current)->next;
+}
+
+t_command *parsing_command(t_token *token)
+{
+    t_token *current = token;
+    t_command *first_cmd;
+    t_command *current_cmd = create_command();
+    
+    if (!current_cmd)
+        return (NULL);
+    first_cmd = current_cmd;
+    
+    while (current)
+    {
+        if (current->type == TOKEN_PIPE)
+        {
+            if (!handle_pipe(&current, &current_cmd, first_cmd))
+                return (NULL);
+        }
+        else if (current->type == TOKEN_REDIR_IN)
+        {
+            if (!handle_redir_in(&current, current_cmd, first_cmd))
+                return (NULL);
+        }
+        else if (current->type == TOKEN_REDIR_OUT)
+        {
+            if (!handle_redir_out(&current, current_cmd, first_cmd))
+                return (NULL);
+        }
+        else if (current->type == TOKEN_REDIR_APPEND)
+        {
+            if (!handle_redir_append(&current, current_cmd, first_cmd))
+                return (NULL);
+        }
+        else if (current->type == TOKEN_HERDOC)
+        {
+            if (!handle_heredoc(&current, current_cmd, first_cmd))
+                return (NULL);
+        }
+        else if (current->type == TOKEN_WORD)
+        {
+			append_arg(current_cmd, current->av);
+			current = current->next;
+        }
+	}
+    	return (first_cmd);
+}
+

@@ -15,19 +15,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-t_token *creat_token(char *line, t_token_type type, int *j, bool  should_join)
+t_token *creat_token(char *line, t_token_type type, bool  should_join)
 {
 	t_token *new_token;
 
 	if (!(new_token = (t_token *)ft_calloc(1, sizeof(t_token))))
 		return (NULL);
-  if (!(new_token->info = (t_info *)calloc(1, sizeof(t_info))))
-    return (NULL);
 	if (!(new_token->av = ft_strdup(line)))
 		return (free(new_token), NULL);
 	new_token->type = type;
-  new_token->info[(*j)++].should_join = should_join;
-  //printf("%d->%d->%s\n", *j, should_join, new_token->av);
+	new_token->info = should_join;
+	//printf("%d->%d->%s\n", *j, should_join, new_token->av);
 	new_token->next = NULL;
 	new_token->prev = NULL;
 	return (new_token);
@@ -158,23 +156,24 @@ bool  ft_meta_c(char c)
   return (c == '>' || c == '|' || c == '<');
 }
 
-void	handle_word_token(t_token **token, int start, char *line, int *i, int *j)
+void	handle_word_token(t_token **token, int start, char *line, int *i)
 {
-	char *word;
-  bool  should_join = false;
-  t_token *new;
-  char *str;
+	bool  should_join = false;
+	t_token *new;
+	char *str, *word;
 
 	if (*i > start)
 	{
-    if (!ft_space(line[*i]) && !ft_meta_c(line[(*i) - 1]))
-      should_join = true;
+		if (!ft_space(line[*i]) && !ft_meta_c(line[(*i) - 1]) && line[*i] != '\0')
+			should_join = true;
 		word = ft_substr(line, start, *i - start);
 		if (!word)
 			return;	
+		if (ft_strncmp(word, "$?", 2) == 0)
+			word = ft_strdup("0");
 		if (word && *word != '\0')
 		{
-			new = creat_token(word, get_token_type(word), j, should_join);
+			new = creat_token(word, get_token_type(word), should_join);
 			str = expand_env(word);
 			if (str)
 			{
@@ -187,30 +186,30 @@ void	handle_word_token(t_token **token, int start, char *line, int *i, int *j)
 	}
 }
 
-int	handle_speciale_token(t_token **token, char *line, int i, int *j)
+int	handle_speciale_token(t_token **token, char *line, int i)
 {
 	char	*special;
-  bool  should_join;
+	bool  should_join;
 
 	special = malloc(3 * sizeof(char));
 	if (!special)
 		return (0);
-  should_join = false;
+	should_join = false;
 	if ((line[i] == '>' || line[i] == '<') && (line[i + 1] == line[i]))
 	{
 		special[0] = line[i];
 		special[1] = line[i];
 		special[2] = '\0';
-		add_token(token, creat_token(special, get_token_type(special), j, should_join));
-    free(special);
+		add_token(token, creat_token(special, get_token_type(special), should_join));
+		free(special);
 		return (i + 2);
 	}
 	else
-	{
+{
 		special[0] = line[i];
 		special[1] = '\0';
-		add_token(token, creat_token(special, get_token_type(special), j, should_join));
-    free(special);
+		add_token(token, creat_token(special, get_token_type(special), should_join));
+		free(special);
 		return (i + 1);
 	}
 }
