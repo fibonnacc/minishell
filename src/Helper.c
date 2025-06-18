@@ -35,41 +35,70 @@ int	is_space(char c)
 	return (1);
 }
 
+int count_args(char **av)
+{
+  int i = 0;
+  while (av[i])
+  {
+    i++;
+  }
+  return(i);
+}
+
+void  free_array(char **arr)
+{
+  int i;
+
+  i = 0;
+  while (arr[i])
+  {
+    free(arr[i]);
+    i++;
+  }
+  free(arr);
+
+}
+
+void	free_cmd(t_command *cmd)
+{
+	t_command	*current, *next;
+
+	current = cmd;
+	while (current)
+	{
+		next = current->next;
+		if (current->args)
+      free_array(cmd->args);
+		if (current->file_input)
+			free(current->file_input);
+		if (current->file_output)
+			free(current->file_output);
+		if (current->herdoc)
+			free(current->herdoc);
+		free(current);
+		current = next;
+	}
+}
+
 void	append_arg(t_command *cmd, char *str)
 {
-	int i;
-	int j;
+	int i, j;
 	char	**new_array;
 
 	i = 0;
 	if (cmd->args)
-	{
-		while (cmd->args[i])
-			i++;
-	}
-
+    i = count_args(cmd->args);
 	new_array = ft_calloc(i + 2, sizeof(char *));
 	if (!new_array)
 		return;
-
-	j = 0;
-	while (j < i)
-	{
+	j = -1;
+	while (++j < i)
 		new_array[j] = cmd->args[j];
-		j++;
-	}
 	new_array[i] = ft_strdup(str);
 	if (!new_array[j])
-	{
-		free(new_array);
-		return ;
-	}
+		return(free(new_array));
 	new_array[i + 1] = NULL;
 	if (cmd->args)
-	{
 		free(cmd->args);
-	}
 	cmd->args = new_array;
 }
-
-

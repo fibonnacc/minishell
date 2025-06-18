@@ -170,7 +170,10 @@ void	handle_word_token(t_token **token, int start, char *line, int *i)
 		if (!word)
 			return;	
 		if (ft_strncmp(word, "$?", 2) == 0)
+		{
+			free(word);
 			word = ft_strdup("0");
+		}
 		if (word && *word != '\0')
 		{
 			new = creat_token(word, get_token_type(word), should_join);
@@ -204,8 +207,16 @@ int	handle_speciale_token(t_token **token, char *line, int i)
 		free(special);
 		return (i + 2);
 	}
+	else if (line[i] == '>' && line[i + 1] == '|')
+  {
+		special[0] = line[i];
+		special[1] = '\0';
+		add_token(token, creat_token(special, get_token_type(special), should_join));
+		free(special);
+		return (i + 2);
+	}
 	else
-{
+  {
 		special[0] = line[i];
 		special[1] = '\0';
 		add_token(token, creat_token(special, get_token_type(special), should_join));

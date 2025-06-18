@@ -10,128 +10,42 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 int	g_value = 0;
 
-void	my_echo(char **args)
-{
-	int i;
-	bool	j;
-
-	j = false;
-	i = 1;
-	if (args[i] && ft_strncmp(args[1], "-n", ft_strlen("-n")) == 0)
-	{
-		j = true;
-		i++;
-	}
-	while(args[i])
-	{
-		ft_putstr_fd(args[i], 1);
-		if (args[i + 1])
-			ft_putstr_fd(" ", 1);
-		i++;
-	}
-	if (j == false)
-		printf("\n");
-}
-
-bool	built_in(char *cmd)
-{
-	if (ft_strncmp(cmd, "echo", 5) == 0)
-		return (true);
-	else
-	{
-		return (false);
-	}
-}
-
-void	free_2D_array(char **str)
-{
-	if (!str || !str[0])
-		return;
-	int i = 0;
-	while (str[i])
-	{
-		free(str[i]);
-		i++;
-	}
-}
-
-char *get_command(char *cmd, char **env)
-{
-	char *path_env;
-	char **split_env;
-	char *complete_path;
-	char *first_join;
-
-	int i = 0;
-	while (env[i])
-	{
-		if (ft_strncmp(env[i], "PATH=", 5) == 0)
-		{
-			path_env = env[i] + 5;
-			break;
-		}
-		i++;
-	}
-	split_env = ft_split(path_env, ':');
-	first_join = ft_strjoin("/", cmd);
-	i = 0;
-	while(split_env[i])
-	{
-		complete_path = ft_strjoin(split_env[i], first_join);
-		if (access(complete_path, X_OK) == 0)
-		{
-			free_2D_array(split_env);
-			free(first_join);
-			return (complete_path);
-		}
-		if (complete_path)
-			free(complete_path);
-		i++;
-	}
-	free_2D_array(split_env);
-	return (NULL);
-}
-
 void execute_command(t_command *cmd, char **env)
 {
-    pid_t pid;
-	if (built_in(cmd->args[0]))
-	{
-		my_echo(cmd->args);
-		return;
-	}
+  pid_t pid;
+  if (built_in(cmd->args[0]))
+  {
+    my_echo(cmd->args);
+    return;
+  }
 
-	pid = fork();
-	if (pid == 0)
+  pid = fork();
+  if (pid == 0)
+  {
+    char *command = get_command(cmd->args[0], env);
+    if (!command)
     {
-		char *command = get_command(cmd->args[0], env);
-		if (!command)
-		{
-			printf("minishell: %s: command not found\n", cmd->args[0]);
-			exit(127);
-		}
-        execve(command, cmd->args, env);
-        perror("execvp failed");
-        exit(1);
+      printf("minishell: %s: command not found\n", cmd->args[0]);
+      exit(127);
     }
-	else if (pid > 0)
-    {
-        int status;
-        g_value = pid; // use g_value to store child PID
-        waitpid(pid, &status, 0);
-        g_value = 0; // reset after child exits
-    }
-    else
-    {
-        perror("fork failed");
-    }
+    execve(command, cmd->args, env);
+    perror("execvp failed");
+    exit(1);
+  }
+  else if (pid > 0)
+  {
+    int status;
+    g_value = pid; // use g_value to store child PID
+    waitpid(pid, &status, 0);
+    g_value = 0; // reset after child exits
+  }
+  else
+  {
+    perror("fork failed");
+  }
 }
 
 t_token_type	get_token_type(char *str)
@@ -148,59 +62,6 @@ t_token_type	get_token_type(char *str)
 			return (TOKEN_HERDOC);
 	else
 		return (TOKEN_WORD);
-}
-
-void	handle_dollar(t_token **token, char *line, int *i, int *start)
-{
-
-	if (*i > *start)
-	{
-		handle_word_token(token, *start, line, i);
-	}
-	*start = *i;
-	(*i)++;
-	while ((ft_isalnum(line[*i]) || line[*i] == '_') && line[*i])
-		(*i)++;
-	if (*i > *start)
-	{
-		handle_word_token(token, *start, line, i);
-	}
-	*start = *i;
-}
-
-void	handle_special_quot(t_token **token, char *line, int *i, int *start)
-{
-	if (line[*start] == '$' && !ft_isalnum(line[*i]))
-		*start = *i;
-	if (*i > *start)
-		handle_word_token(token, *start, line, i);
-	*start = *i;
-	char q = line[*i];
-	(*i)++;
-	while (line[*i] != q)
-		(*i)++;
-	if (line[*i] == q)
-		(*i)++;
-	handle_word_token(token, *start, line, i);
-	*start = *i;
-}
-
-void	handle_white_spaces(t_token **token, char *line, int *i, int *start)
-{
-	handle_word_token(token, *start, line,  i);
-	while (line[*i] == ' ' || line[*i] == '\t')
-		(*i)++;
-	*start = *i;
-}
-
-bool  check_somthing(char *word)
-{
-	if (!is_closed_quotes(word))
-	{
-		printf ("the quote does not close!\n");
-		return(false);
-	}
-	return (true);
 }
 
 t_token	*tokenize(char *line)
@@ -222,6 +83,8 @@ t_token	*tokenize(char *line)
 			handle_dollar(&token, line, &i, &start);
 			continue;
 		}
+		if (line[i] == '$' && !ft_isalnum(line[i + 1]))
+			handle_some_cases(&token, line, &i, &start);
 		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
 		{
 			handle_word_token(&token, start, line, &i);
@@ -229,16 +92,14 @@ t_token	*tokenize(char *line)
 			start = i;
 		}
 		else if (line[i] == '\"' || line[i] == '\'')
-		{
 			handle_special_quot(&token, line, &i, &start);
-		}
 		else if (!in_quot && (line[i] == ' ' || line[i] == '\t'))
 		{
 			handle_white_spaces(&token, line, &i, &start);
 			continue;
 		}
-		else
-		i++;
+    else
+		  i++;
 	}
 	handle_word_token(&token, start, line, &i);
 	return (token);
@@ -310,6 +171,23 @@ void join_nodes(t_token **token)
 	// printf("%d->%s\n", curr->info, curr->av);
 }
 
+bool  logic_of_meta(t_token *cmd)
+{
+  t_token *cur = cmd;
+  while (cur && cur->next)
+  {
+    if (cur->type != TOKEN_PIPE && cur->type != TOKEN_WORD 
+      && cur->next->type != TOKEN_PIPE && cur->next->type != TOKEN_WORD )
+    {
+      printf("minishell: syntax error  near unexpected token %s\n", cur->next->av);
+      return (false);
+    }
+    else
+      cur = cur->next;
+  }
+  return(true);
+}
+
 void make_prompt(char **env)
 {
 	char *line;
@@ -339,8 +217,13 @@ void make_prompt(char **env)
 			// printf ("after removing------------------------------------------\n");
 			// print_token(token);
 			join_nodes(&token);
-			// printf (" after joining------------------------------------------\n");
-			// print_token(token);
+      if (!logic_of_meta(token))
+      {
+        free(line);
+        continue;
+      }
+		  //printf (" after joining------------------------------------------\n");
+			//print_token(token);
 			cmd = parsing_command(token);
 			if (!cmd)
 			{

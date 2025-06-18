@@ -57,6 +57,26 @@ typedef struct s_command
 }	t_command;
 
 
+void	my_echo(char **args);
+bool	built_in(char *cmd);
+void	free_2D_array(char **str);
+char *get_command(char *cmd, char **env);
+void execute_command(t_command *cmd, char **env);
+void	handle_dollar(t_token **token, char *line, int *i, int *start);
+void	handle_special_quot(t_token **token, char *line, int *i, int *start);
+void	handle_white_spaces(t_token **token, char *line, int *i, int *start);
+bool  check_somthing(char *word);
+void	handle_some_cases(t_token **token, char *line, int *i, int *start);
+char	*manual_realloc(char *old, size_t len);
+int	handle_pipe(t_token **current, t_command **current_cmd, t_command *first_cmd);
+int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd);
+int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd);
+int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd);
+int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd);
+bool  con(char *str);
+bool  flaging(char *str);
+void  make_like_bash(char *result, char *valeur, size_t *j);
+void  init_var(char *str, size_t	*i, size_t *j,size_t *old_size, bool *condition, bool *flag);
 void print_commands(t_command *cmd);
 void print_token(t_token *token);
 bool	special_character(char *str);
