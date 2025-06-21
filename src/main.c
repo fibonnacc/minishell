@@ -13,19 +13,51 @@
 
 int	g_value = 0;
 
+void  store_and_increment(char *str, int *i, char *buffer, int *j)
+{
+  if (str[*i] == ' ' || str[*i] == '\t')
+  {
+    while (str[*i] == ' ' || str[*i] == '\t')
+      (*i)++;
+  }
+  else
+    buffer[(*j)++] = str[(*i)++];
+}
+
+int  make_exit(char *str)
+{
+  char *buffer;
+  int (i), j;
+
+  buffer = malloc(ft_strlen(str) + 1);
+  if (!buffer)
+    return (0);
+  i = 0;
+  j = 0;
+  while (str[i])
+  {
+    store_and_increment(str, &i, buffer, &j);
+  }
+  buffer[j] = '\0';
+  if (ft_strncmp(buffer, "exit", 4) == 0)
+    return(0);
+  return(1);
+}
+
 void execute_command(t_command *cmd, char **env)
 {
   pid_t pid;
+  char *command;
+
   if (built_in(cmd->args[0]))
   {
     my_echo(cmd->args);
     return;
-  }
-
+  } 
   pid = fork();
   if (pid == 0)
   {
-    char *command = get_command(cmd->args[0], env);
+    command = get_command(cmd->args[0], env);
     if (!command)
     {
       printf("minishell: %s: command not found\n", cmd->args[0]);
@@ -66,13 +98,13 @@ t_token_type	get_token_type(char *str)
 
 t_token	*tokenize(char *line)
 {
-	int i;
 	t_token	*token = NULL;
 	bool	in_quot = false;
 	char	quot_char = 0;
-	int start = 0;
+	int (start), i;
 
 	i = 0;
+  start = 0;
 	if (!check_somthing(line))
 		return (NULL);
 	while (line[i])
@@ -112,6 +144,7 @@ void my_handler(int sig)
 		if (g_value > 0) // child is running
 		{
 			kill(g_value, SIGINT); // send SIGINT to child
+      printf("\n");
 		}
 		else
 		{
@@ -142,19 +175,14 @@ void	continue_parsing(t_token **token)
 void join_nodes(t_token **token)
 {
 	char *joined;
-	t_token *curr;
-	t_token *next;
+	t_token (*curr), *next;
 
 	curr = *token;
-	//printf("-----------------------\n");
-    //print_token(curr);
 	while (curr && curr->next)
 	{
-		//printf("%d->%s\n", curr->info, curr->av);
 		if (curr->info)
 		{
 			next = curr->next;
-
 			joined = ft_strjoin(curr->av, next->av);
 			free(curr->av);
 			curr->av = joined;
@@ -168,7 +196,6 @@ void join_nodes(t_token **token)
 		}
 		curr = curr->next;
 	}
-	// printf("%d->%s\n", curr->info, curr->av);
 }
 
 bool  logic_of_meta(t_token *cmd)
@@ -200,7 +227,7 @@ void make_prompt(char **env)
 		if (g_value == -1)
 		{
 			g_value = 0;
-			continue;
+      continue;
 		}
 		line = readline(promt());
 		if (!line)
@@ -212,12 +239,19 @@ void make_prompt(char **env)
 		{
 			add_history(line);
 			token = tokenize(line);
+      if (!token)
+      {
+        free(line);
+        continue;
+      }
+      if (!make_exit(token->av))
+        exit(1);
 			//print_token(token);
 			continue_parsing(&token);
 			// printf ("after removing------------------------------------------\n");
 			// print_token(token);
 			join_nodes(&token);
-      if (!logic_of_meta(token))
+      if (logic_of_meta(token) == false)
       {
         free(line);
         continue;

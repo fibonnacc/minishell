@@ -76,40 +76,40 @@ void	init_variables(char *str, int *i, int *j, bool *in_quotes, char *quote_char
 
 char *remove_quotes(char *str)
 {
-    if (!str)
-		return NULL;
+  if (!str)
+    return NULL;
 
-    int i = 0, j = 0;
-    bool in_single = false;
-    bool in_double = false;
-    char *result = malloc(strlen(str) + 1);
-    if (!result) return NULL;
+  int i = 0, j = 0;
+  bool in_single = false;
+  bool in_double = false;
+  char *result = malloc(strlen(str) + 1);
+  if (!result) return NULL;
 
-    while (str[i])
-	{
-        if (str[i] == '\'' && !in_double)
-		{
-            in_single = !in_single;
-            i++;
-            continue;
-        }
-        else if (str[i] == '"' && !in_single)
-		{
-            in_double = !in_double;
-            i++;
-            continue;
-        }
-        if (in_single)
-		{
-            result[j++] = str[i++];
-        }
-        else
-		{
-            result[j++] = str[i++];
-        }
+  while (str[i])
+  {
+    if (str[i] == '\'' && !in_double)
+    {
+      in_single = !in_single;
+      i++;
+      continue;
     }
-    result[j] = '\0';
-    return result;
+    else if (str[i] == '"' && !in_single)
+    {
+      in_double = !in_double;
+      i++;
+      continue;
+    }
+    if (in_single)
+    {
+      result[j++] = str[i++];
+    }
+    else
+    {
+      result[j++] = str[i++];
+    }
+  }
+  result[j] = '\0';
+  return (result);
 }
 
 bool is_closed_quotes(char *str)

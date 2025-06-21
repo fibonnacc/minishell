@@ -19,12 +19,19 @@ void	handle_dollar(t_token **token, char *line, int *i, int *start)
 
 void	handle_special_quot(t_token **token, char *line, int *i, int *start)
 {
-	if (line[*start] == '$' && !ft_isalnum(line[*i]))
+  char q;
+
+	if (line[*start] == '$' && (line[*i] == '\"' || line[*i] == '\''))
 		*start = *i;
 	if (*i > *start)
+  {
+    if (line[(*i) - 1] == '$')
+      (*i) -= 1;
 		handle_word_token(token, *start, line, i);
+    (*i)++;
+  }
 	*start = *i;
-	char q = line[*i];
+	q = line[*i];
 	(*i)++;
 	while (line[*i] != q)
 		(*i)++;
@@ -46,7 +53,7 @@ bool  check_somthing(char *word)
 {
 	if (!is_closed_quotes(word))
 	{
-		printf ("the quote does not close!\n");
+		printf ("minishell : the quote does not close!\n");
 		return(false);
 	}
 	return (true);

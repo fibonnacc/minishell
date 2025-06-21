@@ -25,8 +25,8 @@ int	handle_pipe(t_token **current, t_command **current_cmd, t_command *first_cmd
 
 int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd)
 {
-  if ((*current)->type != TOKEN_REDIR_IN)
-    return (1);
+  // if ((*current)->type != TOKEN_REDIR_IN)
+  //   return (1);
   if (!(*current)->next)
   {
     printf("minishell: syntax error near unexpected token `newline'\n");
@@ -51,8 +51,8 @@ int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd)
 
 int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd)
 {
-  if ((*current)->type != TOKEN_REDIR_OUT)
-    return (1);
+  // if ((*current)->type != TOKEN_REDIR_OUT)
+  //   return (1);
   if (!(*current)->next)
   {
     printf("minishell: syntax error near unexpected token `newline'\n");
@@ -78,8 +78,8 @@ int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd)
 
 int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd)
 {
-  if ((*current)->type != TOKEN_REDIR_APPEND)
-    return (1);
+  // if ((*current)->type != TOKEN_REDIR_APPEND)
+  //   return (1);
   if (!(*current)->next)
   {
     printf("minishell: syntax error near unexpected token `newline'\n");
@@ -105,8 +105,8 @@ int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd)
 
 int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd)
 {
-  if ((*current)->type != TOKEN_HERDOC)
-    return (1);
+  // if ((*current)->type != TOKEN_HERDOC)
+  //   return (1);
   if (!(*current)->next)
   {
     printf("minishell: syntax error near unexpected token `newline'\n");
