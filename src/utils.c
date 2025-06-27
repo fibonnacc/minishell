@@ -1,4 +1,5 @@
 #include "../include/minishell.h"
+#include <stdio.h>
 
 void	handle_dollar(t_token **token, char *line, int *i, int *start)
 {
@@ -26,9 +27,13 @@ void	handle_special_quot(t_token **token, char *line, int *i, int *start)
 	if (*i > *start)
   {
     if (line[(*i) - 1] == '$')
+    {
       (*i) -= 1;
-		handle_word_token(token, *start, line, i);
-    (*i)++;
+		  handle_word_token(token, *start, line, i);
+      (*i)++;
+    }
+    else
+      handle_word_token(token, *start, line, i);
   }
 	*start = *i;
 	q = line[*i];

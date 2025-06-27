@@ -87,7 +87,7 @@ void print_commands(t_command *cmd)
 		if (cmd->file_output)
 		{
 			printf("Output File: '%s'\n", cmd->file_output);
-			printf("Append: %s\n", cmd->append ? "Yes" : "No");
+			printf("Append: %d\n", cmd->append);
 		}
 
 		if (cmd->herdoc)

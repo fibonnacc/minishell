@@ -46,52 +46,157 @@ int  make_exit(char *str)
 
 void execute_command(t_command *cmd, char **env)
 {
-  pid_t pid;
-  char *command;
+    pid_t pid;
+    char *command;
+    int fd_out = -1;
+    int fd_in = -1;
 
-  if (built_in(cmd->args[0]))
-  {
-    my_echo(cmd->args);
-    return;
-  } 
-  pid = fork();
-  if (pid == 0)
-  {
-    command = get_command(cmd->args[0], env);
-    if (!command)
+    if (built_in(cmd->args[0]))
     {
-      printf("minishell: %s: command not found\n", cmd->args[0]);
-      exit(127);
+        int saved_stdout = dup(STDOUT_FILENO);
+        int saved_stdin = dup(STDIN_FILENO);
+        if (cmd->file_output)
+        {
+            int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
+            fd_out = open(cmd->file_output, flags, 0644);
+            if (fd_out < 0)
+            {
+                perror("open output file");
+                return;
+            }
+            if (dup2(fd_out, STDOUT_FILENO) == -1)
+            {
+                perror("dup2");
+                close(fd_out);
+                return;
+            }
+            close(fd_out);
+        }
+        if (cmd->file_input)
+        {
+            fd_in = open(cmd->file_input, O_RDONLY);
+            if (fd_in < 0)
+            {
+                perror("open input file");
+                return;
+            }
+            if (dup2(fd_in, STDIN_FILENO) == -1)
+            {
+                perror("dup2");
+                close(fd_in);
+                return;
+            }
+            close(fd_in);
+        }
+
+        my_echo(cmd->args);  // You can replace this with your built-in dispatcher
+
+        // 🔁 Restore original stdout/stdin
+        dup2(saved_stdout, STDOUT_FILENO);
+        dup2(saved_stdin, STDIN_FILENO);
+        close(saved_stdout);
+        close(saved_stdin);
+        return;
     }
-    execve(command, cmd->args, env);
-    perror("execvp failed");
-    exit(1);
-  }
-  else if (pid > 0)
-  {
-    int status;
-    g_value = pid; // use g_value to store child PID
-    waitpid(pid, &status, 0);
-    g_value = 0; // reset after child exits
-  }
-  else
-  {
-    perror("fork failed");
-  }
+    pid = fork();
+    if (pid == 0)
+    {
+        if (cmd->file_output)
+        {
+            int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
+            fd_out = open(cmd->file_output, flags, 0644);
+            if (fd_out < 0)
+            {
+                perror("open output file");
+                exit(1);
+            }
+            dup2(fd_out, STDOUT_FILENO);
+            close(fd_out);
+        }
+
+        if (cmd->file_input)
+        {
+            fd_in = open(cmd->file_input, O_RDONLY);
+            if (fd_in < 0)
+            {
+                perror("open input file");
+                exit(1);
+            }
+            dup2(fd_in, STDIN_FILENO);
+            close(fd_in);
+        }
+
+        command = get_command(cmd->args[0], env);
+        if (!command)
+        {
+            fprintf(stderr, "minishell: %s: command not found\n", cmd->args[0]);
+            exit(127);
+        }
+
+        execve(command, cmd->args, env);
+        perror("execve failed");
+        exit(1);
+    }
+    else if (pid > 0)
+    {
+        int status;
+        g_value = pid;
+        waitpid(pid, &status, 0);
+        g_value = 0;
+    }
+    else
+        perror("fork failed");
 }
 
-t_token_type	get_token_type(char *str)
+
+// void execute_command(t_command *cmd, char **env)
+// {
+//   pid_t pid;
+//   char *command;
+//
+//   if (built_in(cmd->args[0]))
+//   {
+//     my_echo(cmd->args);
+//     return;
+//   } 
+//   pid = fork();
+//   if (pid == 0)
+//   {
+//     command = get_command(cmd->args[0], env);
+//     if (!command)
+//     {
+//       printf("minishell: %s: command not found\n", cmd->args[0]);
+//       exit(127);
+//     }
+//     execve(command, cmd->args, env);
+//     perror("execvp failed");
+//     exit(1);
+//   }
+//   else if (pid > 0)
+//   {
+//     int status;
+//     g_value = pid; // use g_value to store child PID
+//     waitpid(pid, &status, 0);
+//     g_value = 0; // reset after child exits
+//   }
+//   else
+//   {
+//     perror("fork failed");
+//   }
+// }
+
+t_token_type get_token_type(char *str)
 {
-	if ((ft_strncmp(str, "|", ft_strlen("|"))) == 0)
+	if (ft_strncmp(str, ">>", 2) == 0)
+		return (TOKEN_REDIR_APPEND);
+	else if (ft_strncmp(str, "<<", 2) == 0)
+		return (TOKEN_HERDOC);
+	else if (ft_strncmp(str, ">", 1) == 0)
+		return (TOKEN_REDIR_OUT);
+	else if (ft_strncmp(str, "<", 1) == 0)
+		return (TOKEN_REDIR_IN);
+	else if (ft_strncmp(str, "|", 1) == 0)
 		return (TOKEN_PIPE);
-	else if ((ft_strncmp(str, "<", ft_strlen("<"))) == 0)
-			return (TOKEN_REDIR_IN);
-	else if ((ft_strncmp(str, ">", ft_strlen(">"))) == 0)
-			return (TOKEN_REDIR_OUT);
-	else if ((ft_strncmp(str, ">>", ft_strlen(">>"))) == 0)
-			return (TOKEN_REDIR_APPEND);
-	else if ((ft_strncmp(str, "<<", ft_strlen("<<"))) == 0)
-			return (TOKEN_HERDOC);
 	else
 		return (TOKEN_WORD);
 }
@@ -99,8 +204,6 @@ t_token_type	get_token_type(char *str)
 t_token	*tokenize(char *line)
 {
 	t_token	*token = NULL;
-	bool	in_quot = false;
-	char	quot_char = 0;
 	int (start), i;
 
 	i = 0;
@@ -109,7 +212,6 @@ t_token	*tokenize(char *line)
 		return (NULL);
 	while (line[i])
 	{
-		handle_quote(&in_quot, &quot_char, &i, line);
 		if (line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
 		{
 			handle_dollar(&token, line, &i, &start);
@@ -117,7 +219,7 @@ t_token	*tokenize(char *line)
 		}
 		if (line[i] == '$' && !ft_isalnum(line[i + 1]))
 			handle_some_cases(&token, line, &i, &start);
-		if (!in_quot && (line[i] == '|' || line[i] == '<' || line[i] == '>'))
+		if (line[i] == '|' || line[i] == '<' || line[i] == '>')
 		{
 			handle_word_token(&token, start, line, &i);
 			i = handle_speciale_token(&token, line, i);
@@ -125,15 +227,12 @@ t_token	*tokenize(char *line)
 		}
 		else if (line[i] == '\"' || line[i] == '\'')
 			handle_special_quot(&token, line, &i, &start);
-		else if (!in_quot && (line[i] == ' ' || line[i] == '\t'))
-		{
+		else if (line[i] == ' ' || line[i] == '\t')
 			handle_white_spaces(&token, line, &i, &start);
-			continue;
-		}
     else
 		  i++;
 	}
-	handle_word_token(&token, start, line, &i);
+  handle_word_token(&token, start, line, &i);
 	return (token);
 }
 
@@ -269,6 +368,7 @@ void make_prompt(char **env)
 				execute_command(cmd, env);
 			free_token(&token);
 		}
+    free_cmd(cmd);
 		free(line);
 	}
 	rl_clear_history();

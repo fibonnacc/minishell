@@ -164,7 +164,7 @@ void	handle_word_token(t_token **token, int start, char *line, int *i)
 
 	if (*i > start)
 	{
-		if (!ft_space(line[*i]) && !ft_meta_c(line[(*i) - 1]) && line[*i] != '\0')
+		if (!ft_space(line[*i]) && !ft_meta_c(line[(*i)]) && line[*i] != '\0')
 			should_join = true;
 		word = ft_substr(line, start, *i - start);
 		if (!word)
