@@ -51,6 +51,7 @@ void execute_command(t_command *cmd, char **env)
     char *command;
     int fd_out = -1;
     int fd_in = -1;
+    int exit_code = 0;
 
     if (built_in(cmd->args[0]))
     {
@@ -125,7 +126,7 @@ void execute_command(t_command *cmd, char **env)
         int status;
         g_value = pid;
         waitpid(pid, &status, 0);
-        int exit_code = WEXITSTATUS(status);
+        exit_code = WEXITSTATUS(status);
         g_value = exit_code;
     }
     else
@@ -333,7 +334,7 @@ void make_prompt(char **env)
       }
       if (!make_exit(token->av))
         exit(1);
-			print_token(token);
+			//print_token(token);
 			continue_parsing(&token);
 			// printf ("after removing------------------------------------------\n");
 			// print_token(token);
