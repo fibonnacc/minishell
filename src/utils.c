@@ -1,11 +1,11 @@
 #include "../include/minishell.h"
 #include <stdio.h>
 
-void	handle_dollar(t_token **token, char *line, int *i, int *start)
+void	handle_dollar(t_token **token, char *line, int *i, int *start, int *exit)
 {
 	if (*i > *start)
 	{
-		handle_word_token(token, *start, line, i);
+		handle_word_token(token, *start, line, i, exit);
 	}
 	*start = *i;
 	(*i)++;
@@ -13,12 +13,12 @@ void	handle_dollar(t_token **token, char *line, int *i, int *start)
 		(*i)++;
 	if (*i > *start)
 	{
-		handle_word_token(token, *start, line, i);
+		handle_word_token(token, *start, line, i, exit);
 	}
 	*start = *i;
 }
 
-void	handle_special_quot(t_token **token, char *line, int *i, int *start)
+void	handle_special_quot(t_token **token, char *line, int *i, int *start, int *exit)
 {
   char q;
 
@@ -29,11 +29,11 @@ void	handle_special_quot(t_token **token, char *line, int *i, int *start)
     if (line[(*i) - 1] == '$')
     {
       (*i) -= 1;
-		  handle_word_token(token, *start, line, i);
+		  handle_word_token(token, *start, line, i, exit);
       (*i)++;
     }
     else
-      handle_word_token(token, *start, line, i);
+      handle_word_token(token, *start, line, i, exit);
   }
 	*start = *i;
 	q = line[*i];
@@ -42,13 +42,13 @@ void	handle_special_quot(t_token **token, char *line, int *i, int *start)
 		(*i)++;
 	if (line[*i] == q)
 		(*i)++;
-	handle_word_token(token, *start, line, i);
+	handle_word_token(token, *start, line, i, exit);
 	*start = *i;
 }
 
-void	handle_white_spaces(t_token **token, char *line, int *i, int *start)
+void	handle_white_spaces(t_token **token, char *line, int *i, int *start, int *exit)
 {
-	handle_word_token(token, *start, line,  i);
+	handle_word_token(token, *start, line,  i, exit);
 	while (line[*i] == ' ' || line[*i] == '\t')
 		(*i)++;
 	*start = *i;
@@ -64,12 +64,17 @@ bool  check_somthing(char *word)
 	return (true);
 }
 
-void	handle_some_cases(t_token **token, char *line, int *i, int *start)
+void	handle_some_cases(t_token **token, char *line, int *i, int *start, int *exit)
 {
+  if (*i > *start)
+  {
+    handle_word_token(token, *start, line, i, exit);
+    *start = *i;
+  }
 	if (line[(*i) + 1] == '?')
 	{
 		(*i) += 2;
-		handle_word_token(token, *start, line, i);
+		handle_word_token(token, *start, line, i, exit);
 		*start = *i;
 	}
 	else if (line[(*i) + 1] == '!')

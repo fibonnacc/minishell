@@ -156,7 +156,7 @@ bool  ft_meta_c(char c)
   return (c == '>' || c == '|' || c == '<');
 }
 
-void	handle_word_token(t_token **token, int start, char *line, int *i)
+void	handle_word_token(t_token **token, int start, char *line, int *i, int *exit)
 {
 	bool  should_join = false;
 	t_token *new;
@@ -172,7 +172,9 @@ void	handle_word_token(t_token **token, int start, char *line, int *i)
 		if (ft_strncmp(word, "$?", 2) == 0)
 		{
 			free(word);
-			word = ft_strdup("0");
+      char *convert = ft_itoa(*exit);
+			word = ft_strdup(convert);
+      *exit = 0;
 		}
 		if (word && *word != '\0')
 		{

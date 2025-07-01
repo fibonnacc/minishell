@@ -10,6 +10,7 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <stdio.h>
 
 int	g_value = 0;
 
@@ -27,7 +28,7 @@ void  store_and_increment(char *str, int *i, char *buffer, int *j)
 int  make_exit(char *str)
 {
   char *buffer;
-  int (i), j;
+  int i, j;
 
   buffer = malloc(ft_strlen(str) + 1);
   if (!buffer)
@@ -72,23 +73,7 @@ void execute_command(t_command *cmd, char **env)
             }
             close(fd_out);
         }
-        if (cmd->file_input)
-        {
-            fd_in = open(cmd->file_input, O_RDONLY);
-            if (fd_in < 0)
-            {
-                perror("open input file");
-                return;
-            }
-            if (dup2(fd_in, STDIN_FILENO) == -1)
-            {
-                perror("dup2");
-                close(fd_in);
-                return;
-            }
-            close(fd_in);
-        }
-
+        
         my_echo(cmd->args);  // You can replace this with your built-in dispatcher
 
         // 🔁 Restore original stdout/stdin
@@ -125,14 +110,12 @@ void execute_command(t_command *cmd, char **env)
             dup2(fd_in, STDIN_FILENO);
             close(fd_in);
         }
-
         command = get_command(cmd->args[0], env);
         if (!command)
         {
             fprintf(stderr, "minishell: %s: command not found\n", cmd->args[0]);
             exit(127);
         }
-
         execve(command, cmd->args, env);
         perror("execve failed");
         exit(1);
@@ -142,7 +125,8 @@ void execute_command(t_command *cmd, char **env)
         int status;
         g_value = pid;
         waitpid(pid, &status, 0);
-        g_value = 0;
+        int exit_code = WEXITSTATUS(status);
+        g_value = exit_code;
     }
     else
         perror("fork failed");
@@ -201,10 +185,10 @@ t_token_type get_token_type(char *str)
 		return (TOKEN_WORD);
 }
 
-t_token	*tokenize(char *line)
+t_token	*tokenize(char *line, int *exit)
 {
 	t_token	*token = NULL;
-	int (start), i;
+	int start, i;
 
 	i = 0;
   start = 0;
@@ -214,25 +198,27 @@ t_token	*tokenize(char *line)
 	{
 		if (line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
 		{
-			handle_dollar(&token, line, &i, &start);
+			handle_dollar(&token, line, &i, &start, exit);
 			continue;
 		}
 		if (line[i] == '$' && !ft_isalnum(line[i + 1]))
-			handle_some_cases(&token, line, &i, &start);
+    {
+			handle_some_cases(&token, line, &i, &start, exit);
+    }
 		if (line[i] == '|' || line[i] == '<' || line[i] == '>')
 		{
-			handle_word_token(&token, start, line, &i);
+			handle_word_token(&token, start, line, &i, exit);
 			i = handle_speciale_token(&token, line, i);
 			start = i;
 		}
 		else if (line[i] == '\"' || line[i] == '\'')
-			handle_special_quot(&token, line, &i, &start);
+			handle_special_quot(&token, line, &i, &start, exit);
 		else if (line[i] == ' ' || line[i] == '\t')
-			handle_white_spaces(&token, line, &i, &start);
+			handle_white_spaces(&token, line, &i, &start, exit);
     else
 		  i++;
 	}
-  handle_word_token(&token, start, line, &i);
+  handle_word_token(&token, start, line, &i, exit);
 	return (token);
 }
 
@@ -334,10 +320,12 @@ void make_prompt(char **env)
 			printf("exit\n");
 			break;
 		}
+    if (line[0] == '\0')
+      continue;
 		if (line[0] != '\0')
 		{
 			add_history(line);
-			token = tokenize(line);
+			token = tokenize(line, &g_value);
       if (!token)
       {
         free(line);
@@ -345,7 +333,7 @@ void make_prompt(char **env)
       }
       if (!make_exit(token->av))
         exit(1);
-			//print_token(token);
+			print_token(token);
 			continue_parsing(&token);
 			// printf ("after removing------------------------------------------\n");
 			// print_token(token);

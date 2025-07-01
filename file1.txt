@@ -1,0 +1,14 @@
+file.txt
+include
+Makefile
+minishell
+my_libft
+README.md
+src
+file.txt
+include
+Makefile
+minishell
+my_libft
+README.md
+src

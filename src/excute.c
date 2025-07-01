@@ -1,4 +1,5 @@
 #include "../include/minishell.h"
+#include <stdio.h>
 
 void	my_echo(char **args)
 {
