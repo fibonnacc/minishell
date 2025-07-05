@@ -42,7 +42,7 @@ void  make_the_envirement(char **result, char *valeur, size_t *old_size, size_t 
   {
     if (*j + len >= *old_size)
     {
-      *new_size = len + *old_size;
+      *new_size = len + (*j);
       *result = manual_realloc(*result, *new_size);
       *old_size = *new_size;
     }

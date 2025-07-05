@@ -56,7 +56,7 @@ void  make_like_bash(char *result, char *valeur, size_t *j)
 
 void  init_var(char *str, size_t	*i, size_t *j,size_t *old_size, bool *condition, bool *flag)
 {
-  *old_size = (ft_strlen(str) * 2 + 1);
+  *old_size = (ft_strlen(str) + 2 + 100);
   *i = 0;
   *j = 0;
   *condition = con(str);

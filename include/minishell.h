@@ -40,7 +40,7 @@ typedef enum s_token_type
 typedef struct s_token
 {
 	char	*av;
-  	bool	info;
+  bool	info;
 	t_token_type	type;
 	struct s_token *next;
 	struct s_token *prev;

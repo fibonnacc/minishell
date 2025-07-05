@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "libft.h"
+// #include <readline/readline.h>
 
 static size_t	count_words(char const *s, char c)
 {
@@ -81,3 +82,19 @@ char	**ft_split(char const *s, char c)
 	set_mem(tab, s, c);
 	return (tab);
 }
+
+// int main()
+// {
+//   while(1)
+//   {
+//     char *line = readline("> ");
+//     if (line == NULL)
+//       exit(1);
+//     char **split = ft_split(line, ' ');
+//     for (int i = 0;split[i]; i++)
+//     {
+//       printf("%s\n", split[i]);
+//     }
+//     free(line);
+//   }
+// }

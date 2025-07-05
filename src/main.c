@@ -10,7 +10,6 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-#include <stdio.h>
 
 int	g_value = 0;
 
@@ -133,43 +132,6 @@ void execute_command(t_command *cmd, char **env)
         perror("fork failed");
 }
 
-
-// void execute_command(t_command *cmd, char **env)
-// {
-//   pid_t pid;
-//   char *command;
-//
-//   if (built_in(cmd->args[0]))
-//   {
-//     my_echo(cmd->args);
-//     return;
-//   } 
-//   pid = fork();
-//   if (pid == 0)
-//   {
-//     command = get_command(cmd->args[0], env);
-//     if (!command)
-//     {
-//       printf("minishell: %s: command not found\n", cmd->args[0]);
-//       exit(127);
-//     }
-//     execve(command, cmd->args, env);
-//     perror("execvp failed");
-//     exit(1);
-//   }
-//   else if (pid > 0)
-//   {
-//     int status;
-//     g_value = pid; // use g_value to store child PID
-//     waitpid(pid, &status, 0);
-//     g_value = 0; // reset after child exits
-//   }
-//   else
-//   {
-//     perror("fork failed");
-//   }
-// }
-
 t_token_type get_token_type(char *str)
 {
 	if (ft_strncmp(str, ">>", 2) == 0)
@@ -243,20 +205,20 @@ void my_handler(int sig)
 	}
 }
 
-void	continue_parsing(t_token **token)
-{
-	t_token	*current;
-
-	current = *token;
-	while (current)
-	{
-		if (current->type == TOKEN_WORD)
-		{
-			current->av = remove_quotes((current->av));
-		}
-		current = current->next;
-	}
-}
+// void	continue_parsing(t_token **token)
+// {
+// 	t_token	*current;
+//
+// 	current = *token;
+// 	while (current)
+// 	{
+// 		if (current->type == TOKEN_WORD)
+// 		{
+// 			current->av = remove_quotes((current->av));
+// 		}
+// 		current = current->next;
+// 	}
+// }
 
 void join_nodes(t_token **token)
 {
@@ -332,10 +294,12 @@ void make_prompt(char **env)
         free(line);
         continue;
       }
-      if (!make_exit(token->av))
-        exit(1);
+      // if (!make_exit(token->av))
+      // {
+      //   int exit = check_the_next(token->next->av);
+      // }
 			//print_token(token);
-			continue_parsing(&token);
+			//continue_parsing(&token);
 			// printf ("after removing------------------------------------------\n");
 			// print_token(token);
 			join_nodes(&token);
@@ -344,8 +308,8 @@ void make_prompt(char **env)
         free(line);
         continue;
       }
-		  //printf (" after joining------------------------------------------\n");
-			//print_token(token);
+			//  printf (" after joining------------------------------------------\n");
+			// print_token(token);
 			cmd = parsing_command(token);
 			if (!cmd)
 			{

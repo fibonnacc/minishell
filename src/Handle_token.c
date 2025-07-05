@@ -156,40 +156,160 @@ bool  ft_meta_c(char c)
   return (c == '>' || c == '|' || c == '<');
 }
 
+void  init_var2(int *start, int *i, bool *should_join)
+{
+  *start = 0;
+  *i = 0;
+  *should_join = false;
+}
+
+void  lexe_with_space(t_token **token, int *start, int *i, char *word, bool *should_join, t_token_type value)
+{
+  char *str;
+
+  if (*i > *start)
+  {
+    str = ft_substr(word, *start, *i - *start);
+    add_token(token, creat_token(str, value, *should_join));
+  }
+  while (word[*i] == ' ' || word[*i] == '\t')
+    (*i)++;
+  *start = *i;
+  *should_join = true;
+}
+
+void make_list(char *word, t_token **token, t_token_type value)
+{
+	int start , i;
+  bool  should_join;
+  t_token *current = *token;
+  while((*token)->next)
+  {
+    (*token) = (*token)->next;
+  }
+  init_var2(&start, &i, &should_join);
+	while (word[i])
+	{
+    if (word[i] == ' ' || word[i] == '\t')
+    {
+      (*token)->info = false;
+      *token = current;
+      should_join = false;
+      lexe_with_space(token, &start, &i, word, &should_join, value);
+      continue;
+    }
+    i++;
+	}
+  lexe_with_space(token, &start, &i, word, &should_join, value);
+}
+
 void	handle_word_token(t_token **token, int start, char *line, int *i, int *exit)
 {
 	bool  should_join = false;
 	t_token *new;
+	int flag = 0;
 	char *str, *word;
+	t_token_type value = TOKEN_WORD;
 
 	if (*i > start)
 	{
-		if (!ft_space(line[*i]) && !ft_meta_c(line[(*i)]) && line[*i] != '\0')
+		if (!ft_space(line[*i]) && !ft_meta_c(line[*i]) && line[*i] != '\0')
 			should_join = true;
+    //printf("{%c}\n", line[*i]);
 		word = ft_substr(line, start, *i - start);
 		if (!word)
-			return;	
+			return;
+
 		if (ft_strncmp(word, "$?", 2) == 0)
 		{
 			free(word);
-      char *convert = ft_itoa(*exit);
+			char *convert = ft_itoa(*exit);
 			word = ft_strdup(convert);
-      *exit = 0;
+			free(convert);
+			*exit = 0;
 		}
+
 		if (word && *word != '\0')
 		{
-			new = creat_token(word, get_token_type(word), should_join);
 			str = expand_env(word);
-			if (str)
+      //printf("{%s}\n", str);
+			if (str[0] == '"' || str[0] == '\'')
 			{
-				free(new->av);
-				new->av = str;
+				value = get_token_type(str);
+				str = remove_quotes(str);
+				flag = 1;
 			}
-			add_token(token, new);
+			if (str && str != word)
+			{
+				free(word);
+				word = str;
+			}
+			if (!flag)
+				value = get_token_type(word);
+
+			if (!flag && (ft_strchr(word, ' ') || ft_strchr(word, '\t')))
+			{
+				make_list(word, token, value);
+				free(word);
+				return;
+			}
+
+			new = creat_token(word, value, should_join);
+			if (new)
+				add_token(token, new);
 			free(word);
 		}
 	}
 }
+// void	handle_word_token(t_token **token, int start, char *line, int *i, int *exit)
+// {
+// 	bool  should_join = false;
+// 	t_token *new;
+//   int flag = 0;
+// 	char *str, *word;
+//
+// 	if (*i > start)
+// 	{
+// 		if (!ft_space(line[*i]) && !ft_meta_c(line[(*i)]) && line[*i] != '\0')
+// 			should_join = true;
+// 		word = ft_substr(line, start, *i - start);
+// 		if (!word)
+// 			return;	
+// 		if (ft_strncmp(word, "$?", 2) == 0)
+// 		{
+// 			free(word);
+//       char *convert = ft_itoa(*exit);
+// 			word = ft_strdup(convert);
+//       *exit = 0;
+// 		}
+//     if (word && *word != '\0')
+// 		{
+// 			str = expand_env(word);
+//       if(str[0] == '\"' || str[0] == '\'')
+//       {
+//         t_token_type value = get_token_type(str);
+//         str = remove_quotes(str);
+//         flag = 1;
+//       }
+// 			if (str && str != word)
+// 			{
+// 				free(word);
+// 				word = str;
+// 			}
+//       if (!flag && (ft_strchr(word, ' ') || ft_strchr(word, '\t')))
+//       {
+//         make_list(word, token, value);
+//         free(word);
+//         *i += 1;
+//         return;
+//       }
+// 			new = creat_token(word, value, should_join);
+// 			if (new)
+// 				add_token(token, new);
+// 			free(word);
+// 		}
+// 	}
+// }
 
 int	handle_speciale_token(t_token **token, char *line, int i)
 {
