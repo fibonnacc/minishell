@@ -1,11 +1,11 @@
 #include "../include/minishell.h"
 #include <stdio.h>
 
-void	handle_dollar(t_token **token, char *line, int *i, int *start, int *exit)
+void	handle_dollar(t_token **token, char *line, int *i, int *start, t_data **data)
 {
 	if (*i > *start)
 	{
-		handle_word_token(token, *start, line, i, exit);
+		handle_word_token(token, *start, line, i, data);
 	}
 	*start = *i;
 	(*i)++;
@@ -13,12 +13,12 @@ void	handle_dollar(t_token **token, char *line, int *i, int *start, int *exit)
 		(*i)++;
 	if (*i > *start)
 	{
-		handle_word_token(token, *start, line, i, exit);
+		handle_word_token(token, *start, line, i, data);
 	}
 	*start = *i;
 }
 
-void	handle_special_quot(t_token **token, char *line, int *i, int *start, int *exit)
+void	handle_special_quot(t_token **token, char *line, int *i, int *start, t_data **data)
 {
   char q;
 
@@ -29,11 +29,11 @@ void	handle_special_quot(t_token **token, char *line, int *i, int *start, int *e
     if (line[(*i) - 1] == '$')
     {
       (*i) -= 1;
-		  handle_word_token(token, *start, line, i, exit);
+		  handle_word_token(token, *start, line, i, data);
       (*i)++;
     }
     else
-      handle_word_token(token, *start, line, i, exit);
+      handle_word_token(token, *start, line, i, data);
   }
 	*start = *i;
 	q = line[*i];
@@ -42,39 +42,40 @@ void	handle_special_quot(t_token **token, char *line, int *i, int *start, int *e
 		(*i)++;
 	if (line[*i] == q)
 		(*i)++;
-	handle_word_token(token, *start, line, i, exit);
+	handle_word_token(token, *start, line, i, data);
 	*start = *i;
 }
 
-void	handle_white_spaces(t_token **token, char *line, int *i, int *start, int *exit)
+void	handle_white_spaces(t_token **token, char *line, int *i, int *start, t_data **data)
 {
-	handle_word_token(token, *start, line,  i, exit);
+	handle_word_token(token, *start, line,  i, data);
 	while (line[*i] == ' ' || line[*i] == '\t')
 		(*i)++;
 	*start = *i;
 }
 
-bool  check_somthing(char *word)
+bool  check_somthing(char *word, t_data **data)
 {
 	if (!is_closed_quotes(word))
 	{
 		printf ("minishell : the quote does not close!\n");
+    (*data)->exit = 2;
 		return(false);
 	}
 	return (true);
 }
 
-void	handle_some_cases(t_token **token, char *line, int *i, int *start, int *exit)
+void	handle_some_cases(t_token **token, char *line, int *i, int *start, t_data **data)
 {
   if (*i > *start)
   {
-    handle_word_token(token, *start, line, i, exit);
+    handle_word_token(token, *start, line, i, data);
     *start = *i;
   }
 	if (line[(*i) + 1] == '?')
 	{
 		(*i) += 2;
-		handle_word_token(token, *start, line, i, exit);
+		handle_word_token(token, *start, line, i, data);
 		*start = *i;
 	}
 	else if (line[(*i) + 1] == '!')

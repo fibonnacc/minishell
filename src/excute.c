@@ -1,22 +1,38 @@
 #include "../include/minishell.h"
-#include <stdio.h>
 
-void	my_echo(char **args)
+void  compare_newline(char *str, bool *j, int *i)
+{
+  int k;
+
+  k = 0;
+  if (str[*i] && ft_strncmp(str, "-n", ft_strlen("-n")) == 0)
+  {
+    while(str[k])
+    {
+      if (str[k] != 'n')
+        *j = false;
+      else
+        *j = true;
+      k++;
+    }
+  }
+  if (*j == true)
+    (*i)++;
+}
+
+void	my_echo(t_command *cmd, t_data **data)
 {
   int i;
   bool	j;
 
   j = false;
   i = 1;
-  if (args[i] && ft_strncmp(args[1], "-n", ft_strlen("-n")) == 0)
+  compare_newline(cmd->args[i], &j, &i);
+  check_exit_status(cmd, data);
+  while(cmd->args[i])
   {
-    j = true;
-    i++;
-  }
-  while(args[i])
-  {
-    ft_putstr_fd(args[i], 1);
-    if (args[i + 1])
+    ft_putstr_fd(cmd->args[i], 1);
+    if (cmd->args[i + 1])
       ft_putstr_fd(" ", 1);
     i++;
   }
@@ -26,6 +42,8 @@ void	my_echo(char **args)
 
 bool	built_in(char *cmd)
 {
+  if (ft_strncmp(cmd, "exit", 4) == 0)
+    return(true);
   if (ft_strncmp(cmd, "echo", 5) == 0)
     return (true);
   else
@@ -54,6 +72,14 @@ char *get_command(char *cmd, char **env)
   char *first_join;
 
   int i = 0;
+  if (ft_strchr(cmd, '/'))
+  {
+    if (access(cmd, X_OK) == 0)
+    {
+      return(ft_strdup(cmd));
+    }
+    return(NULL);
+  }
   while (env[i])
   {
     if (ft_strncmp(env[i], "PATH=", 5) == 0)

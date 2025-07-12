@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <uchar.h>
 
-t_command	*create_command()
+t_command	*create_command(t_data **data)
 {
 	t_command	*cmd;
 
@@ -26,9 +26,9 @@ t_command	*create_command()
 		return (NULL);
 	}
 	cmd->args = NULL;
-	cmd->file_input = NULL;
+	cmd->file_input = malloc(sizeof(char *) * ((*data)->count_red_in + 1));
 	cmd->file_output = NULL;
-	cmd->herdoc = NULL;
+	cmd->herdoc = malloc(sizeof(char *) * ((*data)->count_herdoc + 1));
 	cmd->next = NULL;
 	return (cmd);
 }
@@ -98,51 +98,73 @@ char	*expand_env(char *str)
 		}	
 		result[j++] = str[i++];
 	}
-	return (result);
+  return (result);
 }
 
-t_command *parsing_command(t_token *token)
+
+void  how_many(t_token *token, t_data **data)
+{
+  t_token *cur;
+
+  cur = token;
+  while (cur)
+  {
+    if (cur->type == TOKEN_HERDOC)
+      (*data)->count_herdoc++;
+    if (cur->type == TOKEN_REDIR_IN)
+      (*data)->count_red_in++;
+    cur = cur->next;
+  }
+}
+
+t_command *parsing_command(t_token *token, t_data **data)
 {
   t_token *current = token;
   t_command *first_cmd;
-  t_command *current_cmd = create_command();
+  t_command *current_cmd ;
 
+  how_many(token, data);
+  current_cmd = create_command(data);
   if (!current_cmd)
     return (NULL);
   first_cmd = current_cmd;
+  (*data)->count_herdoc = 0;
+  (*data)->count_red_in = 0;
   while (current)
   {
     if (current->type == TOKEN_PIPE)
     {
-      if (!handle_pipe(&current, &current_cmd, first_cmd))
+      if (!handle_pipe(&current, &current_cmd, first_cmd, data))
         return (NULL);
     }
     else if (current->type == TOKEN_REDIR_IN)
     {
-      if (!handle_redir_in(&current, current_cmd, first_cmd))
+      if (!handle_redir_in(&current, current_cmd, first_cmd, data))
         return (NULL);
     }
     else if (current->type == TOKEN_REDIR_OUT)
     {
-      if (!handle_redir_out(&current, current_cmd, first_cmd))
+      if (!handle_redir_out(&current, current_cmd, first_cmd, data))
         return (NULL);
     }
     else if (current->type == TOKEN_REDIR_APPEND)
     {
-      if (!handle_redir_append(&current, current_cmd, first_cmd))
+      if (!handle_redir_append(&current, current_cmd, first_cmd, data))
         return (NULL);
     }
     else if (current->type == TOKEN_HERDOC)
     {
-      if (!handle_heredoc(&current, current_cmd, first_cmd))
-        return (NULL);
+      if (!handle_heredoc(&current, current_cmd, first_cmd, data))
+        return(NULL);
     }
     else if (current->type == TOKEN_WORD)
     {
-      append_arg(current_cmd, current->av);
+      append_arg(current_cmd, current->av, data);
       current = current->next;
     }
   }
+  current_cmd->herdoc[(*data)->count_herdoc] = NULL;
+  current_cmd->herdoc[(*data)->count_red_in] = NULL;
   return (first_cmd);
 }
 

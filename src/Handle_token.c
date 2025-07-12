@@ -180,86 +180,94 @@ void  lexe_with_space(t_token **token, int *start, int *i, char *word, bool *sho
 
 void make_list(char *word, t_token **token, t_token_type value)
 {
-	int start , i;
+  int start , i;
   bool  should_join;
-  t_token *current = *token;
-  while((*token)->next)
-  {
-    (*token) = (*token)->next;
-  }
   init_var2(&start, &i, &should_join);
-	while (word[i])
-	{
+
+  while (word[i])
+  {
     if (word[i] == ' ' || word[i] == '\t')
     {
-      (*token)->info = false;
-      *token = current;
       should_join = false;
       lexe_with_space(token, &start, &i, word, &should_join, value);
       continue;
     }
     i++;
-	}
+  }
   lexe_with_space(token, &start, &i, word, &should_join, value);
 }
 
-void	handle_word_token(t_token **token, int start, char *line, int *i, int *exit)
+void  join_expansion(char *str, t_token **token)
 {
-	bool  should_join = false;
-	t_token *new;
-	int flag = 0;
-	char *str, *word;
-	t_token_type value = TOKEN_WORD;
+  t_token *cur = *token;
+  if (!*token)
+    return;
+  if (str[0] == ' ')
+  {
+    while((*token)->next)
+    {
+      (*token) = (*token)->next;
+      (*token)->info= false;
+    }
+    *token = cur;
+  }
+}
 
-	if (*i > start)
-	{
-		if (!ft_space(line[*i]) && !ft_meta_c(line[*i]) && line[*i] != '\0')
-			should_join = true;
-    //printf("{%c}\n", line[*i]);
-		word = ft_substr(line, start, *i - start);
-		if (!word)
-			return;
+void	handle_word_token(t_token **token, int start, char *line, int *i, t_data **data)
+{
+  bool  should_join = false;
+  t_token *new;
+  int flag = 0;
+  char *str, *word;
+  t_token_type value = TOKEN_WORD;
 
-		if (ft_strncmp(word, "$?", 2) == 0)
-		{
-			free(word);
-			char *convert = ft_itoa(*exit);
-			word = ft_strdup(convert);
-			free(convert);
-			*exit = 0;
-		}
+  if (*i > start)
+  {
+    if (!ft_space(line[*i]) && !ft_meta_c(line[*i]) && line[*i] != '\0')
+      should_join = true;
+    word = ft_substr(line, start, *i - start);
+    if (ft_strchr(word, '\'') || ft_strchr(word, '\"'))
+      (*data)->should_expand = false;
+    if (!word)
+      return;
+    if (ft_strncmp(word, "$?", 2) == 0)
+    {
+      free(word);
+      char *convert = ft_itoa((*data)->exit);
+      word = ft_strdup(convert);
+      free(convert);
+      (*data)->exit = 0;
+    }
 
-		if (word && *word != '\0')
-		{
-			str = expand_env(word);
-      //printf("{%s}\n", str);
-			if (str[0] == '"' || str[0] == '\'')
-			{
-				value = get_token_type(str);
-				str = remove_quotes(str);
-				flag = 1;
-			}
-			if (str && str != word)
-			{
-				free(word);
-				word = str;
-			}
-			if (!flag)
-				value = get_token_type(word);
-
-			if (!flag && (ft_strchr(word, ' ') || ft_strchr(word, '\t')))
-			{
-				make_list(word, token, value);
-				free(word);
-				return;
-			}
-
-			new = creat_token(word, value, should_join);
-			if (new)
-				add_token(token, new);
-			free(word);
-		}
-	}
+    if (word && *word != '\0')
+    {
+      str = expand_env(word);
+      join_expansion(str, token);
+      if (str[0] == '"' || str[0] == '\'')
+      {
+        value = get_token_type(str);
+        str = remove_quotes(str);
+        flag = 1;
+      }
+      if (str && str != word)
+      {
+        free(word);
+        word = str;
+      }
+      if (!flag)
+        value = get_token_type(word);
+      if (!flag && (ft_strchr(word, ' ') || ft_strchr(word, '\t')))
+      {
+        make_list(word, token, value);
+        free(word);
+        return;
+      }
+      new = creat_token(word, value, should_join);
+      if (new)
+        add_token(token, new);
+      free(word);
+    }
+  }
 }
 // void	handle_word_token(t_token **token, int start, char *line, int *i, int *exit)
 // {
@@ -311,10 +319,11 @@ void	handle_word_token(t_token **token, int start, char *line, int *i, int *exit
 // 	}
 // }
 
-int	handle_speciale_token(t_token **token, char *line, int i)
+int	handle_speciale_token(t_token **token, char *line, int i, t_data **data)
 {
 	char	*special;
 	bool  should_join;
+  (*data)->exit = 0;
 
 	special = malloc(3 * sizeof(char));
 	if (!special)

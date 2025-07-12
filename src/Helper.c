@@ -56,7 +56,6 @@ void  free_array(char **arr)
     i++;
   }
   free(arr);
-
 }
 
 void	free_cmd(t_command *cmd)
@@ -68,22 +67,23 @@ void	free_cmd(t_command *cmd)
 	{
 		next = current->next;
 		if (current->args)
-      free_array(cmd->args);
+      free_array(current->args);
 		if (current->file_input)
 			free(current->file_input);
 		if (current->file_output)
 			free(current->file_output);
-		if (current->herdoc)
-			free(current->herdoc);
+		// if (current->herdoc)
+		// 	free_array(current->herdoc);
 		free(current);
 		current = next;
 	}
 }
 
-void	append_arg(t_command *cmd, char *str)
+void	append_arg(t_command *cmd, char *str, t_data **data)
 {
 	int i, j;
 	char	**new_array;
+  (*data)->exit = 0;
 
 	i = 0;
 	if (cmd->args)

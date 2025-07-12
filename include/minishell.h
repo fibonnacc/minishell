@@ -49,30 +49,38 @@ typedef struct s_token
 typedef struct s_command
 {
 	char	**args;
-	char	*file_input;
+	char	**file_input;
 	char	*file_output;
-	char	*herdoc;
+	char	**herdoc;
 	int		append;
 	struct	s_command *next;
 }	t_command;
 
+typedef struct s_data
+{
+  int exit;
+  bool should_expand;
+  int count_herdoc;
+  int count_red_in;
+} t_data;
 
-void	my_echo(char **args);
+void	my_echo(t_command *cmd, t_data **data);
+void  check_exit_status(t_command *cmd, t_data **data);
 bool	built_in(char *cmd);
 void	free_2D_array(char **str);
 char *get_command(char *cmd, char **env);
-void execute_command(t_command *cmd, char **env);
-void	handle_dollar(t_token **token, char *line, int *i, int *start, int *exit);
-void	handle_special_quot(t_token **token, char *line, int *i, int *start, int *exit);
-void	handle_white_spaces(t_token **token, char *line, int *i, int *start, int *exit);
-bool  check_somthing(char *word);
-void	handle_some_cases(t_token **token, char *line, int *i, int *start, int *exit);
+void execute_command(t_command *cmd, char **env, t_data **data);
+void	handle_dollar(t_token **token, char *line, int *i, int *start, t_data **data);
+void	handle_special_quot(t_token **token, char *line, int *i, int *start, t_data **data);
+void	handle_white_spaces(t_token **token, char *line, int *i, int *start, t_data **data);
+bool  check_somthing(char *word, t_data **data);
+void	handle_some_cases(t_token **token, char *line, int *i, int *start, t_data **data);
 char	*manual_realloc(char *old, size_t len);
-int	handle_pipe(t_token **current, t_command **current_cmd, t_command *first_cmd);
-int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd);
-int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd);
-int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd);
-int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd);
+int	handle_pipe(t_token **current, t_command **current_cmd, t_command *first_cmd, t_data **data);
+int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
+int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
+int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
+int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
 bool  con(char *str);
 bool  flaging(char *str);
 void  make_like_bash(char *result, char *valeur, size_t *j);
@@ -87,15 +95,15 @@ t_token *creat_token(char *line, t_token_type type, bool should_join);
 void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line);
 void	add_token(t_token **token, t_token *new_token);
 bool is_closed_quotes(char *str);
-void	handle_word_token(t_token **token, int start, char *line, int *i, int *exit);
+void	handle_word_token(t_token **token, int start, char *line, int *i, t_data **data);
 t_token_type	get_token_type(char *str);
-int	handle_speciale_token(t_token **token, char *line, int i);
-t_token	*tokenize(char *line, int *exit);
-void	append_arg(t_command *cmd, char *str);
-t_command	*create_command();
+int	handle_speciale_token(t_token **token, char *line, int i, t_data **data);
+t_token	*tokenize(char *line, t_data **data);
+void	append_arg(t_command *cmd, char *str, t_data **data);
+t_command	*create_command(t_data **data);
 void	free_cmd(t_command *cmd);
 char	*expand_env(char *str);
-t_command	*parsing_command(t_token *token);
+t_command	*parsing_command(t_token *token, t_data **data);
 int	is_space(char c);
 void	free_token(t_token **token);
 char *remove_quotes(char *str);

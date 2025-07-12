@@ -13,123 +13,283 @@
 
 int	g_value = 0;
 
-void  store_and_increment(char *str, int *i, char *buffer, int *j)
+int  make_exit(t_command *cmd, t_data **data)
 {
-  if (str[*i] == ' ' || str[*i] == '\t')
+  if (ft_strncmp(cmd->args[0], "exit", 4) == 0)
   {
-    while (str[*i] == ' ' || str[*i] == '\t')
-      (*i)++;
-  }
-  else
-    buffer[(*j)++] = str[(*i)++];
-}
-
-int  make_exit(char *str)
-{
-  char *buffer;
-  int i, j;
-
-  buffer = malloc(ft_strlen(str) + 1);
-  if (!buffer)
-    return (0);
-  i = 0;
-  j = 0;
-  while (str[i])
-  {
-    store_and_increment(str, &i, buffer, &j);
-  }
-  buffer[j] = '\0';
-  if (ft_strncmp(buffer, "exit", 4) == 0)
-    return(0);
-  return(1);
-}
-
-void execute_command(t_command *cmd, char **env)
-{
-    pid_t pid;
-    char *command;
-    int fd_out = -1;
-    int fd_in = -1;
-    int exit_code = 0;
-
-    if (built_in(cmd->args[0]))
+    if (cmd->args[1] != NULL)
     {
-        int saved_stdout = dup(STDOUT_FILENO);
-        int saved_stdin = dup(STDIN_FILENO);
-        if (cmd->file_output)
-        {
-            int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
-            fd_out = open(cmd->file_output, flags, 0644);
-            if (fd_out < 0)
-            {
-                perror("open output file");
-                return;
-            }
-            if (dup2(fd_out, STDOUT_FILENO) == -1)
-            {
-                perror("dup2");
-                close(fd_out);
-                return;
-            }
-            close(fd_out);
-        }
-        
-        my_echo(cmd->args);  // You can replace this with your built-in dispatcher
-
-        // 🔁 Restore original stdout/stdin
-        dup2(saved_stdout, STDOUT_FILENO);
-        dup2(saved_stdin, STDIN_FILENO);
-        close(saved_stdout);
-        close(saved_stdin);
-        return;
-    }
-    pid = fork();
-    if (pid == 0)
-    {
-        if (cmd->file_output)
-        {
-            int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
-            fd_out = open(cmd->file_output, flags, 0644);
-            if (fd_out < 0)
-            {
-                perror("open output file");
-                exit(1);
-            }
-            dup2(fd_out, STDOUT_FILENO);
-            close(fd_out);
-        }
-
-        if (cmd->file_input)
-        {
-            fd_in = open(cmd->file_input, O_RDONLY);
-            if (fd_in < 0)
-            {
-                perror("open input file");
-                exit(1);
-            }
-            dup2(fd_in, STDIN_FILENO);
-            close(fd_in);
-        }
-        command = get_command(cmd->args[0], env);
-        if (!command)
-        {
-            fprintf(stderr, "minishell: %s: command not found\n", cmd->args[0]);
-            exit(127);
-        }
-        execve(command, cmd->args, env);
-        perror("execve failed");
-        exit(1);
-    }
-    else if (pid > 0)
-    {
-        int status;
-        g_value = pid;
-        waitpid(pid, &status, 0);
-        exit_code = WEXITSTATUS(status);
-        g_value = exit_code;
+      int status = ft_atoi(cmd->args[1]);
+      (*data)->exit = WEXITSTATUS(status);
+      return(1);
     }
     else
-        perror("fork failed");
+    {
+      (*data)->exit = 0;
+      return(1);
+    }
+  }
+  return(0);
+}
+
+void  check_exit_status(t_command *cmd, t_data **data)
+{
+  int i = 0;
+  while (cmd->args[i])
+  {
+    if (ft_strchr(cmd->args[i],'$') && ft_strchr(cmd->args[i],'?'))
+    {
+      char  *expand = ft_itoa((*data)->exit);
+      char  *buffer = malloc((ft_strlen(expand) + ft_strlen(cmd->args[i]) + 1));
+
+      int k = 0;
+      int j = 0;
+      while(cmd->args[i][k] && cmd->args[i][k] != '$')
+      {
+        buffer[j++] = cmd->args[i][k++];
+      }
+      if (cmd->args[i][k] == '$' && cmd->args[i][k + 1] == '?')
+      {
+        int f = 0;
+        while (expand[f])
+          buffer[j++] = expand[f++];
+        k = j;
+        k++;
+      }
+      if (cmd->args[i][k])
+      {
+        while (cmd->args[i][k])
+          buffer[j++] = cmd->args[i][k++];
+      }
+      buffer[j] = 0;
+      free(cmd->args[i]);
+      cmd->args[i] = buffer;
+      return;
+    }
+    i++;
+  }
+}
+
+int append_or_trunc(t_command **cmd)
+{
+  if ((*cmd)->append)
+  {
+    return(O_APPEND);
+  }
+  else
+    return(O_TRUNC);
+}
+
+void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, int *fd_in)
+{
+  int flags;
+  int i;
+
+  flags = 0;
+  i = 0;
+  if ((*cmd)->file_output)
+  {
+    flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
+    *fd_out = open((*cmd)->file_output, flags, 0644);
+    if (*fd_out < 0)
+    {
+      perror("open output file");
+      (*data)->exit = 1;
+      exit(1);
+    }
+    dup2(*fd_out, STDOUT_FILENO);
+    close(*fd_out);
+  }
+  if ((*cmd)->file_input)
+  {
+    while (i < (*data)->count_red_in)
+    {
+      *fd_in = open((*cmd)->file_input[i], O_RDONLY);
+      if (*fd_in < 0)
+      {
+        printf("minishell: %s: No such file or directory\n", (*cmd)->file_input[i]);
+        exit(1);
+      }
+      dup2(*fd_in, STDIN_FILENO);
+      close(*fd_in);
+      i++;
+    }
+  }
+}
+
+void  excute_redirection_of_parent(t_command **cmd, t_data **data, int *fd_out)
+{
+  int (saved_stdout), saved_stdin, flags;
+
+  saved_stdout = dup(STDOUT_FILENO);
+  saved_stdin = dup(STDIN_FILENO);
+  if ((*cmd)->file_output)
+  {
+    flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
+    *fd_out = open((*cmd)->file_output, flags, 0644);
+    if (*fd_out < 0)
+      return;
+    if (dup2(*fd_out, STDOUT_FILENO) == -1)
+    {
+      close(*fd_out);
+      return;
+    }
+    close(*fd_out);
+  }
+  if (make_exit(*cmd, data))
+    exit((*data)->exit);
+  my_echo(*cmd, data);  // You can replace this with your built-in dispatcher
+
+  // 🔁 Restore original stdout/stdin
+  dup2(saved_stdout, STDOUT_FILENO);
+  dup2(saved_stdin, STDIN_FILENO);
+  close(saved_stdout);
+  close(saved_stdin);
+}
+
+void  read_and_convert(char *buffer, int *fd, unsigned char *c, int *i)
+{
+  if (read(*fd, c, 1) != 1)
+  {
+    close(*fd);
+    free(buffer);
+    return;
+  }
+  buffer[(*i)++] = 'a' + (*c % 26);
+}
+
+char *generate_file_name()
+{
+  unsigned char c;
+  char *buffer; 
+  int fd, i;
+
+  buffer = malloc(10);
+  if (!buffer)
+    return NULL;
+  fd = open("/dev/random", O_RDONLY);
+  if (fd < 0)
+    return (free(buffer), NULL);
+  i = 0;
+  while(i < 10)
+    read_and_convert(buffer, &fd, &c, &i);
+  buffer[i] = '\0';
+  close(fd);
+  return (buffer);
+}
+
+void  make_loop(t_command **cmd , char **line, int *fd, int i)
+{
+  while(1)
+  {
+    *line = readline("> ");
+    if (!*line)
+    {
+      printf(" warning: here-document at line delimited by end-of-file (wanted `%s')\n", (*cmd)->herdoc[i]);
+      return;
+    }
+    if ((*cmd)->herdoc[i] == NULL)
+      return;
+    if (*line[0] && !ft_strncmp(*line, (*cmd)->herdoc[i], ft_strlen(*line)))
+    {
+      free(*line);
+      return;
+    }
+    write(*fd, *line, ft_strlen(*line));
+    write(*fd, "\n", 1);
+    free(*line);
+  }
+}
+
+void  minishell_init(char **buffer, char **join, int *fd)
+{
+    *buffer = generate_file_name();
+    if (!*buffer)
+      return;
+    *join = ft_strjoin("/tmp/", *buffer);
+    if (!*join)
+      return;
+    *fd = open(*join, O_RDWR | O_CREAT, 0777);
+    if (*fd < 0)
+      return;
+
+}
+
+void excute_herdoc_for_child(t_command **cmd, t_data **data)
+{
+  int (i), fd;
+  char (*buffer), *line, *join;
+
+  i = 0;
+  while (i < (*data)->count_herdoc)
+  {
+    minishell_init(&buffer, &join, &fd);
+    make_loop(cmd, &line, &fd, i); 
+    close(fd);
+    if (i == (*data)->count_herdoc - 1)
+    {
+      fd = open(join, O_RDONLY);
+      dup2(fd, STDIN_FILENO);
+      close(fd);
+    }
+    free(buffer);
+    free(join);
+    i++;
+  }
+  (*data)->count_herdoc = 0;
+}
+
+void execute_command(t_command *cmd, char **env, t_data **data)
+{
+  pid_t pid;
+  int save = dup(0);
+  char *command;
+  int fd_out = -1;
+  int fd_in = -1;
+  
+  check_exit_status(cmd, data);
+  excute_herdoc_for_child(&cmd, data);
+  if (built_in(cmd->args[0]))
+  {
+    excute_redirection_of_parent(&cmd, data, &fd_out);
+    return;
+  }
+  pid = fork();
+  if (pid == 0)
+  {
+    signal(SIGQUIT, SIG_DFL);
+    excute_redirection_of_child(&cmd, data, &fd_out, &fd_in);
+    command = get_command(cmd->args[0], env);
+    if (!command)
+    {
+      printf("minishell: %s: command not found\n", cmd->args[0]);
+      (*data)->exit = 127;
+      exit((*data)->exit);
+    }
+    execve(command, cmd->args, env);
+    perror("execve failed");
+    (*data)->exit = 1;
+    exit(1);
+  }
+  else if (pid > 0)
+  {
+    dup2(save, 0);
+    close(save);
+    int status;
+    g_value = pid;
+    waitpid(pid, &status, 0);
+    if (WIFSIGNALED(status))
+    {
+      int sig = WTERMSIG(status);
+      if (sig == SIGQUIT)
+        write(2, "Quit (core dumped)\n", 19);
+      (*data)->exit = 128 + sig;
+    }
+    else
+      (*data)->exit = WEXITSTATUS(status);
+  }
+  else
+  perror("fork failed");
 }
 
 t_token_type get_token_type(char *str)
@@ -148,40 +308,40 @@ t_token_type get_token_type(char *str)
 		return (TOKEN_WORD);
 }
 
-t_token	*tokenize(char *line, int *exit)
+t_token	*tokenize(char *line, t_data **data)
 {
 	t_token	*token = NULL;
 	int start, i;
 
 	i = 0;
   start = 0;
-	if (!check_somthing(line))
+	if (!check_somthing(line, data))
 		return (NULL);
 	while (line[i])
 	{
 		if (line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
 		{
-			handle_dollar(&token, line, &i, &start, exit);
+			handle_dollar(&token, line, &i, &start, data);
 			continue;
 		}
 		if (line[i] == '$' && !ft_isalnum(line[i + 1]))
     {
-			handle_some_cases(&token, line, &i, &start, exit);
+			handle_some_cases(&token, line, &i, &start, data);
     }
 		if (line[i] == '|' || line[i] == '<' || line[i] == '>')
 		{
-			handle_word_token(&token, start, line, &i, exit);
-			i = handle_speciale_token(&token, line, i);
+			handle_word_token(&token, start, line, &i, data);
+			i = handle_speciale_token(&token, line, i, data);
 			start = i;
 		}
 		else if (line[i] == '\"' || line[i] == '\'')
-			handle_special_quot(&token, line, &i, &start, exit);
+			handle_special_quot(&token, line, &i, &start, data);
 		else if (line[i] == ' ' || line[i] == '\t')
-			handle_white_spaces(&token, line, &i, &start, exit);
+			handle_white_spaces(&token, line, &i, &start, data);
     else
 		  i++;
 	}
-  handle_word_token(&token, start, line, &i, exit);
+  handle_word_token(&token, start, line, &i, data);
 	return (token);
 }
 
@@ -204,21 +364,6 @@ void my_handler(int sig)
 		}
 	}
 }
-
-// void	continue_parsing(t_token **token)
-// {
-// 	t_token	*current;
-//
-// 	current = *token;
-// 	while (current)
-// 	{
-// 		if (current->type == TOKEN_WORD)
-// 		{
-// 			current->av = remove_quotes((current->av));
-// 		}
-// 		current = current->next;
-// 	}
-// }
 
 void join_nodes(t_token **token)
 {
@@ -246,7 +391,7 @@ void join_nodes(t_token **token)
 	}
 }
 
-bool  logic_of_meta(t_token *cmd)
+bool  logic_of_meta(t_token *cmd, t_data **data)
 {
   t_token *cur = cmd;
   while (cur && cur->next)
@@ -255,11 +400,13 @@ bool  logic_of_meta(t_token *cmd)
       && cur->next->type != TOKEN_PIPE && cur->next->type != TOKEN_WORD )
     {
       printf("minishell: syntax error  near unexpected token %s\n", cur->next->av);
+      (*data)->exit = 2;
       return (false);
     }
     else
       cur = cur->next;
   }
+  (*data)->exit = 0;
   return(true);
 }
 
@@ -267,9 +414,12 @@ void make_prompt(char **env)
 {
 	char *line;
 	t_token *token;
+  t_data  *data = malloc(sizeof(t_data));
+  ft_memset(data, 0, sizeof(t_data));
 	t_command *cmd;
 
 	signal(SIGINT, my_handler);
+	signal(SIGQUIT, SIG_IGN);
 	while (1)
 	{
 		if (g_value == -1)
@@ -288,37 +438,34 @@ void make_prompt(char **env)
 		if (line[0] != '\0')
 		{
 			add_history(line);
-			token = tokenize(line, &g_value);
+			token = tokenize(line, &data);
       if (!token)
       {
         free(line);
         continue;
       }
-      // if (!make_exit(token->av))
-      // {
-      //   int exit = check_the_next(token->next->av);
-      // }
-			//print_token(token);
+			// print_token(token);
 			//continue_parsing(&token);
 			// printf ("after removing------------------------------------------\n");
 			// print_token(token);
 			join_nodes(&token);
-      if (logic_of_meta(token) == false)
+      if (logic_of_meta(token, &data) == false)
       {
         free(line);
         continue;
       }
 			//  printf (" after joining------------------------------------------\n");
 			// print_token(token);
-			cmd = parsing_command(token);
+			cmd = parsing_command(token, &data);
 			if (!cmd)
 			{
 				free(line);
+      //printf("{%s}\n", str);
 				continue;
 			}
 			//print_commands(cmd);
 			if (cmd->args)
-				execute_command(cmd, env);
+				execute_command(cmd, env, &data);
 			free_token(&token);
 		}
     free_cmd(cmd);
