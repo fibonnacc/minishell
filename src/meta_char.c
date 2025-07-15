@@ -116,7 +116,7 @@ int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd,
   return (1);
 }
 
-int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data)
+int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data, int *i)
 {
   // if ((*current)->type != TOKEN_HERDOC)
   //   return (1);
@@ -132,13 +132,13 @@ int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_da
     (*data)->exit = 2;
     return (0);
   }
-  cmd->herdoc[(*data)->count_herdoc] = ft_strdup((*current)->next->av);
-  if (!cmd->herdoc[(*data)->count_herdoc])
+  cmd->herdoc[(*i)] = ft_strdup((*current)->next->av);
+  if (!cmd->herdoc[*i])
   {
     free_cmd(first_cmd);
     return (0);
   }
+  (*i)++;
   (*current) = (*current)->next->next;
-  (*data)->count_herdoc++;
   return (1);
 }

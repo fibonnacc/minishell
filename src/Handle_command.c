@@ -29,6 +29,7 @@ t_command	*create_command(t_data **data)
 	cmd->file_input = malloc(sizeof(char *) * ((*data)->count_red_in + 1));
 	cmd->file_output = NULL;
 	cmd->herdoc = malloc(sizeof(char *) * ((*data)->count_herdoc + 1));
+  cmd->herdoc_file = NULL;
 	cmd->next = NULL;
 	return (cmd);
 }
@@ -128,8 +129,8 @@ t_command *parsing_command(t_token *token, t_data **data)
   if (!current_cmd)
     return (NULL);
   first_cmd = current_cmd;
-  (*data)->count_herdoc = 0;
   (*data)->count_red_in = 0;
+  int i = 0;
   while (current)
   {
     if (current->type == TOKEN_PIPE)
@@ -154,7 +155,7 @@ t_command *parsing_command(t_token *token, t_data **data)
     }
     else if (current->type == TOKEN_HERDOC)
     {
-      if (!handle_heredoc(&current, current_cmd, first_cmd, data))
+      if (!handle_heredoc(&current, current_cmd, first_cmd, data, &i))
         return(NULL);
     }
     else if (current->type == TOKEN_WORD)
@@ -163,8 +164,8 @@ t_command *parsing_command(t_token *token, t_data **data)
       current = current->next;
     }
   }
-  current_cmd->herdoc[(*data)->count_herdoc] = NULL;
-  current_cmd->herdoc[(*data)->count_red_in] = NULL;
+  current_cmd->herdoc[i] = NULL;
+  current_cmd->file_input[(*data)->count_red_in] = NULL;
   return (first_cmd);
 }
 

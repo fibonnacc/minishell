@@ -52,6 +52,7 @@ typedef struct s_command
 	char	**file_input;
 	char	*file_output;
 	char	**herdoc;
+  char  *herdoc_file;
 	int		append;
 	struct	s_command *next;
 }	t_command;
@@ -66,6 +67,7 @@ typedef struct s_data
 
 void	my_echo(t_command *cmd, t_data **data);
 void  check_exit_status(t_command *cmd, t_data **data);
+void excute_herdoc_for_child(t_command **cmd, t_data **data);
 bool	built_in(char *cmd);
 void	free_2D_array(char **str);
 char *get_command(char *cmd, char **env);
@@ -80,7 +82,7 @@ int	handle_pipe(t_token **current, t_command **current_cmd, t_command *first_cmd
 int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
 int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
 int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
-int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
+int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data, int *i);
 bool  con(char *str);
 bool  flaging(char *str);
 void  make_like_bash(char *result, char *valeur, size_t *j);

@@ -147,97 +147,6 @@ void  excute_redirection_of_parent(t_command **cmd, t_data **data, int *fd_out)
   close(saved_stdin);
 }
 
-void  read_and_convert(char *buffer, int *fd, unsigned char *c, int *i)
-{
-  if (read(*fd, c, 1) != 1)
-  {
-    close(*fd);
-    free(buffer);
-    return;
-  }
-  buffer[(*i)++] = 'a' + (*c % 26);
-}
-
-char *generate_file_name()
-{
-  unsigned char c;
-  char *buffer; 
-  int fd, i;
-
-  buffer = malloc(10);
-  if (!buffer)
-    return NULL;
-  fd = open("/dev/random", O_RDONLY);
-  if (fd < 0)
-    return (free(buffer), NULL);
-  i = 0;
-  while(i < 10)
-    read_and_convert(buffer, &fd, &c, &i);
-  buffer[i] = '\0';
-  close(fd);
-  return (buffer);
-}
-
-void  make_loop(t_command **cmd , char **line, int *fd, int i)
-{
-  while(1)
-  {
-    *line = readline("> ");
-    if (!*line)
-    {
-      printf(" warning: here-document at line delimited by end-of-file (wanted `%s')\n", (*cmd)->herdoc[i]);
-      return;
-    }
-    if ((*cmd)->herdoc[i] == NULL)
-      return;
-    if (*line[0] && !ft_strncmp(*line, (*cmd)->herdoc[i], ft_strlen(*line)))
-    {
-      free(*line);
-      return;
-    }
-    write(*fd, *line, ft_strlen(*line));
-    write(*fd, "\n", 1);
-    free(*line);
-  }
-}
-
-void  minishell_init(char **buffer, char **join, int *fd)
-{
-    *buffer = generate_file_name();
-    if (!*buffer)
-      return;
-    *join = ft_strjoin("/tmp/", *buffer);
-    if (!*join)
-      return;
-    *fd = open(*join, O_RDWR | O_CREAT, 0777);
-    if (*fd < 0)
-      return;
-
-}
-
-void excute_herdoc_for_child(t_command **cmd, t_data **data)
-{
-  int (i), fd;
-  char (*buffer), *line, *join;
-
-  i = 0;
-  while (i < (*data)->count_herdoc)
-  {
-    minishell_init(&buffer, &join, &fd);
-    make_loop(cmd, &line, &fd, i); 
-    close(fd);
-    if (i == (*data)->count_herdoc - 1)
-    {
-      fd = open(join, O_RDONLY);
-      dup2(fd, STDIN_FILENO);
-      close(fd);
-    }
-    free(buffer);
-    free(join);
-    i++;
-  }
-  (*data)->count_herdoc = 0;
-}
 
 void execute_command(t_command *cmd, char **env, t_data **data)
 {
@@ -248,7 +157,17 @@ void execute_command(t_command *cmd, char **env, t_data **data)
   int fd_in = -1;
   
   check_exit_status(cmd, data);
-  excute_herdoc_for_child(&cmd, data);
+  if (cmd->herdoc_file)
+  {
+    fd_in = open(cmd->herdoc_file, O_RDONLY);
+    if (fd_in < 0)
+    {
+      printf("minishell: No such file or directory\n");
+      exit(1);
+    }
+    dup2(fd_in, STDIN_FILENO);
+    close(fd_in);
+  }
   if (built_in(cmd->args[0]))
   {
     excute_redirection_of_parent(&cmd, data, &fd_out);
@@ -287,6 +206,7 @@ void execute_command(t_command *cmd, char **env, t_data **data)
     }
     else
       (*data)->exit = WEXITSTATUS(status);
+    g_value = 0;
   }
   else
   perror("fork failed");
@@ -351,12 +271,12 @@ void my_handler(int sig)
 	{
 		if (g_value > 0) // child is running
 		{
-			kill(g_value, SIGINT); // send SIGINT to child
+      g_value = 0;   // send SIGINT to child
       printf("\n");
 		}
 		else
 		{
-			g_value = -1; // mark Ctrl-C pressed at prompt
+      // mark Ctrl-C pressed at prompt
 			write(1, "\n", 1);
 			rl_on_new_line();
 			rl_replace_line("", 0);
@@ -422,11 +342,11 @@ void make_prompt(char **env)
 	signal(SIGQUIT, SIG_IGN);
 	while (1)
 	{
-		if (g_value == -1)
-		{
-			g_value = 0;
-      continue;
-		}
+		// if (g_value == -1)
+		// {
+		// 	g_value = 0;
+		//     continue;
+		// }
 		line = readline(promt());
 		if (!line)
 		{
@@ -463,6 +383,11 @@ void make_prompt(char **env)
       //printf("{%s}\n", str);
 				continue;
 			}
+      if (data->count_herdoc > 0)
+      {
+        excute_herdoc_for_child(&cmd, &data);
+        
+      }
 			//print_commands(cmd);
 			if (cmd->args)
 				execute_command(cmd, env, &data);
