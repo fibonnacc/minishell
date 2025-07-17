@@ -11,7 +11,6 @@
 
 #include "../include/minishell.h"
 
-int	g_value = 0;
 
 int  make_exit(t_command *cmd, t_data **data)
 {
@@ -155,9 +154,10 @@ void execute_command(t_command *cmd, char **env, t_data **data)
   char *command;
   int fd_out = -1;
   int fd_in = -1;
-  
+
   check_exit_status(cmd, data);
-  if (cmd->herdoc_file)
+  signal(SIGINT, SIG_IGN);
+  if (!(cmd->file) && cmd->herdoc_file)
   {
     fd_in = open(cmd->herdoc_file, O_RDONLY);
     if (fd_in < 0)
@@ -176,7 +176,13 @@ void execute_command(t_command *cmd, char **env, t_data **data)
   pid = fork();
   if (pid == 0)
   {
+    if ((cmd)->file)
+    {
+      (cmd)->file = false;
+      exit(1);
+    }
     signal(SIGQUIT, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
     excute_redirection_of_child(&cmd, data, &fd_out, &fd_in);
     command = get_command(cmd->args[0], env);
     if (!command)
@@ -195,18 +201,19 @@ void execute_command(t_command *cmd, char **env, t_data **data)
     dup2(save, 0);
     close(save);
     int status;
-    g_value = pid;
     waitpid(pid, &status, 0);
     if (WIFSIGNALED(status))
     {
       int sig = WTERMSIG(status);
+      if (sig == SIGINT)
+        printf("\n");
       if (sig == SIGQUIT)
         write(2, "Quit (core dumped)\n", 19);
       (*data)->exit = 128 + sig;
     }
     else
       (*data)->exit = WEXITSTATUS(status);
-    g_value = 0;
+    signal(SIGINT, my_handler);
   }
   else
   perror("fork failed");
@@ -267,22 +274,13 @@ t_token	*tokenize(char *line, t_data **data)
 
 void my_handler(int sig)
 {
-	if (sig == SIGINT)
-	{
-		if (g_value > 0) // child is running
-		{
-      g_value = 0;   // send SIGINT to child
-      printf("\n");
-		}
-		else
-		{
-      // mark Ctrl-C pressed at prompt
-			write(1, "\n", 1);
-			rl_on_new_line();
-			rl_replace_line("", 0);
-			rl_redisplay();
-		}
-	}
+  if (sig == SIGINT)
+  {
+    write(1, "\n", 1);
+    rl_on_new_line();
+    rl_replace_line("", 0);
+    rl_redisplay();
+  }
 }
 
 void join_nodes(t_token **token)
@@ -342,21 +340,17 @@ void make_prompt(char **env)
 	signal(SIGQUIT, SIG_IGN);
 	while (1)
 	{
-		// if (g_value == -1)
-		// {
-		// 	g_value = 0;
-		//     continue;
-		// }
 		line = readline(promt());
 		if (!line)
 		{
 			printf("exit\n");
-			break;
+			return;
 		}
     if (line[0] == '\0')
       continue;
 		if (line[0] != '\0')
 		{
+      ft_memset(data, 0, sizeof(data));
 			add_history(line);
 			token = tokenize(line, &data);
       if (!token)
@@ -385,8 +379,7 @@ void make_prompt(char **env)
 			}
       if (data->count_herdoc > 0)
       {
-        excute_herdoc_for_child(&cmd, &data);
-        
+        excute_herdoc_for_child(&cmd, &data);  
       }
 			//print_commands(cmd);
 			if (cmd->args)

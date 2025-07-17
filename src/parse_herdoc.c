@@ -1,5 +1,6 @@
 #include "../include/minishell.h"
 
+int g_value = 0;
 static void  read_and_convert(char *buffer, int *fd, unsigned char *c, int *i)
 {
   if (read(*fd, c, 1) != 1)
@@ -33,13 +34,15 @@ static char *generate_file_name()
 
 static void  make_loop(t_command **cmd , char **line, int *fd, int i)
 {
+  g_value = 0;
   while(1)
   {
     *line = readline("> ");
     if (!*line)
     {
-      printf(" warning: here-document at line delimited by end-of-file (wanted `%s')\n", (*cmd)->herdoc[i]);
-      return;
+      if (!g_value)
+        printf(" warning: here-document at line delimited by end-of-file (wanted `%s')\n", (*cmd)->herdoc[i]);
+      break;
     }
     if ((*cmd)->herdoc[i] == NULL)
       return;
@@ -72,8 +75,9 @@ static void  my_server(int ig)
 {
   if (ig == SIGINT)
   {
+    close(0);
+    g_value = 1;
     printf("\n");
-    exit(130);
   }
 }
 
@@ -83,31 +87,31 @@ void excute_herdoc_for_child(t_command **cmd, t_data **data)
   char (*buffer), *line, *join;
 
   i = 0;
+  int save = dup(0);
   while (i < (*data)->count_herdoc)
   {
     minishell_init(&buffer, &join, &fd);
-    pid_t pid = fork();
-    if (pid == 0)
-    {
-      signal(SIGINT, my_server);
-      make_loop(cmd, &line, &fd, i);
-      close(fd);
-      exit(0);
-    }
-    else if(pid > 0)
-    {
-      signal(SIGINT, SIG_IGN);
-      int status;
-      wait(&status);
-      close(fd);
-    }
+    signal(SIGINT, my_server);
+    make_loop(cmd, &line, &fd, i);
     if (i == (*data)->count_herdoc - 1)
+    {
       (*cmd)->herdoc_file = ft_strdup(join);
+    }
     else
       unlink(join);
     free(buffer);
     free(join);
+    if (g_value == 1)
+    {
+      (*cmd)->file = true;
+      (*data)->exit = 130;
+      break;
+    }
     i++;
   }
+  dup2(save, 0);
+  close(save);
+  //signal(SIGINT, my_handler);
+  free_array((*cmd)->herdoc);
   (*data)->count_herdoc = 0;
 }

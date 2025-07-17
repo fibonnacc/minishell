@@ -20,7 +20,7 @@ con	tools.c	/^bool  con(char *str)$/;"	f	typeref:typename:bool
 count_args	Helper.c	/^int count_args(char **av)$/;"	f	typeref:typename:int
 creat_token	Handle_token.c	/^t_token *creat_token(char *line, t_token_type type, bool  should_join)$/;"	f	typeref:typename:t_token *
 create_command	Handle_command.c	/^t_command	*create_command(t_data **data)$/;"	f	typeref:typename:t_command *
-excute_herdoc_for_child	main.c	/^void excute_herdoc_for_child(t_command **cmd, t_data **data)$/;"	f	typeref:typename:void
+excute_herdoc_for_child	parse_herdoc.c	/^void excute_herdoc_for_child(t_command **cmd, t_data **data)$/;"	f	typeref:typename:void
 excute_redirection_of_child	main.c	/^void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, int *fd_in)$/;"	f	typeref:typename:void
 excute_redirection_of_parent	main.c	/^void  excute_redirection_of_parent(t_command **cmd, t_data **data, int *fd_out)$/;"	f	typeref:typename:void
 execute_command	main.c	/^void execute_command(t_command *cmd, char **env, t_data **data)$/;"	f	typeref:typename:void
@@ -33,13 +33,13 @@ free_token	Helper.c	/^void	free_token(t_token **token)$/;"	f	typeref:typename:vo
 ft_meta_c	Handle_token.c	/^bool  ft_meta_c(char c)$/;"	f	typeref:typename:bool
 ft_space	Handle_token.c	/^bool  ft_space(char c)$/;"	f	typeref:typename:bool
 g_value	main.c	/^int	g_value = 0;$/;"	v	typeref:typename:int
-generate_file_name	main.c	/^char *generate_file_name()$/;"	f	typeref:typename:char *
+generate_file_name	parse_herdoc.c	/^static char *generate_file_name()$/;"	f	typeref:typename:char *	file:
 get_command	excute.c	/^char *get_command(char *cmd, char **env)$/;"	f	typeref:typename:char *
 get_path_display	prompt.c	/^static char	*get_path_display(void)$/;"	f	typeref:typename:char *	file:
 get_token_type	main.c	/^t_token_type get_token_type(char *str)$/;"	f	typeref:typename:t_token_type
 get_user_display	prompt.c	/^static char	*get_user_display(void)$/;"	f	typeref:typename:char *	file:
 handle_dollar	utils.c	/^void	handle_dollar(t_token **token, char *line, int *i, int *start, t_data **data)$/;"	f	typeref:typename:void
-handle_heredoc	meta_char.c	/^int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data)$/;"	f	typeref:typename:int
+handle_heredoc	meta_char.c	/^int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data, int */;"	f	typeref:typename:int
 handle_pipe	meta_char.c	/^int	handle_pipe(t_token **current, t_command **current_cmd, t_command *first_cmd, t_data **data)$/;"	f	typeref:typename:int
 handle_quote	Handle_token.c	/^void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line)$/;"	f	typeref:typename:void
 handle_redir_append	meta_char.c	/^int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data)$/;"	f	typeref:typename:int
@@ -56,6 +56,7 @@ init_var2	Handle_token.c	/^void  init_var2(int *start, int *i, bool *should_join
 init_variables	Handle_token.c	/^void	init_variables(char *str, int *i, int *j, bool *in_quotes, char *quote_char, size_t *len, c/;"	f	typeref:typename:void
 is_closed_quotes	Handle_token.c	/^bool is_closed_quotes(char *str)$/;"	f	typeref:typename:bool
 is_space	Helper.c	/^int	is_space(char c)$/;"	f	typeref:typename:int
+join_expansion	Handle_token.c	/^void  join_expansion(char *str, t_token **token)$/;"	f	typeref:typename:void
 join_nodes	main.c	/^void join_nodes(t_token **token)$/;"	f	typeref:typename:void
 lexe_with_space	Handle_token.c	/^void  lexe_with_space(t_token **token, int *start, int *i, char *word, bool *should_join, t_toke/;"	f	typeref:typename:void
 logic_of_meta	main.c	/^bool  logic_of_meta(t_token *cmd, t_data **data)$/;"	f	typeref:typename:bool
@@ -63,16 +64,18 @@ main	main.c	/^int main(int ac, char **av, char **env)$/;"	f	typeref:typename:int
 make_exit	main.c	/^int  make_exit(t_command *cmd, t_data **data)$/;"	f	typeref:typename:int
 make_like_bash	tools.c	/^void  make_like_bash(char *result, char *valeur, size_t *j)$/;"	f	typeref:typename:void
 make_list	Handle_token.c	/^void make_list(char *word, t_token **token, t_token_type value)$/;"	f	typeref:typename:void
-make_loop	main.c	/^void  make_loop(t_command **cmd , char **line, int *fd, int i)$/;"	f	typeref:typename:void
+make_loop	parse_herdoc.c	/^static void  make_loop(char *the_last_delemitre, t_command **cmd , char **line, int *fd, int i)$/;"	f	typeref:typename:void	file:
 make_prompt	main.c	/^void make_prompt(char **env)$/;"	f	typeref:typename:void
 make_the_envirement	Handle_command.c	/^void  make_the_envirement(char **result, char *valeur, size_t *old_size, size_t *new_size, bool /;"	f	typeref:typename:void
 manual_realloc	tools.c	/^char	*manual_realloc(char *old, size_t len)$/;"	f	typeref:typename:char *
-minishell_init	main.c	/^void  minishell_init(char **buffer, char **join, int *fd)$/;"	f	typeref:typename:void
+minishell_init	parse_herdoc.c	/^static void  minishell_init(char **buffer, char **join, int *fd)$/;"	f	typeref:typename:void	file:
 my_echo	excute.c	/^void	my_echo(t_command *cmd, t_data **data)$/;"	f	typeref:typename:void
 my_handler	main.c	/^void my_handler(int sig)$/;"	f	typeref:typename:void
+my_server	parse_herdoc.c	/^static void  my_server(int ig)$/;"	f	typeref:typename:void	file:
 parsing_command	Handle_command.c	/^t_command *parsing_command(t_token *token, t_data **data)$/;"	f	typeref:typename:t_command *
+print_token	print.c	/^void print_token(t_token *token)$/;"	f	typeref:typename:void
 promt	prompt.c	/^char	*promt(void)$/;"	f	typeref:typename:char *
-read_and_convert	main.c	/^void  read_and_convert(char *buffer, int *fd, unsigned char *c, int *i)$/;"	f	typeref:typename:void
+read_and_convert	parse_herdoc.c	/^static void  read_and_convert(char *buffer, int *fd, unsigned char *c, int *i)$/;"	f	typeref:typename:void	file:
 remove_quotes	Handle_token.c	/^char *remove_quotes(char *str)$/;"	f	typeref:typename:char *
 special_character	Handle_token.c	/^bool	special_character(char *str)$/;"	f	typeref:typename:bool
 split_var	Handle_command.c	/^char *split_var(size_t *i, char *str, size_t *start)$/;"	f	typeref:typename:char *

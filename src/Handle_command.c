@@ -30,6 +30,7 @@ t_command	*create_command(t_data **data)
 	cmd->file_output = NULL;
 	cmd->herdoc = malloc(sizeof(char *) * ((*data)->count_herdoc + 1));
   cmd->herdoc_file = NULL;
+  cmd->file = false;
 	cmd->next = NULL;
 	return (cmd);
 }

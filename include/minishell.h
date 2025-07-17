@@ -22,6 +22,8 @@
 #include <uchar.h>
 
 
+extern int	g_value;
+
 typedef enum s_token_type
 {
 	TOKEN_WORD,
@@ -54,6 +56,7 @@ typedef struct s_command
 	char	**herdoc;
   char  *herdoc_file;
 	int		append;
+  bool  file;
 	struct	s_command *next;
 }	t_command;
 
@@ -65,6 +68,8 @@ typedef struct s_data
   int count_red_in;
 } t_data;
 
+void my_handler(int sig);
+void  free_array(char **arr);
 void	my_echo(t_command *cmd, t_data **data);
 void  check_exit_status(t_command *cmd, t_data **data);
 void excute_herdoc_for_child(t_command **cmd, t_data **data);

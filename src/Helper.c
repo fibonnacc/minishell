@@ -72,8 +72,8 @@ void	free_cmd(t_command *cmd)
 			free(current->file_input);
 		if (current->file_output)
 			free(current->file_output);
-		// if (current->herdoc)
-		// 	free_array(current->herdoc);
+		// if (current->herdoc[0])
+		//  	free_array(current->herdoc);
 		free(current);
 		current = next;
 	}

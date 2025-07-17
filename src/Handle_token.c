@@ -207,8 +207,8 @@ void  join_expansion(char *str, t_token **token)
     while((*token)->next)
     {
       (*token) = (*token)->next;
-      (*token)->info= false;
     }
+    (*token)->info= false;
     *token = cur;
   }
 }

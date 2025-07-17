@@ -42,7 +42,7 @@ int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd, t_d
     (*data)->exit = 2;
     return (0);
   }
-  if (cmd->file_input)
+  //if (cmd->file_input)
     // free(cmd->file_input);
   cmd->file_input[(*data)->count_red_in] = ft_strdup((*current)->next->av);
   if (!cmd->file_input[(*data)->count_red_in])
