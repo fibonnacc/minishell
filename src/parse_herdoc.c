@@ -32,13 +32,15 @@ static char *generate_file_name()
   return (buffer);
 }
 
-static void  make_loop(t_command **cmd , char **line, int *fd, int i)
+static void  make_loop(t_command **cmd , int *fd, int i)
 {
+  char *line;
+
   g_value = 0;
   while(1)
   {
-    *line = readline("> ");
-    if (!*line)
+    line = readline("> ");
+    if (!line)
     {
       if (!g_value)
         printf(" warning: here-document at line delimited by end-of-file (wanted `%s')\n", (*cmd)->herdoc[i]);
@@ -46,14 +48,14 @@ static void  make_loop(t_command **cmd , char **line, int *fd, int i)
     }
     if ((*cmd)->herdoc[i] == NULL)
       return;
-    if (strcmp(*line, (*cmd)->herdoc[i]) == 0)
+    if (strcmp(line, (*cmd)->herdoc[i]) == 0)
     {
-      free(*line);
+      free(line);
       return;
     }
-    write(*fd, *line, ft_strlen(*line));
+    write(*fd, line, ft_strlen(line));
     write(*fd, "\n", 1);
-    free(*line);
+    free(line);
   }
 }
 
@@ -81,10 +83,29 @@ static void  my_server(int ig)
   }
 }
 
+int  herdoc_condition_1(t_command **cmd, t_data **data)
+{
+  if (g_value == 1)
+  {
+    (*cmd)->file = true;
+    (*data)->exit = 130;
+    return(0);
+  }
+  return(1);
+}
+
+void  herdoc_condition_2(t_command **cmd, t_data **data, char *join, int i)
+{
+  if (i == (*data)->count_herdoc - 1)
+    (*cmd)->herdoc_file = ft_strdup(join);
+  else
+    unlink(join);
+}
+
 void excute_herdoc_for_child(t_command **cmd, t_data **data)
 {
   int (i), fd;
-  char (*buffer), *line, *join;
+  char (*buffer), *join;
 
   i = 0;
   int save = dup(0);
@@ -92,26 +113,16 @@ void excute_herdoc_for_child(t_command **cmd, t_data **data)
   {
     minishell_init(&buffer, &join, &fd);
     signal(SIGINT, my_server);
-    make_loop(cmd, &line, &fd, i);
-    if (i == (*data)->count_herdoc - 1)
-    {
-      (*cmd)->herdoc_file = ft_strdup(join);
-    }
-    else
-      unlink(join);
+    make_loop(cmd, &fd, i);
+    herdoc_condition_2(cmd, data, join, i);
     free(buffer);
     free(join);
-    if (g_value == 1)
-    {
-      (*cmd)->file = true;
-      (*data)->exit = 130;
+    if (!herdoc_condition_1(cmd, data))
       break;
-    }
     i++;
   }
   dup2(save, 0);
   close(save);
-  //signal(SIGINT, my_handler);
   free_array((*cmd)->herdoc);
   (*data)->count_herdoc = 0;
 }

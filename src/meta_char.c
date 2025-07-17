@@ -33,13 +33,15 @@ int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd, t_d
   if (!(*current)->next)
   {
     printf("minishell: syntax error near unexpected token `newline'\n");
-    (*data)->exit = 2;
+    set_status(2);
+    // (*data)->exit = 2;
     return (0);
   }
   if ((*current)->next->type != TOKEN_WORD)
   {
     printf("minishell: syntax error near unexpected token `%s'\n", (*current)->next->av);
-    (*data)->exit = 2;
+    set_status(2);
+    // (*data)->exit = 2;
     return (0);
   }
   //if (cmd->file_input)
@@ -52,12 +54,13 @@ int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd, t_d
   }
   (*data)->count_red_in++;
   (*current) = (*current)->next->next;
-  (*data)->exit = 0;
+  // (*data)->exit = 0;
   return (1);
 }
 
 int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data)
 {
+  (void)data;
   // if ((*current)->type != TOKEN_REDIR_OUT)
   //   return (1);
   if (!(*current)->next)
@@ -69,7 +72,8 @@ int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd, t_
   if ((*current)->next->type != TOKEN_WORD)
   {
     printf("minishell: syntax error near unexpected token `%s'\n", (*current)->next->av);
-    (*data)->exit = 2;
+    set_status(2);
+    // (*data)->exit = 2;
     return (0);
   }
   if (cmd->file_output)
@@ -90,16 +94,19 @@ int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd,
 {
   // if ((*current)->type != TOKEN_REDIR_APPEND)
   //   return (1);
+  (void)data;
   if (!(*current)->next)
   {
     printf("minishell: syntax error near unexpected token `newline'\n");
-    (*data)->exit = 2;
+    set_status(2);
+    // (*data)->exit = 2;
     return (0);
   }
   if ((*current)->next->type != TOKEN_WORD)
   {
     printf("minishell: syntax error near unexpected token `%s'\n", (*current)->next->av);
-    (*data)->exit = 2;
+    set_status(2);
+    // (*data)->exit = 2;
     return (0);
   }
   if (cmd->file_output)
@@ -112,24 +119,27 @@ int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd,
   }
   cmd->append = 1;
   (*current) = (*current)->next->next;
-  (*data)->exit = 0;
+  // (*data)->exit = 0;
   return (1);
 }
 
 int	handle_heredoc(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data, int *i)
 {
+  (void)data;
   // if ((*current)->type != TOKEN_HERDOC)
   //   return (1);
   if (!(*current)->next)
   {
     printf("minishell: syntax error near unexpected token `newline'\n");
-    (*data)->exit = 2;
+    set_status(2);
+    // (*data)->exit = 2;
     return (0);
   }
   if ((*current)->next->type != TOKEN_WORD)
   {
     printf("minishell: syntax error near unexpected token `%s'\n", (*current)->next->av);
-    (*data)->exit = 2;
+    set_status(2);
+    // (*data)->exit = 2;
     return (0);
   }
   cmd->herdoc[(*i)] = ft_strdup((*current)->next->av);

@@ -20,15 +20,17 @@ void  compare_newline(char *str, bool *j, int *i)
     (*i)++;
 }
 
-void	my_echo(t_command *cmd, t_data **data)
+void	my_echo(t_command *cmd)
 {
   int i;
   bool	j;
 
   j = false;
   i = 1;
+  if (!cmd->args[i])
+    return;
   compare_newline(cmd->args[i], &j, &i);
-  check_exit_status(cmd, data);
+  // check_exit_status(cmd, data);
   while(cmd->args[i])
   {
     ft_putstr_fd(cmd->args[i], 1);

@@ -68,9 +68,12 @@ typedef struct s_data
   int count_red_in;
 } t_data;
 
+int  *init_status();
+void set_status(int val);
+int  get_status();
 void my_handler(int sig);
 void  free_array(char **arr);
-void	my_echo(t_command *cmd, t_data **data);
+void	my_echo(t_command *cmd);
 void  check_exit_status(t_command *cmd, t_data **data);
 void excute_herdoc_for_child(t_command **cmd, t_data **data);
 bool	built_in(char *cmd);

@@ -12,62 +12,61 @@
 #include "../include/minishell.h"
 
 
-int  make_exit(t_command *cmd, t_data **data)
+int  make_exit(t_command *cmd)
 {
   if (ft_strncmp(cmd->args[0], "exit", 4) == 0)
   {
     if (cmd->args[1] != NULL)
     {
       int status = ft_atoi(cmd->args[1]);
-      (*data)->exit = WEXITSTATUS(status);
-      return(1);
+      int value = WEXITSTATUS(status);
+      return(value);
     }
     else
     {
-      (*data)->exit = 0;
-      return(1);
+      return(0);
     }
   }
   return(0);
 }
 
-void  check_exit_status(t_command *cmd, t_data **data)
-{
-  int i = 0;
-  while (cmd->args[i])
-  {
-    if (ft_strchr(cmd->args[i],'$') && ft_strchr(cmd->args[i],'?'))
-    {
-      char  *expand = ft_itoa((*data)->exit);
-      char  *buffer = malloc((ft_strlen(expand) + ft_strlen(cmd->args[i]) + 1));
-
-      int k = 0;
-      int j = 0;
-      while(cmd->args[i][k] && cmd->args[i][k] != '$')
-      {
-        buffer[j++] = cmd->args[i][k++];
-      }
-      if (cmd->args[i][k] == '$' && cmd->args[i][k + 1] == '?')
-      {
-        int f = 0;
-        while (expand[f])
-          buffer[j++] = expand[f++];
-        k = j;
-        k++;
-      }
-      if (cmd->args[i][k])
-      {
-        while (cmd->args[i][k])
-          buffer[j++] = cmd->args[i][k++];
-      }
-      buffer[j] = 0;
-      free(cmd->args[i]);
-      cmd->args[i] = buffer;
-      return;
-    }
-    i++;
-  }
-}
+// void  check_exit_status(t_command *cmd, t_data **data)
+// {
+//   int i = 0;
+//   while (cmd->args[i])
+//   {
+//     if (ft_strchr(cmd->args[i],'$') && ft_strchr(cmd->args[i],'?'))
+//     {
+//       char  *expand = ft_itoa((*data)->exit);
+//       char  *buffer = malloc((ft_strlen(expand) + ft_strlen(cmd->args[i]) + 1));
+//
+//       int k = 0;
+//       int j = 0;
+//       while(cmd->args[i][k] && cmd->args[i][k] != '$')
+//       {
+//         buffer[j++] = cmd->args[i][k++];
+//       }
+//       if (cmd->args[i][k] == '$' && cmd->args[i][k + 1] == '?')
+//       {
+//         int f = 0;
+//         while (expand[f])
+//           buffer[j++] = expand[f++];
+//         k = j;
+//         k++;
+//       }
+//       if (cmd->args[i][k])
+//       {
+//         while (cmd->args[i][k])
+//           buffer[j++] = cmd->args[i][k++];
+//       }
+//       buffer[j] = 0;
+//       free(cmd->args[i]);
+//       cmd->args[i] = buffer;
+//       return;
+//     }
+//     i++;
+//   }
+// }
 
 int append_or_trunc(t_command **cmd)
 {
@@ -93,7 +92,8 @@ void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, i
     if (*fd_out < 0)
     {
       perror("open output file");
-      (*data)->exit = 1;
+      set_status(1);
+      // (*data)->exit = 1;
       exit(1);
     }
     dup2(*fd_out, STDOUT_FILENO);
@@ -107,6 +107,7 @@ void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, i
       if (*fd_in < 0)
       {
         printf("minishell: %s: No such file or directory\n", (*cmd)->file_input[i]);
+        set_status(1);
         exit(1);
       }
       dup2(*fd_in, STDIN_FILENO);
@@ -116,7 +117,7 @@ void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, i
   }
 }
 
-void  excute_redirection_of_parent(t_command **cmd, t_data **data, int *fd_out)
+void  excute_redirection_of_parent(t_command **cmd, int *fd_out)
 {
   int (saved_stdout), saved_stdin, flags;
 
@@ -135,9 +136,9 @@ void  excute_redirection_of_parent(t_command **cmd, t_data **data, int *fd_out)
     }
     close(*fd_out);
   }
-  if (make_exit(*cmd, data))
-    exit((*data)->exit);
-  my_echo(*cmd, data);  // You can replace this with your built-in dispatcher
+  //if (make_exit(*cmd, data))
+  set_status(make_exit(*cmd));
+  my_echo(*cmd);  // You can replace this with your built-in dispatcher
 
   // 🔁 Restore original stdout/stdin
   dup2(saved_stdout, STDOUT_FILENO);
@@ -146,6 +147,23 @@ void  excute_redirection_of_parent(t_command **cmd, t_data **data, int *fd_out)
   close(saved_stdin);
 }
 
+int  *init_status()
+{
+  static int  var = 0;
+  return(&var);
+}
+
+void set_status(int val)
+{
+  int *status = init_status();
+  *status = val;
+}
+
+int  get_status()
+{
+  return (*init_status());
+  // return(*status);
+}
 
 void execute_command(t_command *cmd, char **env, t_data **data)
 {
@@ -155,14 +173,16 @@ void execute_command(t_command *cmd, char **env, t_data **data)
   int fd_out = -1;
   int fd_in = -1;
 
-  check_exit_status(cmd, data);
-  signal(SIGINT, SIG_IGN);
+  
+  // check_exit_status(cmd, data);
   if (!(cmd->file) && cmd->herdoc_file)
   {
     fd_in = open(cmd->herdoc_file, O_RDONLY);
     if (fd_in < 0)
     {
       printf("minishell: No such file or directory\n");
+      set_status(2);
+      // (*data)->exit = 1;
       exit(1);
     }
     dup2(fd_in, STDIN_FILENO);
@@ -170,16 +190,18 @@ void execute_command(t_command *cmd, char **env, t_data **data)
   }
   if (built_in(cmd->args[0]))
   {
-    excute_redirection_of_parent(&cmd, data, &fd_out);
+    excute_redirection_of_parent(&cmd, &fd_out);
     return;
   }
+  signal(SIGINT, SIG_IGN);
   pid = fork();
   if (pid == 0)
   {
     if ((cmd)->file)
     {
       (cmd)->file = false;
-      exit(1);
+      set_status(130);
+      exit(130);
     }
     signal(SIGQUIT, SIG_DFL);
     signal(SIGINT, SIG_DFL);
@@ -188,12 +210,14 @@ void execute_command(t_command *cmd, char **env, t_data **data)
     if (!command)
     {
       printf("minishell: %s: command not found\n", cmd->args[0]);
-      (*data)->exit = 127;
-      exit((*data)->exit);
+      set_status(127);
+      // (*data)->exit = 127;
+      // check_exit_status(cmd, data);
+      exit(127);
     }
     execve(command, cmd->args, env);
     perror("execve failed");
-    (*data)->exit = 1;
+    set_status(1);
     exit(1);
   }
   else if (pid > 0)
@@ -206,17 +230,18 @@ void execute_command(t_command *cmd, char **env, t_data **data)
     {
       int sig = WTERMSIG(status);
       if (sig == SIGINT)
-        printf("\n");
-      if (sig == SIGQUIT)
+        write(1, "\n", 1);
+      else if (sig == SIGQUIT)
         write(2, "Quit (core dumped)\n", 19);
-      (*data)->exit = 128 + sig;
+      set_status(128 + sig);
+      // (*data)->exit = 128 + sig;
     }
     else
-      (*data)->exit = WEXITSTATUS(status);
+      set_status(WEXITSTATUS(status));
     signal(SIGINT, my_handler);
   }
   else
-  perror("fork failed");
+    perror("fork failed");
 }
 
 t_token_type get_token_type(char *str)
@@ -272,16 +297,6 @@ t_token	*tokenize(char *line, t_data **data)
 	return (token);
 }
 
-void my_handler(int sig)
-{
-  if (sig == SIGINT)
-  {
-    write(1, "\n", 1);
-    rl_on_new_line();
-    rl_replace_line("", 0);
-    rl_redisplay();
-  }
-}
 
 void join_nodes(t_token **token)
 {
@@ -324,8 +339,20 @@ bool  logic_of_meta(t_token *cmd, t_data **data)
     else
       cur = cur->next;
   }
-  (*data)->exit = 0;
+  //(*data)->exit = 0;
   return(true);
+}
+
+void my_handler(int sig)
+{
+  if (sig == SIGINT)
+  {
+    write(1, "\n", 1);
+    rl_on_new_line();
+    rl_replace_line("", 0);
+    rl_redisplay();
+    set_status(130);
+  }
 }
 
 void make_prompt(char **env)
@@ -340,6 +367,7 @@ void make_prompt(char **env)
 	signal(SIGQUIT, SIG_IGN);
 	while (1)
 	{
+    // data->exit = get_status();
 		line = readline(promt());
 		if (!line)
 		{
@@ -350,7 +378,6 @@ void make_prompt(char **env)
       continue;
 		if (line[0] != '\0')
 		{
-      ft_memset(data, 0, sizeof(data));
 			add_history(line);
 			token = tokenize(line, &data);
       if (!token)
@@ -358,7 +385,7 @@ void make_prompt(char **env)
         free(line);
         continue;
       }
-			// print_token(token);
+			//print_token(token);
 			//continue_parsing(&token);
 			// printf ("after removing------------------------------------------\n");
 			// print_token(token);
@@ -378,15 +405,13 @@ void make_prompt(char **env)
 				continue;
 			}
       if (data->count_herdoc > 0)
-      {
         excute_herdoc_for_child(&cmd, &data);  
-      }
 			//print_commands(cmd);
 			if (cmd->args)
 				execute_command(cmd, env, &data);
 			free_token(&token);
+      free_cmd(cmd);
 		}
-    free_cmd(cmd);
 		free(line);
 	}
 	rl_clear_history();

@@ -233,12 +233,13 @@ void	handle_word_token(t_token **token, int start, char *line, int *i, t_data **
     if (ft_strncmp(word, "$?", 2) == 0)
     {
       free(word);
-      char *convert = ft_itoa((*data)->exit);
+      // char *convert = ft_itoa((*data)->exit);
+      char *convert = ft_itoa(get_status());
       word = ft_strdup(convert);
       free(convert);
-      (*data)->exit = 0;
+      set_status(0);
+      // (*data)->exit = 0;
     }
-
     if (word && *word != '\0')
     {
       str = expand_env(word);

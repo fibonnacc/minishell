@@ -32,10 +32,11 @@ free_cmd	Helper.c	/^void	free_cmd(t_command *cmd)$/;"	f	typeref:typename:void
 free_token	Helper.c	/^void	free_token(t_token **token)$/;"	f	typeref:typename:void
 ft_meta_c	Handle_token.c	/^bool  ft_meta_c(char c)$/;"	f	typeref:typename:bool
 ft_space	Handle_token.c	/^bool  ft_space(char c)$/;"	f	typeref:typename:bool
-g_value	main.c	/^int	g_value = 0;$/;"	v	typeref:typename:int
+g_value	parse_herdoc.c	/^int g_value = 0;$/;"	v	typeref:typename:int
 generate_file_name	parse_herdoc.c	/^static char *generate_file_name()$/;"	f	typeref:typename:char *	file:
 get_command	excute.c	/^char *get_command(char *cmd, char **env)$/;"	f	typeref:typename:char *
 get_path_display	prompt.c	/^static char	*get_path_display(void)$/;"	f	typeref:typename:char *	file:
+get_status	main.c	/^int  get_status()$/;"	f	typeref:typename:int
 get_token_type	main.c	/^t_token_type get_token_type(char *str)$/;"	f	typeref:typename:t_token_type
 get_user_display	prompt.c	/^static char	*get_user_display(void)$/;"	f	typeref:typename:char *	file:
 handle_dollar	utils.c	/^void	handle_dollar(t_token **token, char *line, int *i, int *start, t_data **data)$/;"	f	typeref:typename:void
@@ -50,7 +51,10 @@ handle_special_quot	utils.c	/^void	handle_special_quot(t_token **token, char *li
 handle_speciale_token	Handle_token.c	/^int	handle_speciale_token(t_token **token, char *line, int i, t_data **data)$/;"	f	typeref:typename:int
 handle_white_spaces	utils.c	/^void	handle_white_spaces(t_token **token, char *line, int *i, int *start, t_data **data)$/;"	f	typeref:typename:void
 handle_word_token	Handle_token.c	/^void	handle_word_token(t_token **token, int start, char *line, int *i, t_data **data)$/;"	f	typeref:typename:void
+herdoc_condition_1	parse_herdoc.c	/^int  herdoc_condition_1(t_command **cmd, t_data **data)$/;"	f	typeref:typename:int
+herdoc_condition_2	parse_herdoc.c	/^void  herdoc_condition_2(t_command **cmd, t_data **data, char *join, int i)$/;"	f	typeref:typename:void
 how_many	Handle_command.c	/^void  how_many(t_token *token, t_data **data)$/;"	f	typeref:typename:void
+init_status	main.c	/^void  *init_status()$/;"	f	typeref:typename:void *
 init_var	tools.c	/^void  init_var(char *str, size_t	*i, size_t *j,size_t *old_size, bool *condition, bool *flag)$/;"	f	typeref:typename:void
 init_var2	Handle_token.c	/^void  init_var2(int *start, int *i, bool *should_join)$/;"	f	typeref:typename:void
 init_variables	Handle_token.c	/^void	init_variables(char *str, int *i, int *j, bool *in_quotes, char *quote_char, size_t *len, c/;"	f	typeref:typename:void
@@ -64,7 +68,7 @@ main	main.c	/^int main(int ac, char **av, char **env)$/;"	f	typeref:typename:int
 make_exit	main.c	/^int  make_exit(t_command *cmd, t_data **data)$/;"	f	typeref:typename:int
 make_like_bash	tools.c	/^void  make_like_bash(char *result, char *valeur, size_t *j)$/;"	f	typeref:typename:void
 make_list	Handle_token.c	/^void make_list(char *word, t_token **token, t_token_type value)$/;"	f	typeref:typename:void
-make_loop	parse_herdoc.c	/^static void  make_loop(char *the_last_delemitre, t_command **cmd , char **line, int *fd, int i)$/;"	f	typeref:typename:void	file:
+make_loop	parse_herdoc.c	/^static void  make_loop(t_command **cmd , int *fd, int i)$/;"	f	typeref:typename:void	file:
 make_prompt	main.c	/^void make_prompt(char **env)$/;"	f	typeref:typename:void
 make_the_envirement	Handle_command.c	/^void  make_the_envirement(char **result, char *valeur, size_t *old_size, size_t *new_size, bool /;"	f	typeref:typename:void
 manual_realloc	tools.c	/^char	*manual_realloc(char *old, size_t len)$/;"	f	typeref:typename:char *
@@ -77,6 +81,7 @@ print_token	print.c	/^void print_token(t_token *token)$/;"	f	typeref:typename:vo
 promt	prompt.c	/^char	*promt(void)$/;"	f	typeref:typename:char *
 read_and_convert	parse_herdoc.c	/^static void  read_and_convert(char *buffer, int *fd, unsigned char *c, int *i)$/;"	f	typeref:typename:void	file:
 remove_quotes	Handle_token.c	/^char *remove_quotes(char *str)$/;"	f	typeref:typename:char *
+set_status	main.c	/^void set_status(int val)$/;"	f	typeref:typename:void
 special_character	Handle_token.c	/^bool	special_character(char *str)$/;"	f	typeref:typename:bool
 split_var	Handle_command.c	/^char *split_var(size_t *i, char *str, size_t *start)$/;"	f	typeref:typename:char *
 tokenize	main.c	/^t_token	*tokenize(char *line, t_data **data)$/;"	f	typeref:typename:t_token *
