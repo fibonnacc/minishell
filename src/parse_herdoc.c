@@ -32,9 +32,10 @@ static char *generate_file_name()
   return (buffer);
 }
 
-static void  make_loop(t_command **cmd , int *fd, int i)
+static void  make_loop(t_command **cmd , int *fd, int i, t_data **data)
 {
   char *line;
+  char *str;
 
   g_value = 0;
   while(1)
@@ -43,11 +44,15 @@ static void  make_loop(t_command **cmd , int *fd, int i)
     if (!line)
     {
       if (!g_value)
-        printf(" warning: here-document at line delimited by end-of-file (wanted `%s')\n", (*cmd)->herdoc[i]);
+        printf("warning: here-document at line delimited by end-of-file (wanted `%s')\n", (*cmd)->herdoc[i]);
       break;
     }
+    str = line;
+    if (!(*data)->should_expand_inside)
+      line = expand_env(str);
     if ((*cmd)->herdoc[i] == NULL)
       return;
+    // make strcmp
     if (strcmp(line, (*cmd)->herdoc[i]) == 0)
     {
       free(line);
@@ -67,7 +72,7 @@ static void  minishell_init(char **buffer, char **join, int *fd)
     *join = ft_strjoin("/tmp/", *buffer);
     if (!*join)
       return;
-    *fd = open(*join, O_RDWR | O_CREAT, 0777);
+    *fd = open(*join, O_RDWR | O_CREAT, 0644);
     if (*fd < 0)
       return;
 
@@ -83,18 +88,20 @@ static void  my_server(int ig)
   }
 }
 
-int  herdoc_condition_1(t_command **cmd, t_data **data)
+int  herdoc_condition_2(t_command **cmd, t_data **data)
 {
+  (void)data;
   if (g_value == 1)
   {
     (*cmd)->file = true;
-    (*data)->exit = 130;
+    set_status(130);
+    // (*data)->exit = 130;
     return(0);
   }
   return(1);
 }
 
-void  herdoc_condition_2(t_command **cmd, t_data **data, char *join, int i)
+void  herdoc_condition_1(t_command **cmd, t_data **data, char *join, int i)
 {
   if (i == (*data)->count_herdoc - 1)
     (*cmd)->herdoc_file = ft_strdup(join);
@@ -113,11 +120,11 @@ void excute_herdoc_for_child(t_command **cmd, t_data **data)
   {
     minishell_init(&buffer, &join, &fd);
     signal(SIGINT, my_server);
-    make_loop(cmd, &fd, i);
-    herdoc_condition_2(cmd, data, join, i);
+    make_loop(cmd, &fd, i, data);
+    herdoc_condition_1(cmd, data, join, i);
     free(buffer);
     free(join);
-    if (!herdoc_condition_1(cmd, data))
+    if (!herdoc_condition_2(cmd, data))
       break;
     i++;
   }
@@ -125,4 +132,5 @@ void excute_herdoc_for_child(t_command **cmd, t_data **data)
   close(save);
   free_array((*cmd)->herdoc);
   (*data)->count_herdoc = 0;
+  (*data)->should_expand_inside = false;
 }

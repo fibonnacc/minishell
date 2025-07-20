@@ -30,7 +30,6 @@ void	my_echo(t_command *cmd)
   if (!cmd->args[i])
     return;
   compare_newline(cmd->args[i], &j, &i);
-  // check_exit_status(cmd, data);
   while(cmd->args[i])
   {
     ft_putstr_fd(cmd->args[i], 1);

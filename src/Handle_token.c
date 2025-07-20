@@ -213,7 +213,55 @@ void  join_expansion(char *str, t_token **token)
   }
 }
 
-void	handle_word_token(t_token **token, int start, char *line, int *i, t_data **data)
+void  check_the_last_element(t_token **token, t_data **data)
+{
+  t_token *cur;
+
+  cur = *token;
+  if (!*token || !(*token)->next)
+    return;
+  while(cur->next)
+  {
+    cur = cur->next;
+  }
+  if (cur->type == TOKEN_HERDOC)
+    (*data)->should_expand_outside = true;
+  else
+    (*data)->should_expand_outside = false;
+}
+
+void convert_exit_status(char **word)
+{
+  if (ft_strncmp(*word, "$?", 2) == 0)
+  {
+    char *convert = ft_itoa(get_status());
+    char *new_word = ft_strdup(convert);
+    set_status(0);
+    free(convert);
+    free(*word);
+    *word = new_word;
+  }
+}
+
+void  mix(bool *should_join, char *line, int i)
+{
+  if (!ft_space(line[i]) && !ft_meta_c(line[i]) && line[i] != '\0')
+    *should_join = true;
+}
+
+char  *make_content(char *line, t_data **data)
+{
+  char *word;
+
+  word = ft_substr(line, (*data)->start, (*data)->end - (*data)->start);
+  if (ft_strchr(word, '\'') || ft_strchr(word, '\"'))
+    (*data)->should_expand_inside = true;
+  if (!word)
+    return(NULL);
+  return(word);
+}
+
+void	handle_word_token(t_token **token, char *line, t_data **data)
 {
   bool  should_join = false;
   t_token *new;
@@ -221,38 +269,31 @@ void	handle_word_token(t_token **token, int start, char *line, int *i, t_data **
   char *str, *word;
   t_token_type value = TOKEN_WORD;
 
-  if (*i > start)
+  check_the_last_element(token, data);
+  if ((*data)->end > (*data)->start)
   {
-    if (!ft_space(line[*i]) && !ft_meta_c(line[*i]) && line[*i] != '\0')
-      should_join = true;
-    word = ft_substr(line, start, *i - start);
-    if (ft_strchr(word, '\'') || ft_strchr(word, '\"'))
-      (*data)->should_expand = false;
+    mix(&should_join, line, (*data)->end);
+    word = make_content(line, data);
     if (!word)
       return;
-    if (ft_strncmp(word, "$?", 2) == 0)
-    {
-      free(word);
-      // char *convert = ft_itoa((*data)->exit);
-      char *convert = ft_itoa(get_status());
-      word = ft_strdup(convert);
-      free(convert);
-      set_status(0);
-      // (*data)->exit = 0;
-    }
+    convert_exit_status(&word);
     if (word && *word != '\0')
     {
-      str = expand_env(word);
+      if (!(*data)->should_expand_outside)
+        str = expand_env(word);
+      else
+        str = word;
       join_expansion(str, token);
       if (str[0] == '"' || str[0] == '\'')
       {
-        value = get_token_type(str);
+        // value = get_token_type(str);
         str = remove_quotes(str);
         flag = 1;
       }
       if (str && str != word)
       {
-        free(word);
+        if (word)
+          free(word);
         word = str;
       }
       if (!flag)
@@ -335,14 +376,6 @@ int	handle_speciale_token(t_token **token, char *line, int i, t_data **data)
 		special[0] = line[i];
 		special[1] = line[i];
 		special[2] = '\0';
-		add_token(token, creat_token(special, get_token_type(special), should_join));
-		free(special);
-		return (i + 2);
-	}
-	else if (line[i] == '>' && line[i + 1] == '|')
-  {
-		special[0] = line[i];
-		special[1] = '\0';
 		add_token(token, creat_token(special, get_token_type(special), should_join));
 		free(special);
 		return (i + 2);

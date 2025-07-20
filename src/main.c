@@ -1,72 +1,80 @@
 /* ************************************************************************** */
+/*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/16 17:26:05 by helfatih          #+#    #+#             */
-/*   Updated: 2025/05/16 17:26:13 by helfatih         ###   ########.fr       */
+/*   Created: 2025/05/16 17:26:13 by helfatih          #+#    #+#             */
+/*   Updated: 2025/07/18 13:10:53 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
 
-int  make_exit(t_command *cmd)
+int	is_number(char *str)
 {
-  if (ft_strncmp(cmd->args[0], "exit", 4) == 0)
+	int	i;
+
+	i = 0;
+	if (str[i] == '\0')
+		return (0);
+	// if ((str[i] == '-' || str[i] == '+') && str[i + 1] == '\0')
+	// 	return (0);
+	if (str[i] == '-' || str[i] == '+')
+		i++;
+	while (str[i])
+	{
+		if (str[i] < '0' || str[i] > '9')
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+int validation(t_command *cmd)
+{
+  if (cmd->args[1] && !is_number(cmd->args[1]))
   {
-    if (cmd->args[1] != NULL)
+    printf("minishell: exit: %s: numeric argument required\n", cmd->args[1]);
+    return(2);
+  }
+  if (cmd->args[2])
+  {
+    if (!is_number(cmd->args[2]))
     {
-      int status = ft_atoi(cmd->args[1]);
-      int value = WEXITSTATUS(status);
-      return(value);
+      printf("minishell: exit: too many arguments\n");
+      return(2);
     }
     else
     {
-      return(0);
+      printf("minishell: exit: too many arguments\n");
+      return(1);
     }
   }
   return(0);
 }
 
-// void  check_exit_status(t_command *cmd, t_data **data)
-// {
-//   int i = 0;
-//   while (cmd->args[i])
-//   {
-//     if (ft_strchr(cmd->args[i],'$') && ft_strchr(cmd->args[i],'?'))
-//     {
-//       char  *expand = ft_itoa((*data)->exit);
-//       char  *buffer = malloc((ft_strlen(expand) + ft_strlen(cmd->args[i]) + 1));
-//
-//       int k = 0;
-//       int j = 0;
-//       while(cmd->args[i][k] && cmd->args[i][k] != '$')
-//       {
-//         buffer[j++] = cmd->args[i][k++];
-//       }
-//       if (cmd->args[i][k] == '$' && cmd->args[i][k + 1] == '?')
-//       {
-//         int f = 0;
-//         while (expand[f])
-//           buffer[j++] = expand[f++];
-//         k = j;
-//         k++;
-//       }
-//       if (cmd->args[i][k])
-//       {
-//         while (cmd->args[i][k])
-//           buffer[j++] = cmd->args[i][k++];
-//       }
-//       buffer[j] = 0;
-//       free(cmd->args[i]);
-//       cmd->args[i] = buffer;
-//       return;
-//     }
-//     i++;
-//   }
-// }
+int  make_exit(t_command *cmd)
+{
+  int status;
+  int i;
+
+  status = 0;
+  i = 0;
+  if (cmd->args[1] != NULL)
+  {
+    i = validation(cmd);
+    if (i != 0)
+      return(i);
+    status = ft_atoi(cmd->args[1]) % 256;
+    if (status < 0)
+      status += 256;
+    return(status);
+  }
+  return(0);
+}
 
 int append_or_trunc(t_command **cmd)
 {
@@ -78,6 +86,22 @@ int append_or_trunc(t_command **cmd)
     return(O_TRUNC);
 }
 
+int is_directory(t_command **cmd)
+{
+  DIR *folder;
+
+  folder = opendir((*cmd)->file_output);
+  if (folder != NULL)
+  {
+    printf("minishell : %s:  Is a directory\n", (*cmd)->file_output);
+    set_status(1);
+    closedir(folder);
+    return(1);
+  }
+  closedir(folder);
+  return(0);
+}
+
 void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, int *fd_in)
 {
   int flags;
@@ -85,25 +109,12 @@ void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, i
 
   flags = 0;
   i = 0;
-  if ((*cmd)->file_output)
-  {
-    flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
-    *fd_out = open((*cmd)->file_output, flags, 0644);
-    if (*fd_out < 0)
-    {
-      perror("open output file");
-      set_status(1);
-      // (*data)->exit = 1;
-      exit(1);
-    }
-    dup2(*fd_out, STDOUT_FILENO);
-    close(*fd_out);
-  }
   if ((*cmd)->file_input)
   {
     while (i < (*data)->count_red_in)
     {
       *fd_in = open((*cmd)->file_input[i], O_RDONLY);
+      printf("%s\n", (*cmd)->file_input[i]);
       if (*fd_in < 0)
       {
         printf("minishell: %s: No such file or directory\n", (*cmd)->file_input[i]);
@@ -115,18 +126,45 @@ void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, i
       i++;
     }
   }
-}
-
-void  excute_redirection_of_parent(t_command **cmd, int *fd_out)
-{
-  int (saved_stdout), saved_stdin, flags;
-
-  saved_stdout = dup(STDOUT_FILENO);
-  saved_stdin = dup(STDIN_FILENO);
   if ((*cmd)->file_output)
   {
+    if (is_directory(cmd))
+      exit(1);
     flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
     *fd_out = open((*cmd)->file_output, flags, 0644);
+    if (*fd_out < 0)
+    {
+      perror("minishell");
+      set_status(1);
+      exit(1);
+    }
+    dup2(*fd_out, STDOUT_FILENO);
+    close(*fd_out);
+  }
+}
+
+void  my_exit(t_command **cmd)
+{
+  if (strcmp((*cmd)->args[0], "exit") == 0)
+  {
+    printf("exit\n");
+    int i = make_exit(*cmd);
+    if (i == 0)
+    {
+      set_status(get_status());
+      exit(get_status());
+    }
+    set_status(i);
+    exit(i);
+  }
+}
+
+void  open_and_duplicate(t_command **cmd, int *flags, int *fd_out)
+{
+  if ((*cmd)->file_output)
+  {
+    *flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
+    *fd_out = open((*cmd)->file_output, *flags, 0644);
     if (*fd_out < 0)
       return;
     if (dup2(*fd_out, STDOUT_FILENO) == -1)
@@ -136,11 +174,38 @@ void  excute_redirection_of_parent(t_command **cmd, int *fd_out)
     }
     close(*fd_out);
   }
-  //if (make_exit(*cmd, data))
-  set_status(make_exit(*cmd));
-  my_echo(*cmd);  // You can replace this with your built-in dispatcher
+}
 
-  // 🔁 Restore original stdout/stdin
+int  is_directory_parent(t_command **cmd)
+{
+  DIR *folder;
+
+  folder = opendir((*cmd)->file_output);
+  if (folder != NULL)
+  {
+    printf("minishell : %s:  Is a directory\n", (*cmd)->file_output);
+    set_status(1);
+    closedir(folder);
+    return(1);
+  }
+  closedir(folder);
+  return(0);
+}
+
+void  excute_redirection_of_parent(t_command **cmd, int *fd_out)
+{
+  int (saved_stdout), saved_stdin, flags;
+ 
+  if ((*cmd)->file_output)
+  {
+    if (is_directory_parent(cmd))
+      return;
+  }
+  saved_stdout = dup(STDOUT_FILENO);
+  saved_stdin = dup(STDIN_FILENO);
+  open_and_duplicate(cmd, &flags, fd_out);
+  my_exit(cmd);
+  my_echo(*cmd);
   dup2(saved_stdout, STDOUT_FILENO);
   dup2(saved_stdin, STDIN_FILENO);
   close(saved_stdout);
@@ -173,8 +238,7 @@ void execute_command(t_command *cmd, char **env, t_data **data)
   int fd_out = -1;
   int fd_in = -1;
 
-  
-  // check_exit_status(cmd, data);
+
   if (!(cmd->file) && cmd->herdoc_file)
   {
     fd_in = open(cmd->herdoc_file, O_RDONLY);
@@ -182,13 +246,12 @@ void execute_command(t_command *cmd, char **env, t_data **data)
     {
       printf("minishell: No such file or directory\n");
       set_status(2);
-      // (*data)->exit = 1;
       exit(1);
     }
     dup2(fd_in, STDIN_FILENO);
     close(fd_in);
   }
-  if (built_in(cmd->args[0]))
+  if (cmd->args && built_in(cmd->args[0]))
   {
     excute_redirection_of_parent(&cmd, &fd_out);
     return;
@@ -206,17 +269,21 @@ void execute_command(t_command *cmd, char **env, t_data **data)
     signal(SIGQUIT, SIG_DFL);
     signal(SIGINT, SIG_DFL);
     excute_redirection_of_child(&cmd, data, &fd_out, &fd_in);
-    command = get_command(cmd->args[0], env);
-    if (!command)
+    if (cmd->args)
     {
-      printf("minishell: %s: command not found\n", cmd->args[0]);
-      set_status(127);
-      // (*data)->exit = 127;
-      // check_exit_status(cmd, data);
-      exit(127);
+      command = get_command(cmd->args[0], env);
+      if (!command)
+      {
+        printf("minishell: %s: command not found\n", cmd->args[0]);
+        set_status(127);
+        exit(127);
+      }
     }
-    execve(command, cmd->args, env);
-    perror("execve failed");
+    if (cmd->args)
+    {
+      execve(command, cmd->args, env);
+      perror("execve failed");
+    }
     set_status(1);
     exit(1);
   }
@@ -234,7 +301,6 @@ void execute_command(t_command *cmd, char **env, t_data **data)
       else if (sig == SIGQUIT)
         write(2, "Quit (core dumped)\n", 19);
       set_status(128 + sig);
-      // (*data)->exit = 128 + sig;
     }
     else
       set_status(WEXITSTATUS(status));
@@ -263,37 +329,36 @@ t_token_type get_token_type(char *str)
 t_token	*tokenize(char *line, t_data **data)
 {
 	t_token	*token = NULL;
-	int start, i;
 
-	i = 0;
-  start = 0;
+  (*data)->start = 0;
+  (*data)->end = 0;
 	if (!check_somthing(line, data))
 		return (NULL);
-	while (line[i])
+	while (line[(*data)->end])
 	{
-		if (line[i] == '$' && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
+		if (line[(*data)->end] == '$' && (ft_isalnum(line[(*data)->end + 1]) || line[(*data)->end + 1] == '_'))
 		{
-			handle_dollar(&token, line, &i, &start, data);
+			handle_dollar(&token, line, data);
 			continue;
 		}
-		if (line[i] == '$' && !ft_isalnum(line[i + 1]))
+		if (line[(*data)->end] == '$' && !ft_isalnum(line[(*data)->end + 1]))
     {
-			handle_some_cases(&token, line, &i, &start, data);
+			handle_some_cases(&token, line, data);
     }
-		if (line[i] == '|' || line[i] == '<' || line[i] == '>')
+		if (line[(*data)->end] == '|' || line[(*data)->end] == '<' || line[(*data)->end] == '>')
 		{
-			handle_word_token(&token, start, line, &i, data);
-			i = handle_speciale_token(&token, line, i, data);
-			start = i;
+			handle_word_token(&token, line, data);
+			(*data)->end = handle_speciale_token(&token, line, (*data)->end, data);
+			(*data)->start = (*data)->end;
 		}
-		else if (line[i] == '\"' || line[i] == '\'')
-			handle_special_quot(&token, line, &i, &start, data);
-		else if (line[i] == ' ' || line[i] == '\t')
-			handle_white_spaces(&token, line, &i, &start, data);
+		else if (line[(*data)->end] == '\"' || line[(*data)->end] == '\'')
+			handle_special_quot(&token, line, data);
+		else if (line[(*data)->end] == ' ' || line[(*data)->end] == '\t')
+			handle_white_spaces(&token, line, data);
     else
-		  i++;
+		  (*data)->end++;
 	}
-  handle_word_token(&token, start, line, &i, data);
+  handle_word_token(&token, line, data);
 	return (token);
 }
 
@@ -371,6 +436,7 @@ void make_prompt(char **env)
 		line = readline(promt());
 		if (!line)
 		{
+      // handle the exit status
 			printf("exit\n");
 			return;
 		}
@@ -404,10 +470,11 @@ void make_prompt(char **env)
       //printf("{%s}\n", str);
 				continue;
 			}
+      print_commands(cmd);
       if (data->count_herdoc > 0)
         excute_herdoc_for_child(&cmd, &data);  
-			//print_commands(cmd);
-			if (cmd->args)
+			print_commands(cmd);
+			if (cmd)
 				execute_command(cmd, env, &data);
 			free_token(&token);
       free_cmd(cmd);

@@ -20,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <uchar.h>
+#include <dirent.h>
 
 
 extern int	g_value;
@@ -63,11 +64,16 @@ typedef struct s_command
 typedef struct s_data
 {
   int exit;
-  bool should_expand;
+  int end;
+  int start;
+  bool should_expand_outside;
+  bool should_expand_inside;
   int count_herdoc;
   int count_red_in;
 } t_data;
 
+char  *make_content(char *line, t_data **data);
+void  mix(bool *should_join, char *line, int i);
 int  *init_status();
 void set_status(int val);
 int  get_status();
@@ -80,11 +86,11 @@ bool	built_in(char *cmd);
 void	free_2D_array(char **str);
 char *get_command(char *cmd, char **env);
 void execute_command(t_command *cmd, char **env, t_data **data);
-void	handle_dollar(t_token **token, char *line, int *i, int *start, t_data **data);
-void	handle_special_quot(t_token **token, char *line, int *i, int *start, t_data **data);
-void	handle_white_spaces(t_token **token, char *line, int *i, int *start, t_data **data);
+void	handle_dollar(t_token **token, char *line,t_data **data);
+void	handle_special_quot(t_token **token, char *line, t_data **data);
+void	handle_white_spaces(t_token **token, char *line, t_data **data);
 bool  check_somthing(char *word, t_data **data);
-void	handle_some_cases(t_token **token, char *line, int *i, int *start, t_data **data);
+void	handle_some_cases(t_token **token, char *line, t_data **data);
 char	*manual_realloc(char *old, size_t len);
 int	handle_pipe(t_token **current, t_command **current_cmd, t_command *first_cmd, t_data **data);
 int	handle_redir_in(t_token **current, t_command *cmd, t_command *first_cmd, t_data **data);
@@ -105,7 +111,7 @@ t_token *creat_token(char *line, t_token_type type, bool should_join);
 void	handle_quote(bool	*in_quot ,char *quot_char, int *i, char *line);
 void	add_token(t_token **token, t_token *new_token);
 bool is_closed_quotes(char *str);
-void	handle_word_token(t_token **token, int start, char *line, int *i, t_data **data);
+void	handle_word_token(t_token **token, char *line, t_data **data);
 t_token_type	get_token_type(char *str);
 int	handle_speciale_token(t_token **token, char *line, int i, t_data **data);
 t_token	*tokenize(char *line, t_data **data);

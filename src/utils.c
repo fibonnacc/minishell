@@ -1,57 +1,57 @@
 #include "../include/minishell.h"
 #include <stdio.h>
 
-void	handle_dollar(t_token **token, char *line, int *i, int *start, t_data **data)
+void	handle_dollar(t_token **token, char *line, t_data **data)
 {
-	if (*i > *start)
+	if ((*data)->end > (*data)->start)
 	{
-		handle_word_token(token, *start, line, i, data);
+		handle_word_token(token, line, data);
 	}
-	*start = *i;
-	(*i)++;
-	while ((ft_isalnum(line[*i]) || line[*i] == '_') && line[*i])
-		(*i)++;
-	if (*i > *start)
+	(*data)->start = (*data)->end;
+	(*data)->end++;
+	while ((ft_isalnum(line[(*data)->end]) || line[(*data)->end] == '_') && line[(*data)->end])
+		(*data)->end++;
+	if ((*data)->end > (*data)->start)
 	{
-		handle_word_token(token, *start, line, i, data);
+		handle_word_token(token, line, data);
 	}
-	*start = *i;
+	(*data)->start = (*data)->end;
 }
 
-void	handle_special_quot(t_token **token, char *line, int *i, int *start, t_data **data)
+void	handle_special_quot(t_token **token, char *line, t_data **data)
 {
   char q;
 
-	if (line[*start] == '$' && (line[*i] == '\"' || line[*i] == '\''))
-		*start = *i;
-	if (*i > *start)
+	if (line[(*data)->start] == '$' && (line[(*data)->end] == '\"' || line[(*data)->end] == '\''))
+		(*data)->start = (*data)->end;
+	if ((*data)->end > (*data)->start)
   {
-    if (line[(*i) - 1] == '$')
+    if (line[(*data)->end - 1] == '$')
     {
-      (*i) -= 1;
-		  handle_word_token(token, *start, line, i, data);
-      (*i)++;
+      (*data)->end -= 1;
+		  handle_word_token(token, line, data);
+      (*data)->end++;
     }
     else
-      handle_word_token(token, *start, line, i, data);
+      handle_word_token(token, line, data);
   }
-	*start = *i;
-	q = line[*i];
-	(*i)++;
-	while (line[*i] != q)
-		(*i)++;
-	if (line[*i] == q)
-		(*i)++;
-	handle_word_token(token, *start, line, i, data);
-	*start = *i;
+	(*data)->start = (*data)->end;
+	q = line[(*data)->end];
+	(*data)->end++;
+	while (line[(*data)->end] != q)
+		(*data)->end++;
+	if (line[(*data)->end] == q)
+		(*data)->end++;
+	handle_word_token(token, line, data);
+	(*data)->start = (*data)->end;
 }
 
-void	handle_white_spaces(t_token **token, char *line, int *i, int *start, t_data **data)
+void	handle_white_spaces(t_token **token, char *line, t_data **data)
 {
-	handle_word_token(token, *start, line,  i, data);
-	while (line[*i] == ' ' || line[*i] == '\t')
-		(*i)++;
-	*start = *i;
+	handle_word_token(token, line, data);
+	while (line[(*data)->end] == ' ' || line[(*data)->end] == '\t')
+		(*data)->end++;
+	(*data)->start = (*data)->end;
 }
 
 bool  check_somthing(char *word, t_data **data)
@@ -65,21 +65,21 @@ bool  check_somthing(char *word, t_data **data)
 	return (true);
 }
 
-void	handle_some_cases(t_token **token, char *line, int *i, int *start, t_data **data)
+void	handle_some_cases(t_token **token, char *line, t_data **data)
 {
-  if (*i > *start)
+  if ((*data)->end > (*data)->start)
   {
-    handle_word_token(token, *start, line, i, data);
-    *start = *i;
+    handle_word_token(token, line, data);
+    (*data)->start = (*data)->end;
   }
-	if (line[(*i) + 1] == '?')
+	if (line[(*data)->end + 1] == '?')
 	{
-		(*i) += 2;
-		handle_word_token(token, *start, line, i, data);
-		*start = *i;
+		(*data)->end += 2;
+		handle_word_token(token, line, data);
+		(*data)->start = (*data)->end;
 	}
-	else if (line[(*i) + 1] == '!')
-	{
-		*start = (*i) += 2;
-	}
+	// else if (line[(*data)->end + 1] == '!')
+	// {
+	// 	*start = (*i) += 2;
+	// }
 }
