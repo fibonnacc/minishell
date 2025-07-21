@@ -18,7 +18,7 @@ static char *generate_file_name()
   char *buffer; 
   int fd, i;
 
-  buffer = malloc(10);
+  buffer = malloc(11);
   if (!buffer)
     return NULL;
   fd = open("/dev/random", O_RDONLY);
@@ -48,16 +48,16 @@ static void  make_loop(t_command **cmd , int *fd, int i, t_data **data)
       break;
     }
     str = line;
-    if (!(*data)->should_expand_inside)
+    if (strcmp(line, (*cmd)->herdoc[i]) && !(*data)->should_expand_inside)
       line = expand_env(str);
     if ((*cmd)->herdoc[i] == NULL)
       return;
-    // make strcmp
     if (strcmp(line, (*cmd)->herdoc[i]) == 0)
     {
       free(line);
       return;
     }
+    // make strcmp
     write(*fd, line, ft_strlen(line));
     write(*fd, "\n", 1);
     free(line);
@@ -95,7 +95,6 @@ int  herdoc_condition_2(t_command **cmd, t_data **data)
   {
     (*cmd)->file = true;
     set_status(130);
-    // (*data)->exit = 130;
     return(0);
   }
   return(1);
@@ -130,7 +129,7 @@ void excute_herdoc_for_child(t_command **cmd, t_data **data)
   }
   dup2(save, 0);
   close(save);
-  free_array((*cmd)->herdoc);
+  //free_array((*cmd)->herdoc);
   (*data)->count_herdoc = 0;
   (*data)->should_expand_inside = false;
 }

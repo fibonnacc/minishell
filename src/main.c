@@ -470,10 +470,10 @@ void make_prompt(char **env)
       //printf("{%s}\n", str);
 				continue;
 			}
-      print_commands(cmd);
+      // print_commands(cmd);
       if (data->count_herdoc > 0)
         excute_herdoc_for_child(&cmd, &data);  
-			print_commands(cmd);
+			//print_commands(cmd);
 			if (cmd)
 				execute_command(cmd, env, &data);
 			free_token(&token);
