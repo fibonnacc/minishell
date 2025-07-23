@@ -29,6 +29,10 @@
 # include <stdint.h>
 
 /* libc functions */
+void  atoi_utils(int  *i, char *str, int  *sign);
+int counter(char *str);
+int   fix_norm(int  i, char *str, int sign, bool *flags_sign);
+int   long_max(char *str, int i);
 void	*ft_memset(void *b, int c, size_t len);
 void	ft_bzero(void *s, size_t n);
 void	*ft_memcpy(void *dst, const void *src, size_t n);
