@@ -27,7 +27,7 @@ t_command	*create_command(t_data **data)
 	}
 	cmd->args = NULL;
 	cmd->file_input = malloc(sizeof(char *) * ((*data)->count_red_in + 1));
-	cmd->file_output = NULL;
+	cmd->file_output = malloc(sizeof(char *) * ((*data)->count_red_out + 1));;
 	cmd->herdoc = malloc(sizeof(char *) * ((*data)->count_herdoc + 1));
   cmd->herdoc_file = NULL;
   cmd->file = false;
@@ -115,6 +115,8 @@ void  how_many(t_token *token, t_data **data)
       (*data)->count_herdoc++;
     if (cur->type == TOKEN_REDIR_IN)
       (*data)->count_red_in++;
+    if (cur->type == TOKEN_REDIR_OUT)
+      (*data)->count_red_out++;
     cur = cur->next;
   }
 }
@@ -131,6 +133,7 @@ t_command *parsing_command(t_token *token, t_data **data)
     return (NULL);
   first_cmd = current_cmd;
   (*data)->count_red_in = 0;
+  (*data)->count_red_out = 0;
   int i = 0;
   while (current)
   {
@@ -167,6 +170,7 @@ t_command *parsing_command(t_token *token, t_data **data)
   }
   current_cmd->herdoc[i] = NULL;
   current_cmd->file_input[(*data)->count_red_in] = NULL;
+  current_cmd->file_output[(*data)->count_red_out] = NULL;
   return (first_cmd);
 }
 

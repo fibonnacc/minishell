@@ -76,17 +76,15 @@ int	handle_redir_out(t_token **current, t_command *cmd, t_command *first_cmd, t_
     // (*data)->exit = 2;
     return (0);
   }
-  if (cmd->file_output)
-    free(cmd->file_output);
-  cmd->file_output = ft_strdup((*current)->next->av);
-  if (!cmd->file_output)
+  cmd->file_output[(*data)->count_red_out] = ft_strdup((*current)->next->av);
+  if (!cmd->file_output[(*data)->count_red_out])
   {
     free_cmd(first_cmd);
     return (0);
   }
+  (*data)->count_red_out++;
   cmd->append = 0;
   (*current) = (*current)->next->next;
-  (*data)->exit = 0;
   return (1);
 }
 
@@ -109,14 +107,13 @@ int	handle_redir_append(t_token **current, t_command *cmd, t_command *first_cmd,
     // (*data)->exit = 2;
     return (0);
   }
-  if (cmd->file_output)
-    free(cmd->file_output);
-  cmd->file_output = ft_strdup((*current)->next->av);
-  if (!cmd->file_output)
+  cmd->file_output[(*data)->count_red_out] = ft_strdup((*current)->next->av);
+  if (!cmd->file_output[(*data)->count_red_out])
   {
     free_cmd(first_cmd);
     return (0);
   }
+  (*data)->count_red_out++;
   cmd->append = 1;
   (*current) = (*current)->next->next;
   // (*data)->exit = 0;

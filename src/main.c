@@ -86,19 +86,24 @@ int append_or_trunc(t_command **cmd)
     return(O_TRUNC);
 }
 
-int is_directory(t_command **cmd)
+int is_directory(t_command **cmd, t_data **data)
 {
   DIR *folder;
+  int i = 0;
 
-  folder = opendir((*cmd)->file_output);
-  if (folder != NULL)
+  while (i < (*data)->count_red_out)
   {
-    printf("minishell : %s:  Is a directory\n", (*cmd)->file_output);
-    set_status(1);
+    folder = opendir((*cmd)->file_output[i]);
+    if (folder != NULL)
+    {
+      printf("minishell : %s:  Is a directory\n", (*cmd)->file_output[i]);
+      set_status(1);
+      closedir(folder);
+      return(1);
+    }
     closedir(folder);
-    return(1);
+    i++;
   }
-  closedir(folder);
   return(0);
 }
 
@@ -114,7 +119,6 @@ void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, i
     while (i < (*data)->count_red_in)
     {
       *fd_in = open((*cmd)->file_input[i], O_RDONLY);
-      printf("%s\n", (*cmd)->file_input[i]);
       if (*fd_in < 0)
       {
         printf("minishell: %s: No such file or directory\n", (*cmd)->file_input[i]);
@@ -128,18 +132,24 @@ void  excute_redirection_of_child(t_command **cmd, t_data **data, int *fd_out, i
   }
   if ((*cmd)->file_output)
   {
-    if (is_directory(cmd))
+    int i;
+    if (is_directory(cmd, data))
       exit(1);
-    flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
-    *fd_out = open((*cmd)->file_output, flags, 0644);
-    if (*fd_out < 0)
+    i = 0;
+    while(i < (*data)->count_red_out)
     {
-      perror("minishell");
-      set_status(1);
-      exit(1);
+      flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
+      *fd_out = open((*cmd)->file_output[i], flags, 0644);
+      if (*fd_out < 0)
+      {
+        perror("minishell");
+        set_status(1);
+        exit(1);
+      }
+      dup2(*fd_out, STDOUT_FILENO);
+      close(*fd_out);
+      i++;
     }
-    dup2(*fd_out, STDOUT_FILENO);
-    close(*fd_out);
   }
 }
 
@@ -161,44 +171,55 @@ void  my_exit(t_command **cmd)
 
 void  open_and_duplicate(t_command **cmd, int *flags, int *fd_out)
 {
+  int i;
   if ((*cmd)->file_output)
   {
-    *flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
-    *fd_out = open((*cmd)->file_output, *flags, 0644);
-    if (*fd_out < 0)
-      return;
-    if (dup2(*fd_out, STDOUT_FILENO) == -1)
+    i = 0;
+    while ((*cmd)->file_output[i])
     {
+      *flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
+      *fd_out = open((*cmd)->file_output[i], *flags, 0644);
+      if (*fd_out < 0)
+        return;
+      if (dup2(*fd_out, STDOUT_FILENO) == -1)
+      {
+        close(*fd_out);
+        return;
+      }
       close(*fd_out);
-      return;
+      i++;
     }
-    close(*fd_out);
   }
 }
 
-int  is_directory_parent(t_command **cmd)
+int  is_directory_parent(t_command **cmd, t_data **data)
 {
   DIR *folder;
+  int i = 0;
 
-  folder = opendir((*cmd)->file_output);
-  if (folder != NULL)
+  while (i < (*data)->count_red_out)
   {
-    printf("minishell : %s:  Is a directory\n", (*cmd)->file_output);
-    set_status(1);
+    folder = opendir((*cmd)->file_output[i]);
+    if (folder != NULL)
+    {
+      printf("minishell : %s:  Is a directory\n", (*cmd)->file_output[i]);
+      set_status(1);
+      closedir(folder);
+      return(1);
+    }
     closedir(folder);
-    return(1);
+    i++;
   }
-  closedir(folder);
   return(0);
 }
 
-void  excute_redirection_of_parent(t_command **cmd, int *fd_out)
+void  excute_redirection_of_parent(t_command **cmd, int *fd_out, t_data **data)
 {
   int (saved_stdout), saved_stdin, flags;
  
   if ((*cmd)->file_output)
   {
-    if (is_directory_parent(cmd))
+    if (is_directory_parent(cmd, data))
       return;
   }
   saved_stdout = dup(STDOUT_FILENO);
@@ -253,7 +274,7 @@ void execute_command(t_command *cmd, char **env, t_data **data)
   }
   if (cmd->args && built_in(cmd->args[0]))
   {
-    excute_redirection_of_parent(&cmd, &fd_out);
+    excute_redirection_of_parent(&cmd, &fd_out, data);
     return;
   }
   signal(SIGINT, SIG_IGN);

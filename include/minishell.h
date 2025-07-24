@@ -53,7 +53,7 @@ typedef struct s_command
 {
 	char	**args;
 	char	**file_input;
-	char	*file_output;
+	char	**file_output;
 	char	**herdoc;
   char  *herdoc_file;
 	int		append;
@@ -70,6 +70,7 @@ typedef struct s_data
   bool should_expand_inside;
   int count_herdoc;
   int count_red_in;
+  int count_red_out;
 } t_data;
 
 char  *make_content(char *line, t_data **data);
