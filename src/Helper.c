@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Helper.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:26:54 by helfatih          #+#    #+#             */
-/*   Updated: 2025/05/16 17:26:56 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/07/30 10:45:02 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,9 @@ void	free_token(t_token **token)
 	while (current)
 	{
 		next = current->next;
-		if (current->av)
-			free(current->av);
-		free(current);
 		current = next;
 	}
+	*token = NULL;
 }
 
 int	is_space(char c)
@@ -35,70 +33,46 @@ int	is_space(char c)
 	return (1);
 }
 
-int count_args(char **av)
+int	count_args(char **av)
 {
-  int i = 0;
-  while (av[i])
-  {
-    i++;
-  }
-  return(i);
+	int	i;
+
+	i = 0;
+	while (av[i])
+	{
+		i++;
+	}
+	return (i);
 }
 
-void  free_array(char **arr)
+void	free_array(char **arr)
 {
-  int i;
-
-  i = 0;
-  while (arr[i])
-  {
-    free(arr[i]);
-    i++;
-  }
-  free(arr);
+	(void)arr;
 }
 
 void	free_cmd(t_command *cmd)
 {
-	t_command	*current, *next;
-
-	current = cmd;
-	while (current)
-	{
-		next = current->next;
-		if (current->args)
-      free_array(current->args);
-		if (current->file_input)
-			free(current->file_input);
-		if (current->file_output)
-			free(current->file_output);
-		if (current->herdoc[0])
-		  free(current->herdoc_file);
-		free(current);
-		current = next;
-	}
+	(void)cmd;
 }
 
 void	append_arg(t_command *cmd, char *str, t_data **data)
 {
-	int i, j;
 	char	**new_array;
-  (*data)->exit = 0;
 
+	int i, j;
+	(*data)->exit = 0;
 	i = 0;
 	if (cmd->args)
-    i = count_args(cmd->args);
-	new_array = ft_calloc(i + 2, sizeof(char *));
+		i = count_args(cmd->args);
+	new_array = gc_calloc(i + 2, sizeof(char *));
 	if (!new_array)
-		return;
+		return ;
 	j = -1;
 	while (++j < i)
 		new_array[j] = cmd->args[j];
-	new_array[i] = ft_strdup(str);
-	if (!new_array[j])
-		return(free(new_array));
+	new_array[i] = gc_strdup(str);
+	if (!new_array[i])
+		return ;
 	new_array[i + 1] = NULL;
-	if (cmd->args)
-		free(cmd->args);
 	cmd->args = new_array;
 }
