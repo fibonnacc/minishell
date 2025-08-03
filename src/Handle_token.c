@@ -75,44 +75,52 @@ void	init_variables(char *str, int *i, int *j, bool *in_quotes,
 	*result = gc_malloc(*len + 1);
 }
 
+int  process_quote(char *str, int *i, bool *in_double, bool *in_single)
+{
+  if (str[*i] == '\'' && !*in_double)
+  {
+    *in_single = !*in_single;
+    (*i)++;
+    return(1);
+  }
+  else if (str[*i] == '"' && !*in_single)
+  {
+    *in_double = !*in_double;
+    (*i)++;
+    return(1);
+  }
+  return (0);
+}
+
+void  reset_var3(int *i, int *j, bool *in_single, bool *in_double)
+{
+  *i = 0; 
+  *j = 0;
+	*in_single = false;
+	*in_double = false;
+}
+
 char	*remove_quotes(char *str)
 {
-	int		i;
-	int		j;
+	int		(i), j;
 	bool	in_single;
 	bool	in_double;
 	char	*result;
 
 	if (!str)
 		return (NULL);
-	i = 0, j = 0;
-	in_single = false;
-	in_double = false;
+  reset_var3(&i, &j, &in_single, &in_double);
 	result = gc_malloc(strlen(str) + 1);
 	if (!result)
 		return (NULL);
 	while (str[i])
 	{
-		if (str[i] == '\'' && !in_double)
-		{
-			in_single = !in_single;
-			i++;
-			continue ;
-		}
-		else if (str[i] == '"' && !in_single)
-		{
-			in_double = !in_double;
-			i++;
-			continue ;
-		}
+    if (process_quote(str, &i, &in_double, &in_single))
+      continue;
 		if (in_single)
-		{
 			result[j++] = str[i++];
-		}
 		else
-		{
 			result[j++] = str[i++];
-		}
 	}
 	result[j] = '\0';
 	return (result);
@@ -222,6 +230,22 @@ void	join_expansion(char *str, t_token **token)
 	}
 }
 
+void  check_next_element(t_token *cur, t_data **data)
+{
+		while (cur->next)
+		{
+			cur = cur->next;
+		}
+		if (cur->type == TOKEN_HERDOC)
+			(*data)->should_expand_outside = true;
+		else if ((cur->type == TOKEN_REDIR_APPEND
+				|| cur->type == TOKEN_REDIR_OUT || cur->type == TOKEN_REDIR_IN)
+			&& cur->next == NULL)
+		{
+			(*data)->ambigiouse = true;
+		}
+}
+
 void	check_the_last_element(t_token **token, t_data **data)
 {
 	t_token	*cur;
@@ -242,18 +266,7 @@ void	check_the_last_element(t_token **token, t_data **data)
 	}
 	else if (cur->next)
 	{
-		while (cur->next)
-		{
-			cur = cur->next;
-		}
-		if (cur->type == TOKEN_HERDOC)
-			(*data)->should_expand_outside = true;
-		else if ((cur->type == TOKEN_REDIR_APPEND
-				|| cur->type == TOKEN_REDIR_OUT || cur->type == TOKEN_REDIR_IN)
-			&& cur->next == NULL)
-		{
-			(*data)->ambigiouse = true;
-		}
+    check_next_element(cur, data);
 	}
 }
 
