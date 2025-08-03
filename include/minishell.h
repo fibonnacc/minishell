@@ -93,6 +93,12 @@ typedef struct s_data
 	int					flags;
 }						t_data;
 
+
+
+int	open_output_file_0(t_command *cmd, char *filename);
+int	open_output_file_1(t_command *cmd, char *filename);
+void	print_open_error(char *filename);
+int	check_redir_syntax(t_token **current);
 int						*set_redir_error(void);
 void					reset_redir_error(int value);
 int						get_redir_error(void);

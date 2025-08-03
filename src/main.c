@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <fcntl.h>
+#include <unistd.h>
 
 
 int	is_number(char *str)
@@ -84,6 +86,30 @@ bool	empty_command(t_command *cmd)
 	return (has_command);
 }
 
+int access_file(t_command *cmd)
+{
+  int j;
+
+  j = 0;
+  if (cmd->file_input)
+  {
+    while (cmd->file_input[j])
+    {
+      int fd = open(cmd->file_input[j], O_RDONLY);
+      if (fd < 0)
+      {
+        write(2, "minishell: ", 11);
+        write(2, cmd->file_input[j], ft_strlen(cmd->file_input[j]));
+        write(2, ": No such file or directory\n", 28);
+        return(0);
+      }
+      close(fd);
+      j++;
+    }
+  }
+  return(1);
+}
+
 void	execute_command(t_command *cmd, char ***env, t_data **data)
 {
 	int			prev_fd;
@@ -117,11 +143,13 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 	if (cmd && cmd->next == NULL && cmd->args && cmd->args[0]
 		&& built_in(cmd->args[0]))
 	{
-		// Check if this command has redirection errors - if so, don't execute
+    if (!access_file(cmd))
+      return;
+    // Check if this command has redirection errors - if so, don't execute
 		if (cmd->redir_error)
 		{
 			dup2(saved_stdin, 0);
-			close(saved_stdin);
+		  close(saved_stdin);
 			set_status(1); // Set error status
 			return ;
 		}
