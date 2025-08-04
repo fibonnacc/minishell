@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 20:10:38 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 09:42:13 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 21:03:24 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,8 @@ int	handle_redir_append(t_token **current, t_command *cmd)
 	filename = gc_strdup((*current)->next->av);
 	if (!filename)
 		return (0);
-	open_output_file_1(cmd, filename);
+	if (!open_output_file_1(cmd, filename))
+		return (0);
 	cmd->append = 1;
 	(*current) = (*current)->next->next;
 	return (1);

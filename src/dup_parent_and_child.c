@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 17:19:17 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 18:39:17 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 21:43:23 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void	open_and_duplicate(t_command **cmd, int *flags, int *fd_out)
 	if ((*cmd)->file_output)
 	{
 		*flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
+		printf("Opening file: %s with flags: %d -> %d\n", (*cmd)->file_output, *flags, O_TRUNC);
 		*fd_out = open((*cmd)->file_output, *flags, 0644);
 		if (*fd_out < 0)
 			return ;
@@ -32,8 +33,10 @@ void	open_and_duplicate(t_command **cmd, int *flags, int *fd_out)
 int	is_directory_parent(t_command **cmd)
 {
 	int	fd;
-
-	fd = open((*cmd)->file_output, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	
+	if (!(*cmd)->file_output)
+		return (0);
+	fd = open((*cmd)->file_output, O_WRONLY | O_CREAT , 0644);
 	if (fd < 0)
 	{
 		if (errno == EISDIR)

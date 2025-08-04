@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 11:55:44 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 16:41:34 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 20:47:23 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ int	word_or_herdoc(t_token **current, t_command *current_cmd, t_data **data,
 {
 	if ((*current)->type == TOKEN_HERDOC)
 	{
-		printf("Handling heredoc: %s\n", (*current)->av);
 		if (!handle_heredoc(current, current_cmd, &i))
 			return (0);
 	}
