@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:48:08 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 14:53:00 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 17:51:52 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,11 +182,7 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 				{
 					close(saved_stdin);
 					close(save);
-					write(2, "minishell: ", 11);
-                    write(2, curr->args[0], ft_strlen(curr->args[0]));
-                    write(2, ": command not found\n", 20);
 					gc_cleanup();
-					set_status(127);
 					int i = 0;
 					while((*env)[i])
 					{
@@ -194,7 +190,7 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 						i++;
 					}
 					free(*env);
-					exit(127);
+					exit(get_status());
 				}
 				if (execve(command, curr->args, *env) != 0)
 				{

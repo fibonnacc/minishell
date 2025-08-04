@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 09:45:55 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 10:14:09 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 16:37:42 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,15 @@ static void	herdoc_expansion(int *fd, char **line, t_data **data, char **env)
 	{
 		expanded_line = expand_env(str, env);
 		if (expanded_line && expanded_line != str)
+		{
+			printf("Expanding: %s\n", expanded_line);
 			write(*fd, expanded_line, ft_strlen(expanded_line));
+		}
 		else
+		{
+			printf("Expanding: %s\n", expanded_line);
 			write(*fd, *line, ft_strlen(*line));
+		}
 	}
 	else
 		write(*fd, *line, ft_strlen(*line));
@@ -74,7 +80,11 @@ static void	make_loop(t_command **cmd, int *fd, t_data **data, char **env)
 		if (!(*cmd)->herdoc || (*cmd)->herdoc[(*data)->start] == NULL)
 			return ;
 		if (ft_strcmp(line, (*cmd)->herdoc[(*data)->start]) == 0)
+		{
+			// printf("heredoc delimiter reached: %s\n",
+				// (*cmd)->herdoc[(*data)->start]);
 			return ;
+		}
 		herdoc_expansion(fd, &line, data, env);
 		write(*fd, "\n", 1);
 	}
@@ -119,6 +129,7 @@ void	excute_herdoc_for_child(t_command **cmd, t_data **data, char **env)
 		if (!minishell_init(&buffer, &join, &fd))
 			return ;
 		signal(SIGINT, my_server);
+		// printf("heredoc: %s\n", (*cmd)->herdoc[(*data)->start]);
 		make_loop(cmd, &fd, data, env);
 		close(fd);
 		herdoc_condition_1(cmd, data, join);

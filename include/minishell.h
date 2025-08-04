@@ -62,6 +62,23 @@ typedef struct s_token
 	struct s_token		*prev;
 }						t_token;
 
+// typedef struct s_exec
+// {
+// 	int					prev_fd;
+// 	int					fd[2];
+// 	pid_t				pid;
+// 	int					fd_out;
+// 	int					fd_in;
+// 	t_command			*curr;
+// 	int					saved_stdin;
+// 	pid_t				pids[1024];
+// 	int					pid_count;
+// 	int					save;
+// 	int					hd_fd;
+// 	char				*command;
+// 	bool				has_command;
+// }						t_exec;
+
 typedef struct s_command
 {
 	char				**args;

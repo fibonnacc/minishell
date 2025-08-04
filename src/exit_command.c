@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 17:01:25 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/03 23:01:42 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 18:40:21 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,19 +19,6 @@ int	validation(t_command *cmd)
 		printf("minishell: exit: %s: numeric argument required\n",
 			cmd->args[1]);
 		return (2);
-	}
-	if (cmd->args[2])
-	{
-		if (!is_number(cmd->args[2]))
-		{
-			printf("minishell: exit: too many arguments\n");
-			return (2);
-		}
-		else
-		{
-			printf("minishell: exit: too many arguments\n");
-			return (1);
-		}
 	}
 	return (0);
 }
@@ -47,10 +34,10 @@ int	make_exit(t_command *cmd)
 	{
 		i = validation(cmd);
 		if (i != 0)
-			return (i);
+		return (i);
 		status = ft_atoi(cmd->args[1]) % 256;
 		if (status < 0)
-			status += 256;
+		status += 256;
 		return (status);
 	}
 	return (0);
@@ -59,12 +46,26 @@ int	make_exit(t_command *cmd)
 void	my_exit(t_command **cmd, t_data *data, int *error)
 {
 	int	i;
-
+	
 	(void)data;
 	if (ft_strcmp((*cmd)->args[0], "exit") == 0)
 	{
+		if ((*cmd)->args[2])
+		{
+			printf("parent\n");
+			printf("minishell: exit: too many arguments\n");
+			set_status(1);
+			*error = 0;
+			return ;
+		}
 		printf("exit\n");
 		i = make_exit(*cmd);
+		if (i == 1)
+		{
+			set_status(1);
+			*error = 0;
+			return ;
+		}
 		if (i == 0)
 		{
 			set_status(get_status());
@@ -84,7 +85,21 @@ void	my_exit_child(t_command **cmd, t_data *data, int *error)
 	(void)data;
 	if (ft_strcmp((*cmd)->args[0], "exit") == 0)
 	{
+		if ((*cmd)->args[2])
+		{
+			printf("child\n");
+			printf("minishell: exit: too many arguments\n");
+			set_status(1);
+			*error = 0;
+			return ;
+		}
 		i = make_exit(*cmd);
+		if (i == 1)
+		{
+			set_status(1);
+			*error = 0;
+			return ;
+		}
 		if (i == 0)
 		{
 			set_status(get_status());

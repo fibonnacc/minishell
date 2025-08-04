@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:26:30 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 12:11:28 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 16:59:17 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,8 +81,32 @@ t_command	*parsing_command(t_token *token, t_data **data)
 			if (!handle_pipe(&current, &current_cmd, first_cmd, data))
 				return (NULL);
 		}
-		if (another_function(&current, &current_cmd, data, &i) == 0)
-			return (NULL);
+		else if ((current)->type == TOKEN_REDIR_IN)
+		{
+			if (!handle_redir_in(&current, current_cmd, data))
+				return (0);
+		}
+		else if ((current)->type == TOKEN_REDIR_OUT)
+		{
+			if (!handle_redir_out(&current, current_cmd))
+				return (0);
+		}
+		else if ((current)->type == TOKEN_REDIR_APPEND)
+		{
+			if (!handle_redir_append(&current, current_cmd))
+				return (0);
+		}
+		if (current->type == TOKEN_HERDOC)
+		{
+			printf("Handling heredoc: %s\n", current->av);
+			if (!handle_heredoc(&current, current_cmd, &i))
+				return (0);
+		}
+		else if (current->type == TOKEN_WORD)
+		{
+			append_arg(current_cmd, current->av, data);
+			current = current->next;
+		}
 	}
 	return (first_cmd);
 }

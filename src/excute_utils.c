@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 13:56:53 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 14:08:34 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 17:54:29 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,15 @@ void	compare_newline(char **str, bool *j, int *i)
 
 char	*check_file(char *cmd)
 {
-	DIR	*folder;
+	struct stat	st;
+	DIR			*folder;
 
+	if (stat(cmd, &st) == -1)
+	{
+		perror("minishell: ");
+		set_status(127);
+		return (NULL);
+	}
 	folder = opendir(cmd);
 	if (folder != NULL)
 	{
@@ -50,13 +57,9 @@ char	*check_file(char *cmd)
 	}
 	closedir(folder);
 	if (access(cmd, X_OK) == 0)
-	{
 		return (gc_strdup(cmd));
-	}
 	if (access(cmd, F_OK) == 0)
-	{
 		return (gc_strdup(cmd));
-	}
 	return (NULL);
 }
 

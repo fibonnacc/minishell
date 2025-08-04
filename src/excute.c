@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:00:25 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 14:25:03 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 17:49:57 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,5 +104,9 @@ char	*get_command(char *cmd, char **env)
 			return (var.complete_path);
 		i++;
 	}
+	write(2, "minishell: ", 11);
+	write(2, cmd, ft_strlen(cmd));
+	write(2, ": command not found\n", 20);
+	set_status(127);
 	return (NULL);
 }

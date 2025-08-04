@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 11:55:44 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 12:15:27 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 16:41:34 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 bool	is_redirection(t_token_type type)
 {
 	return (type == TOKEN_REDIR_IN || type == TOKEN_REDIR_OUT
-		|| type == TOKEN_REDIR_APPEND || type == TOKEN_HERDOC);
+		|| type == TOKEN_REDIR_APPEND /* || type == TOKEN_HERDOC */);
 }
 
 int	parse_redirections(t_command **current_cmd, t_token **current,
@@ -44,6 +44,7 @@ int	word_or_herdoc(t_token **current, t_command *current_cmd, t_data **data,
 {
 	if ((*current)->type == TOKEN_HERDOC)
 	{
+		printf("Handling heredoc: %s\n", (*current)->av);
 		if (!handle_heredoc(current, current_cmd, &i))
 			return (0);
 	}

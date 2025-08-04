@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 16:22:08 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/03 20:14:42 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 16:44:46 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,9 @@ int	heredoc_realloc(int *i, t_command *cmd, t_token **current)
 	{
 		j = -1;
 		while (++j < *i)
+		{
 			new_herdoc[j] = cmd->herdoc[j];
+		}
 	}
 	cmd->herdoc = new_herdoc;
 	cmd->herdoc[(*i)] = gc_strdup((*current)->next->av);
