@@ -57,12 +57,17 @@ void	make_like_bash(char *result, char *valeur, size_t *j)
 	}
 }
 
-void	init_var(char *str, size_t *i, size_t *j, size_t *old_size,
-		bool *condition, bool *flag)
+int	init_var(char *str, t_var *var)
 {
-	*old_size = (ft_strlen(str) + 2 + 100);
-	*i = 0;
-	*j = 0;
-	*condition = con(str);
-	*flag = flaging(str);
+	var->flag = false;
+	var->old_size = (ft_strlen(str) + 2 + 100);
+	var->i = 0;
+	var->j = 0;
+	var->condition = con(str);
+	var->flag = flaging(str);
+	if (!(var->result = (char *)gc_calloc((var->old_size), 1)))
+	{
+		return (0);
+	}
+	return (1);
 }

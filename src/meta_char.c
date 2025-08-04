@@ -1,11 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   meta_char.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/03 20:10:38 by helfatih          #+#    #+#             */
+/*   Updated: 2025/08/04 09:42:13 by helfatih         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
-#include <fcntl.h>
 
 int	handle_pipe(t_token **current, t_command **current_cmd,
 		t_command *first_cmd, t_data **data)
 {
 	t_command	*new_cmd;
 
+	(void)first_cmd; // Unused variable, can be removed if not needed
 	if ((*current)->next == NULL)
 	{
 		printf("minishell: syntax error near unexpected token `|'\n");
@@ -15,14 +27,14 @@ int	handle_pipe(t_token **current, t_command **current_cmd,
 	new_cmd = create_command();
 	if (!new_cmd)
 	{
-		free_cmd(first_cmd);
+		// free_cmd(first_cmd);
 		return (0);
 	}
 	(*current_cmd)->next = new_cmd;
 	*current_cmd = new_cmd;
 	*current = (*current)->next;
 	(*data)->exit = 0;
-	reset_redir_error(0); // Reset error flag for new command
+	reset_redir_error(0);
 	return (1);
 }
 

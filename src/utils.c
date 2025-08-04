@@ -40,7 +40,7 @@ void	handle_special_quot(t_token **token, char *line, t_data **data, char **env)
 	(*data)->start = (*data)->end;
 	q = line[(*data)->end];
 	(*data)->end++;
-	while (line[(*data)->end] != q)
+	while (line[(*data)->end] != q && line[(*data)->end] != '\0')
 		(*data)->end++;
 	if (line[(*data)->end] == q)
 		(*data)->end++;

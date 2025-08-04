@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:26:13 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/03 10:03:44 by mbouizak         ###   ########.fr       */
+/*   Updated: 2025/08/04 14:09:23 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 		if (cmd->redir_error)
 		{
 			dup2(saved_stdin, 0);
-		  close(saved_stdin);
+			close(saved_stdin);
 			set_status(1); // Set error status
 			return ;
 		}
@@ -288,13 +288,13 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
                     write(2, ": command not found\n", 20);
 					gc_cleanup();
 					set_status(127);
-					// int i = 0;
-					// while((*env)[i])
-					// {
-					// 	free((*env)[i]);
-					// 	i++;
-					// }
-					// free(*env);
+					int i = 0;
+					while((*env)[i])
+					{
+						free((*env)[i]);
+						i++;
+					}
+					free(*env);
 					exit(127);
 				}
 				if (execve(command, curr->args, *env) != 0)
@@ -450,8 +450,8 @@ void  part_execution(t_command **cmd, char ***env, t_data **data)
 void  clean_up(char **env)
 {
   gc_cleanup();
-  free_2D_array(env);
-	rl_clear_history();
+  free_2d_array(env);
+  rl_clear_history();
 }
 
 void	make_prompt(char ***env)

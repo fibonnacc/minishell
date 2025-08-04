@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exit_command.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 17:01:25 by helfatih          #+#    #+#             */
-/*   Updated: 2025/07/30 17:53:12 by mbouizak         ###   ########.fr       */
+/*   Updated: 2025/08/03 23:01:42 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,18 +70,16 @@ void	my_exit(t_command **cmd, t_data *data, int *error)
 			set_status(get_status());
 			*error = 1;
 			return ;
-			// exit(get_status());
 		}
 		set_status(i);
 		*error = 1;
 		return ;
-		// exit(i);
 	}
 }
 
-void	my_exit_child(t_command **cmd, t_data *data, int	*error)
+void	my_exit_child(t_command **cmd, t_data *data, int *error)
 {
-	int i;
+	int	i;
 
 	(void)data;
 	if (ft_strcmp((*cmd)->args[0], "exit") == 0)
@@ -91,10 +89,10 @@ void	my_exit_child(t_command **cmd, t_data *data, int	*error)
 		{
 			set_status(get_status());
 			*error = 1;
-			return;
+			return ;
 		}
 		set_status(i);
 		*error = 1;
-		return;
+		return ;
 	}
 }
