@@ -121,6 +121,18 @@ typedef struct s_data
 	int					flags;
 }						t_data;
 
+int						is_number(char *str);
+void					my_handler(int sig);
+int						process_line(t_token **token, char **line, char **env,
+							t_data **data);
+int						interupte_herdoc(t_command *cmd, t_data *data,
+							char **env);
+void					her_cmd_by_cmd(t_command *cmd, t_data *data, char **env,
+							bool *heredoc_interrupted);
+int						access_file(t_command *cmd);
+void					handle_core_dumped(int *pids, int pid_count,
+							t_data **data);
+bool					empty_command(t_command *cmd);
 char					*check_file(char *cmd);
 void					compare_newline(char **str, bool *j, int *i);
 bool					is_redirection(t_token_type type);
