@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 17:01:25 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 18:40:21 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 13:01:27 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@ int	validation(t_command *cmd)
 {
 	if (cmd->args[1] && !is_number(cmd->args[1]))
 	{
-		printf("minishell: exit: %s: numeric argument required\n",
-			cmd->args[1]);
+		write(2, "minishell: exit: ", 17);
+		write(2, cmd->args[1], ft_strlen(cmd->args[1]));
+		write(2, ": numeric argument required\n", 28);
 		return (2);
 	}
 	return (0);
@@ -52,13 +53,12 @@ void	my_exit(t_command **cmd, t_data *data, int *error)
 	{
 		if ((*cmd)->args[2])
 		{
-			printf("parent\n");
-			printf("minishell: exit: too many arguments\n");
+			write(2, "minishell: exit: too many arguments\n", 36);
 			set_status(1);
 			*error = 0;
 			return ;
 		}
-		printf("exit\n");
+		write(1, "exit\n", 5);
 		i = make_exit(*cmd);
 		if (i == 1)
 		{
@@ -87,8 +87,7 @@ void	my_exit_child(t_command **cmd, t_data *data, int *error)
 	{
 		if ((*cmd)->args[2])
 		{
-			printf("child\n");
-			printf("minishell: exit: too many arguments\n");
+			write(2, "minishell: exit: too many arguments\n", 36);
 			set_status(1);
 			*error = 0;
 			return ;

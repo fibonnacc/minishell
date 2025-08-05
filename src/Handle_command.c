@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:26:30 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 20:59:23 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 15:37:15 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,6 @@ t_command	*parsing_command(t_token *token, t_data **data)
 		}
 		else if (current->type == TOKEN_HERDOC)
 		{
-			printf("Handling heredoc: %s\n", current->av);
 			if (!handle_heredoc(&current, current_cmd, &i))
 				return (0);
 		}

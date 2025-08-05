@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:48:08 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 21:07:18 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 14:31:00 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 				hd_fd = open(curr->herdoc_file, O_RDONLY);
 				if (hd_fd < 0)
 				{
-					printf("minishell: No such file or directory\n");
+					write(2, "minishell: No such file or directory\n", 36);
 					exit(1);
 				}
 				dup2(hd_fd, 0);
@@ -167,13 +167,16 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 					close(save);
 					close(saved_stdin);
 					gc_cleanup();
-					int i = 0;
-					while((*env)[i])
+					if ((*env)[0])
 					{
-						free((*env)[i]);
-						i++;
+						int i = 0;
+						while((*env)[i])
+						{
+							free((*env)[i]);
+							i++;
+						}
+						free(*env);
 					}
-					free(*env);
 					rl_clear_history();
 					exit(get_status());
 				}
@@ -183,13 +186,16 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 					close(saved_stdin);
 					close(save);
 					gc_cleanup();
-					int i = 0;
-					while((*env)[i])
+					if ((*env)[0])
 					{
-						free((*env)[i]);
-						i++;
+						int i = 0;
+						while((*env)[i])
+						{
+							free((*env)[i]);
+							i++;
+						}
+						free(*env);
 					}
-					free(*env);
 					exit(get_status());
 				}
 				if (execve(command, curr->args, *env) != 0)
@@ -198,11 +204,15 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 					close(save);
 					gc_cleanup();
 					perror("execve");
-					int i = 0;
-					while((*env)[i])
+					if ((*env)[0])
 					{
-						free((*env)[i]);
-						i++;
+						int i = 0;
+						while((*env)[i])
+						{
+							free((*env)[i]);
+							i++;
+						}
+						free(*env);
 					}
 					free(*env);
 					exit(1);

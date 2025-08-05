@@ -6,11 +6,21 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 21:34:54 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/03 21:44:33 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 13:48:13 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+int	small_condition(char *str, t_data *data)
+{
+	if (str[0] == 0)
+	{
+		data->flags = 1;
+		return (0);
+	}
+	return (1);
+}
 
 char	*handle_expansion(t_data *data, char *word, char **env)
 {
@@ -20,12 +30,16 @@ char	*handle_expansion(t_data *data, char *word, char **env)
 	if (!data->should_expand_outside)
 	{
 		str = expand_env(word, env);
+		if (!small_condition(str, data))
+			return (NULL);
 		if (ft_strcmp(str, word) != 0)
 		{
 			count = count_word(str, ' ', '\t');
 			if (data->ambigiouse && (count > 1 || count == 0))
 			{
-				printf("minishell : %s: ambiguous redirect\n", word);
+				write(2, "minishell : ", 12);
+				write(2, word, ft_strlen(word));
+				write(2, ": ambiguous redirect\n", 21);
 				data->flags = 1;
 				return (NULL);
 			}

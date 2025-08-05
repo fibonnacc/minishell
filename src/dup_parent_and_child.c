@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 17:19:17 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 21:43:23 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 12:59:41 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@ void	open_and_duplicate(t_command **cmd, int *flags, int *fd_out)
 	if ((*cmd)->file_output)
 	{
 		*flags = O_WRONLY | O_CREAT | append_or_trunc(cmd);
-		printf("Opening file: %s with flags: %d -> %d\n", (*cmd)->file_output, *flags, O_TRUNC);
 		*fd_out = open((*cmd)->file_output, *flags, 0644);
 		if (*fd_out < 0)
 			return ;

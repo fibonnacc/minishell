@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 20:10:43 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/03 20:10:47 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 14:10:00 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,15 @@ int	check_redir_syntax(t_token **current)
 {
 	if (!(*current)->next)
 	{
-		printf("minishell: syntax error near unexpected token `newline'\n");
+		write(2, "minishell: syntax error near unexpected token `newline'\n", 59);
 		set_status(2);
 		return (0);
 	}
 	if ((*current)->next->type != TOKEN_WORD)
 	{
-		printf("minishell: syntax error near unexpected token `%s'\n",
-			(*current)->next->av);
+		write(2, "minishell: syntax error near unexpected token `", 46);
+		write(2, (*current)->next->av, ft_strlen((*current)->next->av));
+		write(2, "'\n", 2);
 		set_status(2);
 		return (0);
 	}

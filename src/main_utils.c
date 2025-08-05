@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:54:31 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 15:06:11 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/04 21:58:00 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,11 @@ void	handle_core_dumped(int *pids, int pid_count, t_data **data)
 		{
 			sig = WTERMSIG(status);
 			if (sig == SIGINT)
+			{
+				set_status(128 + sig);
 				write(1, "\n", 1);
+				break;
+			}
 			else if (sig == SIGQUIT)
 				write(2, "Quit (core dumped)\n", 19);
 			set_status(128 + sig);

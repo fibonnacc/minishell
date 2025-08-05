@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 11:55:44 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 20:47:23 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 15:33:37 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 bool	is_redirection(t_token_type type)
 {
 	return (type == TOKEN_REDIR_IN || type == TOKEN_REDIR_OUT
-		|| type == TOKEN_REDIR_APPEND /* || type == TOKEN_HERDOC */);
+		|| type == TOKEN_REDIR_APPEND);
 }
 
 int	parse_redirections(t_command **current_cmd, t_token **current,

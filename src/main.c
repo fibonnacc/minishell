@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:26:13 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 14:57:21 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 14:25:34 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,10 @@ void	part_execution(t_command **cmd, char ***env, t_data **data)
 void	clean_up(char **env)
 {
 	gc_cleanup();
-	free_2d_array(env);
+	if (env[0])
+	{
+		free_2d_array(env);
+	}
 	rl_clear_history();
 }
 

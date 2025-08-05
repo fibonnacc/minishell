@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 09:45:55 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 16:37:42 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 12:58:34 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,10 @@ static void	herdoc_expansion(int *fd, char **line, t_data **data, char **env)
 		expanded_line = expand_env(str, env);
 		if (expanded_line && expanded_line != str)
 		{
-			printf("Expanding: %s\n", expanded_line);
 			write(*fd, expanded_line, ft_strlen(expanded_line));
 		}
 		else
 		{
-			printf("Expanding: %s\n", expanded_line);
 			write(*fd, *line, ft_strlen(*line));
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:00:25 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 17:49:57 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 14:40:12 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,22 +63,31 @@ void	execute_builtin_command(t_command *cmd, char ***env)
 	built_in_part2(cmd, env);
 }
 
-void	iterate_on_env(char **env, char **path_env)
+void	iterate_on_env(char **env, char **path_env, char *cmd)
 {
 	int	i;
+	int j;
 
 	if (!env || !*env)
 		return ;
 	*path_env = NULL;
 	i = 0;
+	j = 0;
 	while (env[i])
 	{
 		if (ft_strncmp(env[i], "PATH=", 5) == 0)
 		{
 			*path_env = env[i] + 5;
+			j++;
 			break ;
 		}
 		i++;
+	}
+	if (j == 0)
+	{
+		write(2, "minishell: ", 12);
+		write(2, cmd, ft_strlen(cmd));
+		write(2, ": No such file pr directory\n", 29);
 	}
 }
 
@@ -90,7 +99,7 @@ char	*get_command(char *cmd, char **env)
 	i = 0;
 	if (ft_strchr(cmd, '/'))
 		return (check_file(cmd));
-	iterate_on_env(env, &var.path_env);
+	iterate_on_env(env, &var.path_env, cmd);
 	var.split_env = ft_split(var.path_env, ':');
 	var.first_join = gc_strjoin("/", cmd);
 	i = 0;
