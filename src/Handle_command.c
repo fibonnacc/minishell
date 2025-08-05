@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:26:30 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 15:37:15 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 16:11:47 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,52 +60,18 @@ char	*expand_env(char *str, char **env)
 	}
 	return (var.result);
 }
-
 t_command	*parsing_command(t_token *token, t_data **data)
 {
-	t_token		*current;
-	t_command	*first_cmd;
-	t_command	*current_cmd;
-	int			i;
+	t_parse	var;
 
-	if (reset_value(&current_cmd, &current, data, token) == 0)
+	if (reset_value(&var.current_cmd, &var.current, data, token) == 0)
 		return (NULL);
-	first_cmd = current_cmd;
-	i = 0;
-	while (current)
+	var.first_cmd = var.current_cmd;
+	var.i = 0;
+	while (var.current)
 	{
-		if (current->type == TOKEN_PIPE)
-		{
-			i = 0;
-			(*data)->count_red_in = 0;
-			if (!handle_pipe(&current, &current_cmd, first_cmd, data))
-				return (NULL);
-		}
-		else if ((current)->type == TOKEN_REDIR_IN)
-		{
-			if (!handle_redir_in(&current, current_cmd, data))
-				return (0);
-		}
-		else if ((current)->type == TOKEN_REDIR_OUT)
-		{
-			if (!handle_redir_out(&current, current_cmd))
-				return (0);
-		}
-		else if ((current)->type == TOKEN_REDIR_APPEND)
-		{
-			if (!handle_redir_append(&current, current_cmd))
-				return (0);
-		}
-		else if (current->type == TOKEN_HERDOC)
-		{
-			if (!handle_heredoc(&current, current_cmd, &i))
-				return (0);
-		}
-		else if (current->type == TOKEN_WORD)
-		{
-			append_arg(current_cmd, current->av, data);
-			current = current->next;
-		}
+		if (!process_current_token(&var, data))
+			return (NULL);
 	}
-	return (first_cmd);
+	return (var.first_cmd);
 }

@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 20:10:38 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 14:14:24 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 16:32:31 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int	handle_pipe(t_token **current, t_command **current_cmd,
 {
 	t_command	*new_cmd;
 
-	(void)first_cmd; // Unused variable, can be removed if not needed
+	(void)first_cmd;
 	if ((*current)->prev == NULL)
 	{
 		write(2, "minishell: syntax error near unexpected token `|'\n", 54);
@@ -45,7 +45,8 @@ int	handle_redir_in(t_token **current, t_command *cmd, t_data **data)
 {
 	if (!(*current)->next)
 	{
-		write(2, "minishell: syntax error near unexpected token `newline'\n", 59);
+		write(2, "minishell: syntax error near unexpected token `newline'\n",
+			59);
 		set_status(2);
 		return (0);
 	}

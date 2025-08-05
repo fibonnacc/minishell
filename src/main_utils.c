@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:54:31 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/04 21:58:00 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 16:43:14 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@ int	is_number(char *str)
 void	handle_core_dumped(int *pids, int pid_count, t_data **data)
 {
 	int (i), status, sig;
-	if (pid_count == 0)
-		return ;
 	sig = 0;
 	signal(SIGINT, SIG_IGN);
 	i = -1;
@@ -48,7 +46,7 @@ void	handle_core_dumped(int *pids, int pid_count, t_data **data)
 			{
 				set_status(128 + sig);
 				write(1, "\n", 1);
-				break;
+				break ;
 			}
 			else if (sig == SIGQUIT)
 				write(2, "Quit (core dumped)\n", 19);
@@ -56,9 +54,7 @@ void	handle_core_dumped(int *pids, int pid_count, t_data **data)
 			(*data)->exit = 128 + WTERMSIG(status);
 		}
 		else if (i == pid_count - 1)
-		{
 			set_status(WEXITSTATUS(status));
-		}
 	}
 }
 

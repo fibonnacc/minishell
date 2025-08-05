@@ -12,25 +12,35 @@
 
 #include "../include/minishell.h"
 
-void	compare_newline(char **str, bool *j, int *i)
+void	process_options(char **args, bool *has_n, int *idx)
 {
+	int	i;
 	int	k;
 
-	k = 0;
-	while (str[*i] && ft_strncmp(str[*i], "-n", 2) == 0)
+	i = 1;
+	while (args[i] && args[i][0] == '-')
 	{
+		if (args[i][1] == '\0')
+			break;		
 		k = 1;
-		while (str[*i][k])
-		{
-			if (str[*i][k] != 'n')
-			{
-				*j = false;
-				return ;
-			}
-			k++;
-		}
-		*j = true;
-		(*i)++;
+		while (args[i][k] == 'n')
+			k++;		
+		if (args[i][k] != '\0')
+			break;		
+		*has_n = true;
+		i++;
+	}
+	*idx = i;
+}
+
+void	print_args(char **args, int idx)
+{
+	while (args[idx])
+	{
+		ft_putstr_fd(args[idx], 1);
+		if (args[idx + 1])
+			ft_putstr_fd(" ", 1);
+		idx++;
 	}
 }
 
@@ -63,29 +73,39 @@ char	*check_file(char *cmd)
 	return (NULL);
 }
 
+
+void	check_n_option(char *str, bool *has_n)
+{
+	int	i;
+
+	if (ft_strncmp(str, "-n", 2) != 0)
+		return;
+	
+	i = 1;
+	while (str[i] == 'n')
+		i++;
+	
+	if (str[i] == '\0')
+		*has_n = true;
+}
+
 void	my_echo(t_command *cmd)
 {
 	int		i;
-	bool	j;
+	bool	has_n;
 
-	j = false;
+	has_n = false;
 	i = 1;
 	if (!cmd->args[i])
 	{
-		printf("\n");
-		return ;
+		ft_putstr_fd("\n", 1);
+		return;
 	}
-	compare_newline(cmd->args, &j, &i);
-	while (cmd->args[i])
-	{
-		ft_putstr_fd(cmd->args[i], 1);
-		if (cmd->args[i + 1])
-			ft_putstr_fd(" ", 1);
-		i++;
-	}
-	if (j == false)
-		printf("\n");
-	fflush(stdout);
+	process_options(cmd->args, &has_n, &i);
+	print_args(cmd->args, i);
+	if (!has_n)
+		ft_putstr_fd("\n", 1);
+	
 	set_status(0);
 }
 

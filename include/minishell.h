@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/05 16:22:52 by helfatih          #+#    #+#             */
+/*   Updated: 2025/08/05 17:57:52 by helfatih         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -57,6 +69,7 @@ typedef struct s_token
 {
 	char				*av;
 	bool				info;
+	bool				should_split;
 	t_token_type		type;
 	struct s_token		*next;
 	struct s_token		*prev;
@@ -91,6 +104,13 @@ typedef struct s_command
 	bool redir_error; // Flag to mark redirection errors
 	struct s_command	*next;
 }						t_command;
+typedef struct s_parse
+{
+	t_token				*current;
+	t_command			*first_cmd;
+	t_command			*current_cmd;
+	int					i;
+}						t_parse;
 
 typedef struct s_cmd_var
 {
@@ -138,6 +158,17 @@ typedef struct s_data
 	int					flags;
 }						t_data;
 
+
+void	process_options(char **args, bool *has_n, int *idx);
+void	print_args(char **args, int idx);
+int						handle_redir_append_token(t_parse *var);
+int						handle_pipe_token(t_parse *var, t_data **data);
+int						handle_redir_in_token(t_parse *var, t_data **data);
+int						handle_redir_out_token(t_parse *var);
+int						handle_redir_out_token(t_parse *var);
+int						handle_heredoc_token(t_parse *var);
+int						handle_word(t_parse *var, t_data **data);
+int						process_current_token(t_parse *var, t_data **data);
 int						is_number(char *str);
 void					my_handler(int sig);
 int						process_line(t_token **token, char **line, char **env,
@@ -210,7 +241,7 @@ void					excute_redirection_of_child(t_command **cmd,
 int						append_or_trunc(t_command **cmd);
 int						is_directory(t_command **cmd);
 void					open_red_out(t_command **cmd, int *fd_out);
-void					open_red_in(t_data **data, int *fd_in, t_command **cmd);
+void					open_red_in(int *fd_in, t_command **cmd);
 int						heredoc_realloc(int *i, t_command *cmd,
 							t_token **current);
 int						red_in_realloc(t_command *cmd, t_data **data,

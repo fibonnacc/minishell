@@ -6,27 +6,11 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 15:10:54 by mbouizak          #+#    #+#             */
-/*   Updated: 2025/08/03 21:09:07 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 17:59:10 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-
-// void	init_variables(char *str, int *i, int *j, bool *in_quotes,
-// 		char *quote_char, size_t *len, char **result)
-// {
-// 	*in_quotes = false;
-// 	*j = 0;
-// 	*i = 0;
-// 	*quote_char = 0;
-// 	*len = ft_strlen(str);
-// 	*result = gc_malloc(*len + 1);
-// }
-
 
 void	lexe_with_space(t_token **token, int *start, int *i, char *word)
 {
@@ -81,8 +65,8 @@ size_t	count_word(char const *s, char c, char k)
 	i = 0;
 	while (s[i])
 	{
-		if ((s[i] != c && s[i]) && (s[i + 1] == c || s[i + 1] == k || s[i
-				+ 1] == '\0'))
+		if ((s[i] != c && s[i]) && (s[i + 1] == c || s[i + 1] == k
+				|| s[i + 1] == '\0'))
 			words++;
 		i++;
 	}

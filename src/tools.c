@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tools.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/05 16:36:39 by helfatih          #+#    #+#             */
+/*   Updated: 2025/08/05 16:37:55 by helfatih         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
 char	*manual_realloc(char *old, size_t len)
@@ -42,9 +54,9 @@ void	make_like_bash(char *result, char *valeur, size_t *j)
 	k = 0;
 	while (valeur[k])
 	{
-		if (valeur[k] == ' '|| valeur[k] == '\t')
+		if (valeur[k] == ' ' || valeur[k] == '\t')
 		{
-			while (valeur[k] == ' '|| valeur[k] == '\t')
+			while (valeur[k] == ' ' || valeur[k] == '\t')
 			{
 				k++;
 			}
@@ -65,7 +77,8 @@ int	init_var(char *str, t_var *var)
 	var->j = 0;
 	var->condition = con(str);
 	var->flag = flaging(str);
-	if (!(var->result = (char *)gc_calloc((var->old_size), 1)))
+	var->result = (char *)gc_calloc((var->old_size), 1);
+	if (var->result == NULL)
 	{
 		return (0);
 	}

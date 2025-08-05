@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:56:44 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 14:08:58 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 18:00:09 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ void	her_cmd_by_cmd(t_command *cmd, t_data *data, char **env,
 		{
 			herdoc_count = 0;
 			while (temp_cmd->herdoc[herdoc_count])
-            {
+			{
 				herdoc_count++;
-            }
+			}
 			data->count_herdoc = herdoc_count;
 			excute_herdoc_for_child(&temp_cmd, &data, env);
 			if (g_value == SIGINT)

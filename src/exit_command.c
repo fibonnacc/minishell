@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 17:01:25 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 13:01:27 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/05 18:01:39 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void	my_exit(t_command **cmd, t_data *data, int *error)
 	(void)data;
 	if (ft_strcmp((*cmd)->args[0], "exit") == 0)
 	{
-		if ((*cmd)->args[2])
+		if ((*cmd)->args[2] && is_number((*cmd)->args[1]))
 		{
 			write(2, "minishell: exit: too many arguments\n", 36);
 			set_status(1);

@@ -16,7 +16,8 @@ int	check_redir_syntax(t_token **current)
 {
 	if (!(*current)->next)
 	{
-		write(2, "minishell: syntax error near unexpected token `newline'\n", 59);
+		write(2, "minishell: syntax error near unexpected token `newline'\n",
+			59);
 		set_status(2);
 		return (0);
 	}
