@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 21:34:54 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 17:58:16 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/06 09:13:03 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,18 @@ char	*handle_expansion(t_data *data, char *word, char **env)
 {
 	char	*str;
 	int		count;
+	bool	am;
 
 	if (!data->should_expand_outside)
 	{
+		am = false;
 		str = expand_env(word, env);
-		if (!small_condition(str, data))
-			return (NULL);
+		if (str[0] == 0)
+			am = true;
 		if (ft_strcmp(str, word) != 0)
 		{
 			count = count_word(str, ' ', '\t');
-			if (data->ambigiouse && (count > 1 || count == 0))
+			if (data->ambigiouse && (count != 1 || am))
 			{
 				write(2, "minishell : ", 12);
 				write(2, word, ft_strlen(word));

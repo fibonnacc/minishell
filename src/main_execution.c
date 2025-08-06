@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:48:08 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 17:57:24 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/06 09:50:42 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,10 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 			{
 				// Child process: try to open redirections
 				excute_redirection_of_child(&cmd, data, &fd_out, &fd_in);
+				if(*env[0])
+					free_2d_array(*env);
+				gc_cleanup();
+				close(saved_stdin);
 				exit(0); // Exit after processing redirections
 			}
 			else if (redir_pid > 0)
@@ -214,9 +218,9 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 						}
 						free(*env);
 					}
-					free(*env);
 					exit(1);
 				}
+				gc_cleanup();
 				exit(1);
 			}
 			else
