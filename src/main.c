@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:26:13 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/06 09:26:45 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 14:12:43 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	part_execution(t_command **cmd, char ***env, t_data **data)
 void	clean_up(char **env)
 {
 	gc_cleanup();
-	if (env[0])
+	if (env)
 	{
 		free_2d_array(env);
 	}
@@ -70,7 +70,6 @@ void	make_prompt(char ***env)
 			continue ;
 		if (refer == 2)
 			break ;
-		add_history(line);
 		if (!parsing_process(&token, *env, data, &cmd))
 			continue ;
 		part_execution(&cmd, env, &data);

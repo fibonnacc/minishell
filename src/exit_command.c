@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exit_command.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 17:01:25 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 18:01:39 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 14:38:04 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void	my_exit(t_command **cmd, t_data *data, int *error)
 	(void)data;
 	if (ft_strcmp((*cmd)->args[0], "exit") == 0)
 	{
-		if ((*cmd)->args[2] && is_number((*cmd)->args[1]))
+		if ((*cmd)->args[2] && (*cmd)->args[1] && is_number((*cmd)->args[1]))
 		{
 			write(2, "minishell: exit: too many arguments\n", 36);
 			set_status(1);

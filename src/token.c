@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 20:20:58 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 17:59:17 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 11:24:45 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	add_token(t_token **token, t_token *new_token)
 	new_token->prev = current;
 }
 
-t_token	*creat_token(char *line, t_token_type type, bool should_join)
+t_token	*creat_token(char *line, t_token_type type, bool should_join, bool found)
 {
 	t_token	*new_token;
 
@@ -39,6 +39,7 @@ t_token	*creat_token(char *line, t_token_type type, bool should_join)
 	if (!new_token->av)
 		return (NULL);
 	new_token->type = type;
+	new_token->found = found;
 	new_token->info = should_join;
 	new_token->next = NULL;
 	new_token->prev = NULL;
@@ -53,6 +54,7 @@ void	handle_word_token(t_token **token, char *line, t_data **data,
 	wp.should_join = false;
 	wp.flag = 0;
 	wp.value = TOKEN_WORD;
+	wp.found = false;
 	(*data)->should_expand_outside = false;
 	check_the_last_element(token, data);
 	if ((*data)->end <= (*data)->start)
@@ -67,6 +69,10 @@ void	handle_word_token(t_token **token, char *line, t_data **data,
 	wp.str = handle_expansion(*data, wp.word, env);
 	if (!wp.str)
 		return ;
+	if (wp.str[0] == '\0')
+	{
+		wp.found = true;
+	}
 	process_word(token, &wp);
 }
 
@@ -86,7 +92,7 @@ int	handle_speciale_token(t_token **token, char *line, int i, t_data **data)
 		special[1] = line[i];
 		special[2] = '\0';
 		add_token(token, creat_token(special, get_token_type(special),
-				should_join));
+				should_join, false));
 		return (i + 2);
 	}
 	else
@@ -94,7 +100,7 @@ int	handle_speciale_token(t_token **token, char *line, int i, t_data **data)
 		special[0] = line[i];
 		special[1] = '\0';
 		add_token(token, creat_token(special, get_token_type(special),
-				should_join));
+				should_join, false));
 		return (i + 1);
 	}
 }

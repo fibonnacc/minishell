@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handle_command.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:26:30 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 16:11:47 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 11:33:55 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ char	*expand_env(char *str, char **env)
 {
 	t_var	var;
 
+	// (void)cmd_found; // Avoid unused parameter warning
 	if (!init_var(str, &var))
 		return (NULL);
 	while (str[var.i])
@@ -54,6 +55,8 @@ char	*expand_env(char *str, char **env)
 			var.valeur = get_env(var.string, env);
 			if (var.valeur)
 				make_the_envirement(&var);
+			else if (!var.valeur)
+				var.result[var.j++] = '\0';
 			continue ;
 		}
 		var.result[var.j++] = str[var.i++];

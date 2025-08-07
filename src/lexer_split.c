@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 20:43:25 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/03 21:39:32 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 16:46:42 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,16 @@ void	convert_exit_status(char **word)
 		new_word = gc_strdup(convert);
 		set_status(0);
 		free(convert);
+		convert = NULL;
 		*word = new_word;
 	}
 }
 
-void	mix(bool *should_join, char *line, int i)
+void mix(bool *should_join, char *line, int i)
 {
-	if (!ft_space(line[i]) && !ft_meta_c(line[i]) && line[i] != '\0')
-		*should_join = true;
+    if (!line || i < 0 || i >= (int)strlen(line)) // Add this check
+        return;
+    
+    if (!ft_space(line[i]) && !ft_meta_c(line[i]) && line[i] != '\0')
+        *should_join = true;
 }

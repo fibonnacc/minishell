@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:48:08 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/06 09:50:42 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 17:10:47 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,22 +209,28 @@ void	execute_command(t_command *cmd, char ***env, t_data **data)
 					gc_cleanup();
 					perror("execve");
 					if ((*env)[0])
-					{
-						int i = 0;
-						while((*env)[i])
-						{
-							free((*env)[i]);
-							i++;
-						}
-						free(*env);
-					}
+						free_2d_array(*env);
 					exit(1);
 				}
 				gc_cleanup();
 				exit(1);
 			}
 			else
-			{
+			{	
+				dup2(save, 0);
+				close(save);	
+				close(saved_stdin);
+				if ((*env)[0])
+				{
+					int i = 0;
+					while((*env)[i])
+					{
+						free((*env)[i]);
+						i++;
+					}
+					free(*env);
+				}
+				gc_cleanup();
 				exit(0);
 			}
 		}

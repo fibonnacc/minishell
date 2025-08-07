@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   clean_up.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 22:37:59 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/03 22:40:03 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 14:12:43 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void	gc_cleanup(void)
 	t_gc		**g_gc;
 
 	g_gc = gc_get();
-	if (!*g_gc)
+	if (!g_gc || !*g_gc)
 		return ;
 	current = (*g_gc)->allocations;
 	while (current)
@@ -69,7 +69,7 @@ void	gc_cleanup_partial(void)
 	t_gc		**g_gc;
 
 	g_gc = gc_get();
-	if (!g_gc)
+	if (!g_gc || !*g_gc)
 		return ;
 	current = (*g_gc)->allocations;
 	while (current)

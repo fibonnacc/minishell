@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:56:44 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/06 09:19:23 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 17:03:05 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int	process_line(t_token **token, char **line, char **env, t_data **data)
 		return (2);
 	}
 	gc_register_external(*line);
-	if (*line[0] == '\0')
+	if ((*line)[0] == '\0')
 		return (0);
 	add_history(*line);
 	*token = tokenize(*line, data, env);

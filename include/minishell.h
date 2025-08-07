@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 16:22:52 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 17:57:52 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 14:52:04 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ typedef struct s_token
 {
 	char				*av;
 	bool				info;
-	bool				should_split;
+	bool				found;
 	t_token_type		type;
 	struct s_token		*next;
 	struct s_token		*prev;
@@ -142,6 +142,7 @@ typedef struct s_word_processing
 	char				*str;
 	char				*word;
 	int					flag;
+	bool				found;
 	t_token_type		value;
 }						t_word_processing;
 
@@ -155,6 +156,7 @@ typedef struct s_data
 	int					count_herdoc;
 	int					count_red_in;
 	bool				ambigiouse;
+	bool				cmd_found;
 	int					flags;
 }						t_data;
 
@@ -203,7 +205,7 @@ void					read_and_convert(char *buffer, int *fd,
 void					my_server(int ig);
 void					process_word(t_token **token, t_word_processing *wp);
 void					create_add_token(t_token **token, char *word,
-							t_token_type value, bool should_join);
+							t_token_type value, t_word_processing *wp);
 char					*process_quotes(char *str, int *flag);
 char					*handle_expansion(t_data *data, char *word, char **env);
 void					lexe_with_space(t_token **token, int *start, int *i,
@@ -294,7 +296,7 @@ void					print_token(t_token *token);
 char					*prompt(char **env);
 void					make_prompt(char ***env);
 t_token					*creat_token(char *line, t_token_type type,
-							bool should_join);
+							bool should_join, bool found);
 void					handle_quote(bool *in_quot, char *quot_char, int *i,
 							char *line);
 void					add_token(t_token **token, t_token *new_token);
@@ -317,9 +319,9 @@ char					*remove_quotes(char *str);
 char					*get_env(char *name, char **env);
 char					**copy_env(char **env);
 char					*get_env(char *name, char **env);
-void					cd(char *cmd, char **env);
-void					update_oldpwd(char **env);
-void					update_pwd(char **env);
+void					cd(char *cmd, char ***env);
+void					update_oldpwd(char ***env);
+void					update_pwd(char ***env);
 int						add_env_variable(char *new_var, char ***env);
 int						my_export(char *arg, char ***env);
 int						my_unset(char *name, char ***env);

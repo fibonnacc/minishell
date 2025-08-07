@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handle_token.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/28 15:10:54 by mbouizak          #+#    #+#             */
-/*   Updated: 2025/08/05 17:59:10 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 11:24:10 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	lexe_with_space(t_token **token, int *start, int *i, char *word)
 	if (*i > *start)
 	{
 		str = gc_substr(word, *start, *i - *start);
-		add_token(token, creat_token(str, TOKEN_WORD, false));
+		add_token(token, creat_token(str, TOKEN_WORD, false, false));
 	}
 	while (word[*i] == ' ' || word[*i] == '\t')
 		(*i)++;

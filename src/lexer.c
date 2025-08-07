@@ -6,7 +6,7 @@
 /*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 20:15:47 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/03 20:15:50 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 16:51:29 by helfatih         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,13 +65,15 @@ void	handle_other_cases(t_token **token, char *line, t_data **data,
 t_token	*tokenize(char *line, t_data **data, char **env)
 {
 	t_token	*token;
+	int		line_len;
 
 	token = NULL;
 	(*data)->start = 0;
 	(*data)->end = 0;
 	if (!check_somthing(line))
 		return (NULL);
-	while (line[(*data)->end])
+	line_len = strlen(line);
+	while ((*data)->end < line_len)
 	{
 		if (line[(*data)->end] == '$')
 		{

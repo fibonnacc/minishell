@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: helfatih <helfatih@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mbouizak <mbouizak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 14:54:31 by helfatih          #+#    #+#             */
-/*   Updated: 2025/08/05 16:43:14 by helfatih         ###   ########.fr       */
+/*   Updated: 2025/08/07 14:12:43 by mbouizak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ int	is_number(char *str)
 {
 	int	i;
 
+	if (!str)
+		return (0);
 	i = 0;
 	if (str[i] == '\0')
 		return (0);
